@@ -3,7 +3,8 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, Date, Forei
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres.gafztbgjhugbgcpnyyto:cPPilot2026@aws-0-ap-south-1.pooler.supabase.com:5432/postgres")
+# Directly use your working Supabase session pooler connection string here
+DATABASE_URL = "postgresql+psycopg://postgres.gafztbgjhugbgcpnyyto:cPPilot2026@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
