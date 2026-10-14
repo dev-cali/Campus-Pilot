@@ -6,7 +6,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/departments")
+    fetch("https://campus-pilot.onrender.com/departments")
       .then((res) => res.json())
       .then((data) => {
         console.log("API Data:", data);
