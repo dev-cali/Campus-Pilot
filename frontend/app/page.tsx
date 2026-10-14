@@ -6,7 +6,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://campus-pilot.onrender.com/departments")
+    fetch("https://campus-pilot-ziix.onrender.com/departments")
       .then((res) => res.json())
       .then((data) => {
         console.log("API Data:", data);
