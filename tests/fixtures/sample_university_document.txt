@@ -1,0 +1,13 @@
+FICTIONAL TEST DATA — NOT AN OFFICIAL UNIVERSITY POLICY
+
+Cloudberry Example University: Sample Enrollment Guide
+This invented university and its procedures exist only for software tests.
+
+Enrollment practice
+In this fictional example, students review their sample course list before visiting the imaginary student services desk. No real deadlines or requirements are stated here.
+
+Scholarship practice
+The fictional Lantern Scholarship asks applicants to prepare an example study plan. This is not a real scholarship announcement or an offer of financial assistance.
+
+Student support practice
+Sample greeting: Kumusta, mga mag-aaral! Café discussions and 学生 support activities are fictional examples used to check Unicode text handling.
