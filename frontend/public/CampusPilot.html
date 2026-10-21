@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CampusPilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+:root{
+  --card:rgba(240,240,240,.88); --panel:#d4d4d4; --active:#6e6e6e; --active-text:#fff;
+  --text:#111; --muted:#222; --input:#6b6b6b; --input-text:#fff;
+  --bg1:#c9d1c6; --bg2:#8d9890; --bg3:#555e58; --bubble:#fff;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --card:rgba(34,34,34,.88); --panel:#2e2e2e; --active:#5a5a5a; --text:#f2f2f2; --muted:#ddd;
+    --input:#4a4a4a; --bg1:#2c332e; --bg2:#1b201d; --bg3:#0e110f; --bubble:#3a3a3a;
+  }
+}
+:root[data-theme="dark"]{
+  --card:rgba(34,34,34,.88); --panel:#2e2e2e; --active:#5a5a5a; --text:#f2f2f2; --muted:#ddd;
+  --input:#4a4a4a; --bg1:#2c332e; --bg2:#1b201d; --bg3:#0e110f; --bubble:#3a3a3a;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{
+  margin:0;height:100%;color:var(--text);font-family:"Instrument Serif","Times New Roman",serif;
+  background:
+    radial-gradient(ellipse at 20% 15%,var(--bg1),transparent 55%),
+    radial-gradient(ellipse at 85% 10%,var(--bg2),transparent 50%),
+    linear-gradient(180deg,var(--bg2),var(--bg3));
+  background-attachment:fixed;
+}
+.page{min-height:100%;padding:20px clamp(12px,3vw,24px) 28px;display:flex;flex-direction:column;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-size:28px;color:var(--text)}
+.logo{width:32px;height:32px;border-radius:50%;background:#000;display:grid;place-items:center}
+.card{
+  flex:1;max-width:1100px;width:100%;margin:0 auto;background:var(--card);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-radius:22px;padding:clamp(12px,2vw,24px);display:flex;gap:clamp(12px,2vw,28px);min-height:480px
+}
+.side{background:var(--panel);border-radius:18px;padding:16px 14px;width:230px;flex-shrink:0;align-self:flex-start}
+.side h2{margin:0 0 14px;font-size:22px;font-weight:400}
+.cat{
+  display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--text);
+  font:inherit;font-size:22px;text-align:left;padding:6px 8px;border-radius:8px;cursor:pointer;margin-bottom:2px
+}
+.cat:hover{background:rgba(128,128,128,.25)}
+.cat[aria-pressed="true"]{background:var(--active);color:var(--active-text)}
+.cat svg{width:24px;height:24px;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 8px}
+.stage h1{margin:0;font-weight:400;font-size:clamp(34px,5vw,46px);line-height:1.1}
+.stage p{margin:22px 0 0;max-width:340px;font-size:21px;line-height:1.3;color:var(--muted)}
+.chat{flex:1;overflow-y:auto;display:none;flex-direction:column;gap:10px;padding:8px 4px 12px;max-height:60vh}
+.chat.on{display:flex}
+.cathead{display:none;text-align:center;padding:10px 4px}
+.cathead h2{margin:0;font-weight:400;font-size:clamp(30px,4vw,40px)}
+.cathead p{margin:8px 0 0;font-size:20px;color:var(--muted)}
+.msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:20px;line-height:1.25;background:var(--bubble)}
+.msg.me{align-self:flex-end;background:var(--input);color:#fff}
+.msg small{display:block;margin-top:6px;opacity:.65;font-size:16px}
+.ask{
+  display:flex;align-items:center;gap:8px;background:var(--input);border-radius:14px;padding:6px 8px 6px 18px;margin-top:auto
+}
+.ask input{
+  flex:1;min-width:0;background:none;border:0;outline:0;color:var(--input-text);font:inherit;font-size:19px;padding:8px 0
+}
+.ask input::placeholder{color:#e4e4e4;opacity:.85}
+.ask button{background:none;border:0;color:#fff;cursor:pointer;padding:6px;display:grid;place-items:center;border-radius:8px}
+.ask button:hover{background:rgba(255,255,255,.15)}
+.ask svg{width:26px;height:26px}
+@media (max-width:720px){
+  .card{flex-direction:column}
+  .side{width:100%;padding:12px}
+  .side .list{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+  .cat{width:auto;white-space:nowrap;font-size:19px}
+  .stage p{font-size:19px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="brand">
+    <span class="logo" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M19 4 5 11l6 2 2 6z"/></svg>
+    </span>
+    CampusPilot
+  </div>
+
+  <main class="card">
+    <aside class="side" aria-label="Categories">
+      <h2>Categories</h2>
+      <div class="list" id="cats"></div>
+    </aside>
+
+    <section class="main">
+      <!-- Shown when the page first opens -->
+      <div class="stage" id="stage">
+        <h1>Hello!<br>Welcome to CampusPilot</h1>
+        <p>Ask about scholarships, enrollment, policies, or events, and get answers sourced from official university documents.</p>
+      </div>
+      <!-- Shown only after a category is clicked -->
+      <div class="cathead" id="head"><h2></h2><p></p></div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <form class="ask" id="form">
+        <input id="q" type="text" placeholder="Ask anything about the university......." autocomplete="off" aria-label="Ask a question">
+        <button type="submit" aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 4l18 8-18 8 3-8z"/><path d="M6 12h15"/></svg>
+        </button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<script>
+// Point this at your FastAPI backend (e.g. POST /ask). Leave empty for demo replies.
+const API_URL = "";
+
+const I = {
+  News:'<path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  Scholarships:'<circle cx="12" cy="12" r="9"/><path d="M14.5 9c-.5-1-1.5-1.5-2.5-1.5-1.5 0-2.5.8-2.5 2 0 3 5 1.5 5 4.5 0 1.2-1 2-2.5 2-1.1 0-2.1-.5-2.6-1.5M12 6v1.5M12 16.5V18"/>',
+  Policies:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+  Events:'<rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 11h16"/>',
+  Documents:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/>',
+  Academics:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c3 2.5 9 2.5 12 0v-4.5M22 9v6"/>'
+};
+
+// Tagline shown under the category title once that category is clicked
+const TAGLINES = {
+  News:"Stay in the loop with the latest campus updates.",
+  Scholarships:"Find grants, requirements and deadlines.",
+  Policies:"Know the rules that guide campus life.",
+  Events:"Never miss what's happening on campus.",
+  Documents:"Forms and official papers, all in one place.",
+  Academics:"Courses, enrollment and everything about your studies."
+};
+
+let active = null;      // no category selected when the page opens
+let view = "home";      // "home" = welcome screen, otherwise a category name
+const history = {};     // separate chat history for home and each category
+
+const cats = document.getElementById("cats");
+const chat = document.getElementById("chat");
+const stage = document.getElementById("stage");
+const head = document.getElementById("head");
+
+function drawCats(){
+  cats.innerHTML = "";
+  Object.keys(I).forEach(name=>{
+    const b = document.createElement("button");
+    b.className = "cat"; b.type = "button";
+    b.setAttribute("aria-pressed", name === active);
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${I[name]}</svg>${name}`;
+    b.onclick = ()=>{ active = name; view = name; drawCats(); render(); document.getElementById("q").focus(); };
+    cats.appendChild(b);
+  });
+}
+drawCats();
+
+function render(){
+  const home = view === "home", list = history[view] || [];
+  stage.style.display = (home && !list.length) ? "" : "none";
+  head.style.display = home ? "none" : "block";
+  if (!home){
+    head.querySelector("h2").textContent = view;
+    head.querySelector("p").textContent = TAGLINES[view];
+  }
+  chat.innerHTML = "";
+  chat.classList.toggle("on", list.length > 0);
+  list.forEach(m => draw(m.text, m.me, m.src));
+}
+
+function add(text, me, src, key = view){
+  (history[key] = history[key] || []).push({text, me, src});
+  if (key !== view) return; // user switched category before the reply arrived
+  stage.style.display = "none";
+  chat.classList.add("on");
+  draw(text, me, src);
+}
+
+function draw(text, me, src){
+  const d = document.createElement("div");
+  d.className = "msg" + (me ? " me" : "");
+  d.textContent = text;
+  if (src){ const s = document.createElement("small"); s.textContent = src; d.appendChild(s); }
+  chat.appendChild(d); chat.scrollTop = chat.scrollHeight;
+}
+
+document.getElementById("form").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const input = document.getElementById("q"), text = input.value.trim();
+  if(!text) return;
+  const key = view;
+  const category = key === "home" ? null : key;
+  add(text, true, "", key); input.value = "";
+  let reply = "This is a demo reply. Connect API_URL to your backend to get answers from official university documents.";
+  let src = category ? "Category: " + category : "";
+  if (API_URL){
+    try{
+      const r = await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:text,category})});
+      const j = await r.json(); reply = j.answer || reply; src = j.source || src;
+    }catch(err){ reply = "Sorry, I couldn't reach the server."; src = ""; }
+  }
+  add(reply, false, src, key);
+});
+</script>
+</body>
+</html>
