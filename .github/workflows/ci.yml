@@ -21,6 +21,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install fastapi uvicorn sqlalchemy psycopg psycopg2-binary openai python-dotenv alembic
 
+      - name: Test offline AI workflow
+        working-directory: .
+        run: |
+          python -m pip install -r requirements-demo.txt
+          python -B -m unittest discover -s tests -v
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
