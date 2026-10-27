@@ -1,0 +1,115 @@
+[
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 101,
+    "title": "Fictional Current Scholarship Guidelines",
+    "version": "v2",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2026-09-01",
+    "source_reference": "fictional://demo-campus/101/v2",
+    "version_state": "current",
+    "supersedes": 102,
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Demo Campus University uses an imaginary scholarship practice form. This is not a real award or application."
+      },
+      {
+        "page_no": 2,
+        "text": "FICTIONAL TEST DATA. In this exercise, the imaginary support desk explains the practice form. No real deadline or entitlement is stated."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 102,
+    "title": "Fictional Older Scholarship Guidelines",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2025-09-01",
+    "source_reference": "fictional://demo-campus/102/v1",
+    "version_state": "superseded",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. This retired Demo Campus University example describes an old practice form. Do not use it for current guidance."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 103,
+    "title": "Fictional Enrollment Procedures",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2026-08-01",
+    "source_reference": "fictional://demo-campus/103/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Demo Campus University asks imaginary learners to review a sample course list in this exercise. No real enrollment requirements apply."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 104,
+    "title": "Fictional Draft Student Handbook",
+    "version": "draft-v1",
+    "status": "draft",
+    "access_level": "public",
+    "effective_date": "2026-08-01",
+    "source_reference": "fictional://demo-campus/104/draft-v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Demo Campus University draft ideas are not approved guidance."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 105,
+    "title": "Fictional Staff-Only Memo",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "staff",
+    "effective_date": "2026-08-01",
+    "source_reference": "fictional://demo-campus/105/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Demo Campus University staff practice organizing imaginary blue folders. No student records are included."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 106,
+    "title": "Fictional Revoked Announcement",
+    "version": "v1",
+    "status": "revoked",
+    "access_level": "public",
+    "effective_date": "2026-08-01",
+    "source_reference": "fictional://demo-campus/106/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Demo Campus University's imaginary lantern display announcement was withdrawn."
+      }
+    ]
+  }
+]

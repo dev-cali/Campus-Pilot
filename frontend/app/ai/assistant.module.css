@@ -1,0 +1,31 @@
+.page { min-height: 100vh; background: #111714; color: #f3f4ef; padding: 32px 20px 64px; }
+.container { max-width: 820px; margin: 0 auto; }
+.back { color: #c0d6c8; text-decoration: underline; text-underline-offset: 4px; }
+.header { margin: 48px 0 28px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; color: #b4c6ba; }
+.header h1 { font-size: clamp(30px, 6vw, 46px); line-height: 1.15; margin: 12px 0; font-weight: 700; }
+.header > p:last-child { color: #c1c9c3; font-size: 18px; }
+.notice { border-left: 3px solid #b9d7a8; background: #1e2b23; padding: 18px; line-height: 1.65; margin-bottom: 24px; border-radius: 4px; }
+.card { background: #1a211d; border: 1px solid #3e4b42; border-radius: 16px; padding: 24px; margin: 24px 0; }
+.card label, .card h2 { display: block; font-size: 19px; font-weight: 600; margin-bottom: 14px; }
+.card textarea { width: 100%; resize: vertical; min-height: 120px; border: 1px solid #66786b; border-radius: 8px; padding: 14px; background: #101612; color: #fff; font: inherit; line-height: 1.5; }
+.card textarea::placeholder { color: #a5b1a8; }
+.card textarea:focus-visible, .card button:focus-visible, .back:focus-visible { outline: 3px solid #d4e9a6; outline-offset: 3px; }
+.actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 16px; }
+.actions p, .hint { font-size: 13px; color: #b9c6bd; line-height: 1.6; }
+.actions button { background: #d6e9b6; color: #152118; border-radius: 8px; padding: 12px 20px; font: inherit; font-weight: 700; cursor: pointer; border: 0; }
+.actions button:disabled, .card textarea:disabled { opacity: .65; cursor: wait; }
+.hint { margin-top: 16px; }
+.error { border: 1px solid #d89a84; color: #ffe2d6; background: #39271f; border-radius: 8px; padding: 16px; }
+.answer { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
+.sources { border-top: 1px solid #3e4b42; margin-top: 24px; padding-top: 20px; }
+.sources h3 { font-weight: 600; margin-bottom: 16px; }
+.sources ol { padding-left: 22px; }
+.sources li { margin-bottom: 18px; overflow-wrap: anywhere; line-height: 1.6; }
+.sources li p { color: #c1cec5; font-size: 14px; }
+.reference { font-family: monospace; }
+@media (max-width: 520px) {
+  .page { padding: 24px 14px 40px; }
+  .card { padding: 18px; }
+  .actions { align-items: stretch; flex-direction: column; gap: 10px; }
+}
