@@ -7,6 +7,9 @@ venv/
 .venv/
 *.pyc
 
+# Isolated fictional Sprint 3 SQLite demo (including SQLite sidecar files)
+.campuspilot-demo/
+
 # Node / Next.js
 node_modules/
 .next/
