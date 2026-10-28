@@ -59,6 +59,10 @@ class DocumentChunkBase(BaseModel):
     page_no: int
     chunk_text: str
     embedding: Optional[str] = None
+    source_reference: Optional[str] = None
+    start_char: Optional[int] = None
+    end_char: Optional[int] = None
+    chunk_index: Optional[int] = None
 
 
 class DocumentChunkCreate(DocumentChunkBase):

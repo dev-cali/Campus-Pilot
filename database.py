@@ -1,10 +1,20 @@
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, String, Text, Date, ForeignKey, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-# Directly paste your Supabase session pooler URL with your actual password here:
-DATABASE_URL = "postgresql://postgres:cPPilot2026@db.gafztbgjhugbgcpnyyto.supabase.co:5432/postgres"
+# Credentials come from .env / the process environment. Never hardcode them here.
+load_dotenv(Path(__file__).resolve().with_name(".env"))
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL is not set. Copy .env.example to .env and set DATABASE_URL "
+        "to your Postgres/Supabase connection string."
+    )
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -46,7 +56,11 @@ class DocumentChunk(Base):
     page_no = Column(Integer, nullable=False)
     chunk_text = Column(Text, nullable=False)
     # Embedding stored as text or vector format depending on setup
-    embedding = Column(Text, nullable=True) 
+    embedding = Column(Text, nullable=True)
+    source_reference = Column(String, nullable=True)
+    start_char = Column(Integer, nullable=True)
+    end_char = Column(Integer, nullable=True)
+    chunk_index = Column(Integer, nullable=True)
     
     document = relationship("Document", back_populates="chunks")
 

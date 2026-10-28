@@ -50,6 +50,10 @@ def ingest_page(request: IngestPageRequest, db: Session = Depends(get_db)):
             document_id=chunk.document_id,
             page_no=chunk.page_no,
             chunk_text=chunk.chunk_text,
+            source_reference=chunk.source_reference,
+            start_char=chunk.start_char,
+            end_char=chunk.end_char,
+            chunk_index=chunk.chunk_index,
         )
         db.add(db_chunk)
         db.commit()

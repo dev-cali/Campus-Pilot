@@ -1,13 +1,25 @@
+import os
 from logging.config import fileConfig
+from pathlib import Path
 
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
+# Load .env from the repository root; the process environment wins.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# The database URL belongs in the environment, never in alembic.ini.
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    # Escape percent signs so ConfigParser does not treat them as interpolation.
+    config.set_main_option("sqlalchemy.url", DATABASE_URL.replace("%", "%%"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -58,6 +70,11 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    if not DATABASE_URL:
+        raise RuntimeError(
+            "DATABASE_URL is not set. Copy .env.example to .env and set DATABASE_URL "
+            "to your Postgres/Supabase connection string."
+        )
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
