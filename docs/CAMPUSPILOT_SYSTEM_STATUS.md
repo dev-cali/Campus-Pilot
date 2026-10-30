@@ -169,7 +169,7 @@ Campus-Pilot/
 │   ├── tests/ai-proxy.test.mjs     # U: seven Node test-runner results
 │   └── public/
 │       ├── CampusPilot.html / CampusPilot.css # Static chat/design prototype
-│       ├── campus-pilot.html / campus-pilot.css # Separate case-sensitive assets
+│       ├── campus-pilot.css         # Preserved legacy stylesheet
 │       └── file.svg, globe.svg, next.svg, vercel.svg, window.svg
 └── docs/
     ├── document_processing.md
