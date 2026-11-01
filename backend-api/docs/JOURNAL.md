@@ -1,15 +1,16 @@
 ﻿# Backend API Journal
 
 Owner: Brian (Backend / API Engineer)
-Last updated: 2026-10-28
+Last updated: 2026-11-02
 
 ## Current Status
 
-- Branch: `feature/backend-api` (pushed to `origin`, HEAD `e09fead`)
-- State: CRUD scaffolding, ingestion endpoint, tests, and `DocumentChunk` schema alignment are done.
-- Tests: 79 passing, re-run on 2026-10-28 in `.venv` (Python 3.11) after the dependency and credential changes.
-- Environment: a root `.env` is now required and gitignored; `DATABASE_URL` is no longer hardcoded.
-- Uncommitted work on purpose: `database.py`, `routers/ingest.py`, `schemas/document_schemas.py`, `tests/test_backend_crud.py`, `alembic/versions/a1b2c3d4e5f6_add_provenance_fields_to_document_chunks.py`, `alembic.ini`, `alembic/env.py`, `backend-api/requirements.txt`, `conftest.py`.
+- Branch: `feature/backend-api`. Local HEAD `63acc0b`; remote tip `8d56935` (2026-10-28). The branch is 7 commits ahead of `main` and 10 commits ahead of its remote, so the work below is local only.
+- `main`: local and remote both at `837d6a5`; already fully contained in the branch.
+- State: CRUD scaffolding, ingestion endpoint, tests, `DocumentChunk` schema alignment, and CI-safety fixes are done.
+- Tests: 79 passing in `.venv` (Python 3.11), re-run 2026-11-02, including a run in a copy with no `.env`.
+- Environment: a root `.env` is still required at runtime and is gitignored; `DATABASE_URL` is no longer hardcoded, and importing the app no longer requires the variable.
+- Uncommitted: nothing in the backend. The only modified file is `frontend/AGENTS.md`, which `next dev` regenerates and which is not ours.
 - Architecture direction: Supabase SDK for new work, Pinecone deferred until deployment. SQLAlchemy stays in place for the existing code.
 
 ## How This Journal Is Kept
@@ -181,6 +182,55 @@ Rules:
 
 **Left to do:** Rotate the password in Supabase and update `.env`. Git history still contains the secret in `54d3e50` and `e09fead`, so the old password must be treated as compromised even though the files are clean now.
 
+### Task: Reconcile with main and make the branch CI-safe - 2026-11-02
+**Goal:** Confirm the branch sits on the newest `main`, find what would fail once it merges, and fix the parts that belong to the backend.
+
+**Files changed:** `database.py`, `requirements-demo.txt`, `backend-api/docs/JOURNAL.md`.
+
+**Steps:**
+1. Fetched `origin` and fast-forwarded local `main` from `d34a9ed` to `837d6a5` (15 commits) using `git fetch origin main:main`, which updates the ref without touching the working tree.
+2. `git merge main` returned "Already up to date": `origin/main` contributes 0 commits the branch lacks, and the branch is 7 commits ahead.
+3. Read `.github/workflows/ci.yml`: it triggers on `push`/`pull_request` to `main` only, so no hosted run has ever covered this branch.
+4. Found two independent reasons CI would fail on merge: `database.py` imports `python-dotenv`, which `requirements-demo.txt` never installed; and CI's `unittest` step has no `.env`, so `database.py` raised `RuntimeError` at import. `conftest.py` does not help there because `unittest discover` never loads it.
+5. Reproduced the second failure in a temp copy with no `.env`: `RuntimeError: DATABASE_URL is not set`.
+6. Made engine and session creation lazy in `database.py` (`get_engine()`, `SessionLocal()` wrapper) so importing the app never requires credentials. Verified nothing imports `engine` from `database.py` and every caller uses `SessionLocal()` with no arguments.
+7. Added `python-dotenv==1.2.4` to `requirements-demo.txt`, next to the other pinned demo dependencies.
+
+**Problems hit:** The local suite was green and misleading; the untracked `.env` masked the CI condition. The fix had to be proven in a copy with `.env` deleted, not by trusting the local run.
+
+**Checks run:**
+- `.venv\Scripts\python.exe -B -m unittest discover -s tests` -> 79 tests, OK (local, `.env` present)
+- `.venv\Scripts\python.exe -m pytest -q` -> 79 passed, 16 warnings, 131 subtests
+- Same two commands in a copy with no `.env` -> 79 OK and 79 passed, exit 0 for both
+- `npm run lint` in `frontend` -> 1 error at `app/page.tsx:5:50` (`no-explicit-any`), left untouched because that file is Josiah's
+
+**Left to do:** CI's `unittest` step still has no `DATABASE_URL`; giving it the same dummy URL as `conftest.py`, or making it load a conftest, is a `ci.yml` change and belongs to Cassie. The `python-dotenv` pin has not been exercised by a fresh `pip install` in a clean venv, so that part is reasoned from `requirements-demo.txt`, not observed. Nothing was committed or pushed.
+
+### Task: Clean-room CI parity and CI env fix - 2026-11-02
+**Goal:** Close both limits left open by the previous task — prove the dependency pin with a real install, and give CI the `DATABASE_URL` its `unittest` step needs. Brian approved both explicitly.
+
+**Files changed:** `.github/workflows/ci.yml`, `backend-api/docs/JOURNAL.md`.
+
+**Steps:**
+1. Added `DATABASE_URL: postgresql+psycopg://test:test@localhost:5432/test` to the `Run Python unit tests` step, matching the dummy already in `conftest.py`. The engine is lazy, so the driver is never loaded.
+2. Built a copy of the repo with no `.env` and a throwaway venv from Python 3.11 (same interpreter as `.venv`), installed only the six original `requirements-demo.txt` packages, and ran the `unittest` step: 72 tests ran and 1 error failed the run, with `ModuleNotFoundError: No module named 'dotenv'` for `database.py`. That is the negative case proved, not assumed.
+3. Created a second throwaway venv, installed `requirements-demo.txt` as CI does, and confirmed `python-dotenv` resolves to `1.2.4`.
+4. Ran both CI steps in that clean venv with `DATABASE_URL` set and no `.env`: `unittest` 79 OK, `pytest` 79 passed / 131 subtests, exit 0 for both.
+5. Parsed `.github/workflows/ci.yml` with `js-yaml` to confirm the edited file still loads and shows the new env on step 4.
+6. Ran the frontend half of the same job: `node --test tests/ai-proxy.test.mjs` -> 7 passed, exit 0; `npm run build` -> succeeded after a first-run stop (see below).
+
+**Problems hit:** The first `npm run build` aborted with `SecurityFatalError` telling the reader to upgrade Next.js. Traced in `node_modules/next/dist/lib/upgrade/nudge.js`: the nudge only stops a build when an agent is detected (`getAgentName`) or a terminal can prompt (`canPromptForUpgrade`, which returns false under `isCI`, line 377). This session sets `AI_AGENT=opencode` and `AGENT=1`, so the guard fires here but not on a GitHub runner, where `agent` is null and the code returns at lines 486-488. Retrying the build produced a normal exit 0 with all four routes. Separately, `npm run lint` still reports the single pre-existing `app/page.tsx:5:50` error, which is Josiah's file and was not touched.
+
+**Checks run:**
+- Old requirements in a clean venv, no `.env` -> 1 error, exit 1 (`ModuleNotFoundError: dotenv`)
+- `pip install -r requirements-demo.txt` in a clean venv -> `python-dotenv` 1.2.4
+- Clean venv + `DATABASE_URL`, no `.env` -> `unittest` 79 OK, `pytest` 79 passed / 131 subtests, exit 0 both
+- `js-yaml` parse of `ci.yml` -> 8 steps, env present on "Run Python unit tests"
+- `node --test tests/ai-proxy.test.mjs` -> 7 passed, exit 0
+- `npm run build` -> exit 0 on retry, 4 routes; first run blocked by the agent-only security nudge
+
+**Left to do:** Cassie should review the `ci.yml` edit before merge, since CI is her ownership. Next 16.4.0 is pinned while its own advisory data flags it; upgrading is a dependency change for Josiah/Cassie, not a backend call. Nothing committed or pushed.
+
 ## What's Done
 
 - [x] Analyzed project structure, models, and existing endpoints
@@ -198,14 +248,19 @@ Rules:
 - [x] Local Python 3.11 `.venv` and a reproducible 79-test run
 - [x] Pinned dependencies in `backend-api/requirements.txt`
 - [x] Hardcoded database credentials removed; `DATABASE_URL` comes from `.env`
+- [x] Branch reconciled with `main` (`837d6a5`); nothing to merge down
+- [x] Import no longer requires credentials, and `python-dotenv` is pinned for CI
+- [x] Dependency pin proved by a clean-venv install and both CI steps passing without a `.env`
+- [x] CI `unittest` step given `DATABASE_URL` (needs Cassie's review)
 
 ## Next Priorities
 
-1. [ ] Commit the pending work on `feature/backend-api` (schema, tests, migration, credential hardening, requirements)
-2. [ ] Rotate the Supabase password in the dashboard and update `.env`
-3. [ ] Baseline/stamp the Supabase database, then apply the migration
-4. [ ] Build the first endpoint on the Supabase SDK, leaving existing CRUD untouched
-5. [ ] Update CI to install `backend-api/requirements.txt` (it currently points at the missing `backend/requirements.txt`)
+1. [x] Commit the pending work on `feature/backend-api` (schema, tests, migration, credential hardening, requirements)
+2. [ ] Rotate the Supabase password in the dashboard and update the local `.env` plus the deployed backend's env
+3. [ ] Push `feature/backend-api` (local is 10 commits ahead of its remote) and open the PR
+4. [ ] Baseline/stamp the Supabase database, then apply the migration
+5. [ ] Build the first endpoint on the Supabase SDK, leaving existing CRUD untouched
+6. [x] Ask Cassie to add `DATABASE_URL` to CI's `unittest` step and to trigger checks on branches, so this class of breakage is caught before merge
 
 ## Backlog
 
@@ -231,6 +286,7 @@ Rules:
 - Use the Supabase SDK for new features; do not rewrite working code without approval.
 - `alembic/` was created by `dev-cali` on 2026-10-14 (`54d3e50`); only the migration file inside `alembic/versions/` is ours.
 - Ingestion pulls `title` and `version` from the parent `Document` row because chunks do not store them.
-- `DATABASE_URL` is required in a root `.env`; both `database.py` and `alembic/env.py` load it.
+- `DATABASE_URL` is required at runtime; both `database.py` and `alembic/env.py` load it. Importing the app does not require it (lazy engine), so tests and tooling run without a `.env`.
+- Repository is public, so the credential in `database.py:7` on `main` must be treated as already leaked and rotated; removing it from the branch changes nothing about that exposure.
 - Local setup: `.venv` with Python 3.11, then `pip install -r backend-api/requirements.txt`.
 - The old database password still exists in Git history, so rotating it is mandatory even though no tracked file contains it now.
