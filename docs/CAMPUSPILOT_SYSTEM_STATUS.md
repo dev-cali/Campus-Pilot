@@ -12,6 +12,14 @@ not a claim that those files are merged, deployed, or available to teammates.
 Only this report was authored during this inventory task. Existing changes were
 preserved. No production database, paid model, or deployment was contacted.
 
+> **Correction, 2026-11-03.** Two claims below were checked again and are no longer
+> accurate. `main` is now `837d6a5` (PR #14), not `d34a9ed`, and the S3-03
+> integration was committed and merged in PR #12 (`1c1e59b`), so the "eight untracked
+> S3-03 files" note is historical. Rotating the exposed database credential belongs to
+> **Cassie** alone (security/DevOps), not Brian; this report's earlier "Brian/Cassie"
+> attribution was wrong. Everything else below is an inventory-time snapshot dated
+> October 26 and was not re-verified.
+
 ## Evidence legend and inspection boundary
 
 - **Verified from source:** observed in current files, manifests, installed package
@@ -519,10 +527,10 @@ run or branch-protection state was fetched during this inventory.
 | Next.js manifest 16.4.0 vs installed 16.4.3 | Verified from source/package metadata | Local build evidence covers installed version; coordinate reproducible alignment, do not silently npm-audit-fix |
 | Multiple-lockfile workspace-root warning | Previously reported build output; both lockfiles exist | Review root npm purpose with Cassie/Josiah, not by deleting files during inventory |
 | Root lockfile metadata edit | Verified from Git diff | One root `name` field added; no dependency version changes. Preserve and review separately |
-| Eight untracked S3-03 files | Verified from Git status | Implementation is not yet protected by a commit on this branch |
+| Eight untracked S3-03 files (inventory-time) | Verified from Git status at inventory | Superseded: those files were committed and merged in PR #12 (`1c1e59b`) |
 | Department request failed in browser | Previously reported | Root cause (remote service/network/CORS) unverified; homepage error handling can misleadingly show no departments |
 | Generic root metadata and no homepage AI link | Verified from source | `/ai` works by direct URL; navigation polish remains a separately scoped frontend task |
-| Shared database credential-bearing connection configuration in source | Verified from source, value deliberately redacted | Brian/Cassie must remediate/rotate as appropriate; live validity/rotation unverified; demo avoids importing it |
+| Shared database credential-bearing connection configuration in source | Verified from source, value deliberately redacted | **Cassie** (security/DevOps) owns rotation; live validity/rotation unverified; demo avoids importing it |
 | Legacy broad CORS and raw /test-ai exception text | Verified from source | Separate legacy security debt; isolated demo error behavior should not be attributed to main.py |
 | Supabase/Pinecone not integrated with AI demo | Verified from source | Do not claim production retrieval or storage; schema mapping and embeddings remain future work |
 | Quote membership is not factual support | Verified from source and explicit test | An irrelevant/truncated quotation may pass; human/live evaluation still needed |
@@ -535,7 +543,7 @@ not evidence that the AI endpoint is broken. No CSS/settings changes were made h
 
 ## 11. Development history and Git relationships
 
-**Verified from local Git:**
+**Verified from local Git at inventory time (historical snapshot):**
 
 ```text
 main / cached origin/main: d34a9ed
@@ -543,6 +551,9 @@ main / cached origin/main: d34a9ed
        └── S3-02: 1d60484
             └── S3-03: HEAD also 1d60484 + eight untracked integration files
 ```
+
+Current state on 2026-11-03: `origin/main` is `837d6a5`, `feature/backend-api` is
+pushed at `7d670c9`, and `security/remove-database-credentials` adds `a7cf62a`.
 
 | Stage | Evidence | Accomplishment |
 | --- | --- | --- |
