@@ -1,8 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 
+type Department = {
+  id: number;
+  name: string;
+};
+
 export default function Home() {
-  const [departments, setDepartments] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

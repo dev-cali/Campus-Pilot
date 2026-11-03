@@ -2,9 +2,9 @@ name: Campus Pilot CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, staging ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, staging ]
 
 jobs:
   build-and-test:
@@ -26,12 +26,13 @@ jobs:
           pip install -r requirements-demo.txt
 
       - name: Run Python unit tests
+        env:
+          DATABASE_URL: "sqlite:///:memory:"
         run: python -B -m unittest discover -s tests -v
 
       - name: Run Backend Tests (Pytest)
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          DATABASE_URL: "sqlite:///:memory:"
         run: |
           pip install pytest  
           python -m pytest
@@ -43,12 +44,24 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Frontend & Build Test
+      - name: Install frontend dependencies
         working-directory: ./frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Check frontend types
+        working-directory: frontend
         run: |
-          npm ci
-          npm run build
+          node node_modules/next/dist/bin/next typegen
+          node node_modules/typescript/bin/tsc --noEmit --incremental false
 
       - name: Run frontend tests
         working-directory: frontend
         run: node --test tests/ai-proxy.test.mjs
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
