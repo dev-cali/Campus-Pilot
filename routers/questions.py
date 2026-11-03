@@ -2,7 +2,7 @@
 from sqlalchemy.orm import Session
 from typing import List
 
-from database import SessionLocal, Question
+from database import SessionLocal, Question, User, Department
 from schemas import document_schemas
 
 router = APIRouter(prefix="/questions", tags=["questions"])
@@ -32,7 +32,11 @@ def get_question(question_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=document_schemas.Question)
 def create_question(question: document_schemas.QuestionCreate, db: Session = Depends(get_db)):
-    db_question = Question(**question.dict())
+    if db.query(User).filter(User.id == question.user_id).first() is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if db.query(Department).filter(Department.id == question.department_id).first() is None:
+        raise HTTPException(status_code=404, detail="Department not found")
+    db_question = Question(**question.model_dump())
     db.add(db_question)
     db.commit()
     db.refresh(db_question)

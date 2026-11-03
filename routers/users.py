@@ -1,4 +1,5 @@
 ﻿from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -32,9 +33,17 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=document_schemas.User)
 def create_user(user: document_schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = User(**user.dict())
+    db_user = User(**user.model_dump())
     db.add(db_user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        # The only unique column on users is email; report a conflict rather
+        # than letting the constraint surface as a 500.
+        db.rollback()
+        raise HTTPException(
+            status_code=409, detail="A user with this email already exists"
+        )
     db.refresh(db_user)
     return db_user
 

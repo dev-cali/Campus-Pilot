@@ -72,7 +72,11 @@ class Document(Base):
     status = Column(String, nullable=False)
     
     department = relationship("Department", back_populates="documents")
-    chunks = relationship("DocumentChunk", back_populates="document")
+    # Chunks only exist as part of a document, so deleting a document must take
+    # its chunks with it instead of trying to null a NOT NULL foreign key.
+    chunks = relationship(
+        "DocumentChunk", back_populates="document", cascade="all, delete-orphan"
+    )
 
 class DocumentChunk(Base):
     __tablename__ = "document_chunks"

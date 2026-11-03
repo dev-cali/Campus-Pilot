@@ -2,7 +2,7 @@
 from sqlalchemy.orm import Session
 from typing import List
 
-from database import SessionLocal, DocumentChunk
+from database import SessionLocal, DocumentChunk, Document
 from schemas import document_schemas
 
 router = APIRouter(prefix="/chunks", tags=["chunks"])
@@ -35,7 +35,9 @@ def get_chunk(chunk_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=document_schemas.DocumentChunk)
 def create_chunk(chunk: document_schemas.DocumentChunkCreate, db: Session = Depends(get_db)):
-    db_chunk = DocumentChunk(**chunk.dict())
+    if db.query(Document).filter(Document.id == chunk.document_id).first() is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    db_chunk = DocumentChunk(**chunk.model_dump())
     db.add(db_chunk)
     db.commit()
     db.refresh(db_chunk)

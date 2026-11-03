@@ -5,14 +5,21 @@ from datetime import date
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from database import Base
+from database import Base, Department
 import main
 from main import app
 from routers import documents, chunks, questions, users, ingest
+
+
+def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record):
+    """SQLite ignores foreign keys unless asked; make the test database strict."""
+    cursor = dbapi_connection.cursor()
+    cursor.execute('PRAGMA foreign_keys=ON')
+    cursor.close()
 
 
 class BackendCrudTests(unittest.TestCase):
@@ -24,6 +31,7 @@ class BackendCrudTests(unittest.TestCase):
             connect_args={'check_same_thread': False},
             poolclass=StaticPool,
         )
+        event.listen(self.engine, 'connect', _enable_sqlite_foreign_keys)
         Base.metadata.create_all(bind=self.engine)
         TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         
@@ -42,6 +50,15 @@ class BackendCrudTests(unittest.TestCase):
         app.dependency_overrides[ingest.get_db] = override_get_db
         
         self.client = TestClient(app)
+
+        # Documents and questions reference a department, so create a real one
+        # instead of relying on foreign keys being silently ignored.
+        session = TestingSessionLocal()
+        department = Department(name='Test Department')
+        session.add(department)
+        session.commit()
+        self.department_id = department.id
+        session.close()
     
     def tearDown(self):
         app.dependency_overrides = {}
@@ -88,7 +105,7 @@ class BackendCrudTests(unittest.TestCase):
     def test_documents_crud(self):
         # Create document
         response = self.client.post('/documents/', json={
-            'department_id': 1,
+            'department_id': self.department_id,
             'title': 'Test Policy',
             'version': 'v1.0',
             'effective_date': '2026-01-01',
@@ -105,7 +122,7 @@ class BackendCrudTests(unittest.TestCase):
         
         # Update
         response = self.client.put(f'/documents/{doc_id}', json={
-            'department_id': 1,
+            'department_id': self.department_id,
             'title': 'Updated Policy',
             'version': 'v1.1',
             'effective_date': '2026-02-01',
@@ -121,7 +138,7 @@ class BackendCrudTests(unittest.TestCase):
     def test_chunks_crud(self):
         # Create document first
         response = self.client.post('/documents/', json={
-            'department_id': 1,
+            'department_id': self.department_id,
             'title': 'Test Doc',
             'version': 'v1',
             'effective_date': '2026-01-01',
@@ -164,7 +181,7 @@ class BackendCrudTests(unittest.TestCase):
         user_id = response.json()['id']
         
         response = self.client.post('/documents/', json={
-            'department_id': 1,
+            'department_id': self.department_id,
             'title': 'FAQ',
             'version': 'v1',
             'effective_date': '2026-01-01',
@@ -175,7 +192,7 @@ class BackendCrudTests(unittest.TestCase):
         # Create question
         response = self.client.post('/questions/', json={
             'user_id': user_id,
-            'department_id': 1,
+            'department_id': self.department_id,
             'query': 'What is the enrollment process?',
             'answer': 'You need to register online.',
             'citations': {'document_id': doc_id}
@@ -196,7 +213,7 @@ class BackendCrudTests(unittest.TestCase):
     def test_ingest_chunk_endpoint(self):
         # Create document first
         response = self.client.post('/documents/', json={
-            'department_id': 1,
+            'department_id': self.department_id,
             'title': 'Enrollment Guide',
             'version': 'v1.0',
             'effective_date': '2026-01-01',
@@ -240,7 +257,7 @@ class BackendCrudTests(unittest.TestCase):
     def test_ingest_chunk_invalid_input(self):
         # Create document
         response = self.client.post('/documents/', json={
-            'department_id': 1,
+            'department_id': self.department_id,
             'title': 'Test',
             'version': 'v1',
             'effective_date': '2026-01-01',
@@ -256,6 +273,218 @@ class BackendCrudTests(unittest.TestCase):
             'source_reference': ''
         })
         self.assertEqual(response.status_code, 400)
+
+
+    def test_get_missing_user_returns_404(self):
+        response = self.client.get('/users/999999')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['detail'], 'User not found')
+
+    def test_delete_missing_user_returns_404(self):
+        response = self.client.delete('/users/999999')
+        self.assertEqual(response.status_code, 404)
+
+    def test_create_user_missing_email_returns_422(self):
+        response = self.client.post('/users/', json={'name': 'No Email', 'role': 'student'})
+        self.assertEqual(response.status_code, 422)
+
+    def test_get_missing_document_returns_404(self):
+        response = self.client.get('/documents/999999')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['detail'], 'Document not found')
+
+    def test_update_missing_document_returns_404(self):
+        response = self.client.put('/documents/999999', json={
+            'department_id': self.department_id,
+            'title': 'Missing Policy',
+            'version': 'v1',
+            'effective_date': '2026-01-01',
+            'status': 'active'
+        })
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_document_persists_changes(self):
+        created = self.client.post('/documents/', json={
+            'department_id': self.department_id,
+            'title': 'Original Title',
+            'version': 'v1',
+            'effective_date': '2026-01-01',
+            'status': 'active'
+        })
+        doc_id = created.json()['id']
+
+        updated = self.client.put(f'/documents/{doc_id}', json={
+            'department_id': self.department_id,
+            'title': 'Updated Title',
+            'version': 'v2',
+            'effective_date': '2026-03-01',
+            'status': 'archived'
+        })
+        self.assertEqual(updated.status_code, 200)
+
+        # Read it back to prove the update was committed, not just echoed.
+        fetched = self.client.get(f'/documents/{doc_id}')
+        self.assertEqual(fetched.json()['title'], 'Updated Title')
+        self.assertEqual(fetched.json()['version'], 'v2')
+        self.assertEqual(fetched.json()['status'], 'archived')
+
+    def test_create_document_invalid_date_returns_422(self):
+        response = self.client.post('/documents/', json={
+            'department_id': self.department_id,
+            'title': 'Bad Date Policy',
+            'version': 'v1',
+            'effective_date': 'not-a-date',
+            'status': 'active'
+        })
+        self.assertEqual(response.status_code, 422)
+
+    def test_get_document_non_integer_id_returns_422(self):
+        response = self.client.get('/documents/not-a-number')
+        self.assertEqual(response.status_code, 422)
+
+    def test_delete_missing_document_returns_404(self):
+        response = self.client.delete('/documents/999999')
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_missing_chunk_returns_404(self):
+        response = self.client.get('/chunks/999999')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['detail'], 'Chunk not found')
+
+    def test_delete_missing_chunk_returns_404(self):
+        response = self.client.delete('/chunks/999999')
+        self.assertEqual(response.status_code, 404)
+
+    def test_create_chunk_missing_text_returns_422(self):
+        response = self.client.post('/chunks/', json={'document_id': 1, 'page_no': 1})
+        self.assertEqual(response.status_code, 422)
+
+    def test_chunk_filter_for_unknown_document_returns_empty_list(self):
+        response = self.client.get('/chunks/?document_id=999999')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), [])
+
+    def test_get_missing_question_returns_404(self):
+        response = self.client.get('/questions/999999')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['detail'], 'Question not found')
+
+    def test_delete_missing_question_returns_404(self):
+        response = self.client.delete('/questions/999999')
+        self.assertEqual(response.status_code, 404)
+
+    def test_create_question_missing_answer_returns_422(self):
+        response = self.client.post('/questions/', json={
+            'user_id': 1,
+            'department_id': self.department_id,
+            'query': 'Where is the library?'
+        })
+        self.assertEqual(response.status_code, 422)
+
+    def test_create_duplicate_user_email_returns_409(self):
+        payload = {
+            'name': 'Fictional Student',
+            'email': 'duplicate@example.test',
+            'role': 'student'
+        }
+        first = self.client.post('/users/', json=payload)
+        self.assertEqual(first.status_code, 200)
+
+        second = self.client.post('/users/', json=payload)
+        self.assertEqual(second.status_code, 409)
+        self.assertEqual(second.json()['detail'], 'A user with this email already exists')
+
+        # The failed request must not leave a second row behind.
+        self.assertEqual(len(self.client.get('/users/').json()), 1)
+
+    def test_delete_document_with_chunks_removes_chunks(self):
+        doc = self.client.post('/documents/', json={
+            'department_id': self.department_id,
+            'title': 'Document With Chunks',
+            'version': 'v1',
+            'effective_date': '2026-01-01',
+            'status': 'active'
+        }).json()
+        chunk = self.client.post('/chunks/', json={
+            'document_id': doc['id'],
+            'page_no': 1,
+            'chunk_text': 'Chunk that belongs to the document.'
+        }).json()
+
+        response = self.client.delete(f"/documents/{doc['id']}")
+        self.assertEqual(response.status_code, 200)
+
+        # The chunks must be gone with their parent, not orphaned or kept.
+        self.assertEqual(self.client.get(f"/chunks/{chunk['id']}").status_code, 404)
+        self.assertEqual(self.client.get(f"/chunks/?document_id={doc['id']}").json(), [])
+
+    def test_create_document_unknown_department_returns_404(self):
+        response = self.client.post('/documents/', json={
+            'department_id': 999999,
+            'title': 'Orphan Policy',
+            'version': 'v1',
+            'effective_date': '2026-01-01',
+            'status': 'active'
+        })
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['detail'], 'Department not found')
+
+    def test_update_document_unknown_department_returns_404(self):
+        doc = self.client.post('/documents/', json={
+            'department_id': self.department_id,
+            'title': 'Kept Title',
+            'version': 'v1',
+            'effective_date': '2026-01-01',
+            'status': 'active'
+        }).json()
+
+        response = self.client.put(f"/documents/{doc['id']}", json={
+            'department_id': 999999,
+            'title': 'Rejected Title',
+            'version': 'v2',
+            'effective_date': '2026-02-01',
+            'status': 'archived'
+        })
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['detail'], 'Department not found')
+
+        # A rejected update must not partially apply.
+        self.assertEqual(self.client.get(f"/documents/{doc['id']}").json()['title'], 'Kept Title')
+
+    def test_create_chunk_unknown_document_returns_404(self):
+        response = self.client.post('/chunks/', json={
+            'document_id': 999999,
+            'page_no': 1,
+            'chunk_text': 'Orphan chunk.'
+        })
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['detail'], 'Document not found')
+
+    def test_create_question_unknown_user_returns_404(self):
+        response = self.client.post('/questions/', json={
+            'user_id': 999999,
+            'department_id': self.department_id,
+            'query': 'Who am I?',
+            'answer': 'Nobody.'
+        })
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['detail'], 'User not found')
+
+    def test_create_question_unknown_department_returns_404(self):
+        user = self.client.post('/users/', json={
+            'name': 'Fictional Student',
+            'email': 'question-author@example.test',
+            'role': 'student'
+        }).json()
+
+        response = self.client.post('/questions/', json={
+            'user_id': user['id'],
+            'department_id': 999999,
+            'query': 'Where is the library?',
+            'answer': 'Down the hall.'
+        })
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['detail'], 'Department not found')
 
 
 if __name__ == '__main__':

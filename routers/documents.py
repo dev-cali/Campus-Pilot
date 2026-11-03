@@ -2,7 +2,7 @@
 from sqlalchemy.orm import Session
 from typing import List
 
-from database import SessionLocal, Document, DocumentChunk
+from database import SessionLocal, Document, DocumentChunk, Department
 from schemas import document_schemas
 
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -32,7 +32,9 @@ def get_document(document_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=document_schemas.Document)
 def create_document(document: document_schemas.DocumentCreate, db: Session = Depends(get_db)):
-    db_document = Document(**document.dict())
+    if db.query(Department).filter(Department.id == document.department_id).first() is None:
+        raise HTTPException(status_code=404, detail="Department not found")
+    db_document = Document(**document.model_dump())
     db.add(db_document)
     db.commit()
     db.refresh(db_document)
@@ -44,7 +46,9 @@ def update_document(document_id: int, document: document_schemas.DocumentCreate,
     db_document = db.query(Document).filter(Document.id == document_id).first()
     if db_document is None:
         raise HTTPException(status_code=404, detail="Document not found")
-    for key, value in document.dict().items():
+    if db.query(Department).filter(Department.id == document.department_id).first() is None:
+        raise HTTPException(status_code=404, detail="Department not found")
+    for key, value in document.model_dump().items():
         setattr(db_document, key, value)
     db.commit()
     db.refresh(db_document)
