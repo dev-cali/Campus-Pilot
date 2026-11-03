@@ -1,15 +1,15 @@
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+from database_config import get_database_url
 from sqlalchemy import create_engine, Column, Integer, String, Text, Date, ForeignKey, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
 # Credentials come from .env / the process environment. Never hardcode them here.
+# `load_dotenv` does not override variables that are already set, so a real
+# deployment environment always wins; the file is only a local convenience.
 load_dotenv(Path(__file__).resolve().with_name(".env"))
-
-DATABASE_URL = os.environ.get("DATABASE_URL")
 
 _engine = None
 _session_factory = None
@@ -24,12 +24,7 @@ def get_engine():
     """
     global _engine
     if _engine is None:
-        if not DATABASE_URL:
-            raise RuntimeError(
-                "DATABASE_URL is not set. Copy .env.example to .env and set DATABASE_URL "
-                "to your Postgres/Supabase connection string."
-            )
-        _engine = create_engine(DATABASE_URL)
+        _engine = create_engine(get_database_url())
     return _engine
 
 
@@ -41,7 +36,6 @@ def SessionLocal(**kwargs):
             autocommit=False, autoflush=False, bind=get_engine()
         )
     return _session_factory(**kwargs)
-
 
 Base = declarative_base()
 
