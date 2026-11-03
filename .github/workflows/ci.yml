@@ -54,7 +54,9 @@ jobs:
 
       - name: Check frontend types
         working-directory: frontend
-        run: node node_modules/typescript/bin/tsc --noEmit --incremental false
+        run: |
+          node node_modules/next/dist/bin/next typegen
+          node node_modules/typescript/bin/tsc --noEmit --incremental false
 
       - name: Run frontend tests
         working-directory: frontend
