@@ -256,11 +256,14 @@ Rules:
 ## Next Priorities
 
 1. [x] Commit the pending work on `feature/backend-api` (schema, tests, migration, credential hardening, requirements)
-2. [ ] Rotate the Supabase password in the dashboard and update the local `.env` plus the deployed backend's env
-3. [ ] Push `feature/backend-api` (local is 10 commits ahead of its remote) and open the PR
-4. [ ] Baseline/stamp the Supabase database, then apply the migration
-5. [ ] Build the first endpoint on the Supabase SDK, leaving existing CRUD untouched
-6. [x] Ask Cassie to add `DATABASE_URL` to CI's `unittest` step and to trigger checks on branches, so this class of breakage is caught before merge
+2. [ ] Open the PR for `feature/backend-api` (branch is pushed at `8ffdf6d`)
+3. [ ] Baseline/stamp the Supabase database, then apply the migration
+4. [ ] Build the first endpoint on the Supabase SDK, leaving existing CRUD untouched
+5. [x] Ask Cassie to add `DATABASE_URL` to CI's `unittest` step and to trigger checks on branches, so this class of breakage is caught before merge
+
+Credential rotation is **Cassie's**, tracked with her security work, not in this journal.
+Her `security/remove-database-credentials` branch edits `database.py` and `alembic/env.py`,
+so expect a conflict with this branch and let her decide which config approach wins.
 
 ## Backlog
 
@@ -287,6 +290,6 @@ Rules:
 - `alembic/` was created by `dev-cali` on 2026-10-14 (`54d3e50`); only the migration file inside `alembic/versions/` is ours.
 - Ingestion pulls `title` and `version` from the parent `Document` row because chunks do not store them.
 - `DATABASE_URL` is required at runtime; both `database.py` and `alembic/env.py` load it. Importing the app does not require it (lazy engine), so tests and tooling run without a `.env`.
-- Repository is public, so the credential in `database.py:7` on `main` must be treated as already leaked and rotated; removing it from the branch changes nothing about that exposure.
+- The credential in `database.py:7` on `main` is public and still live; rotation is Cassie's, tracked with her `security/remove-database-credentials` work, not here.
 - Local setup: `.venv` with Python 3.11, then `pip install -r backend-api/requirements.txt`.
-- The old database password still exists in Git history, so rotating it is mandatory even though no tracked file contains it now.
+- The old database password still exists in Git history, so the leak is real even though no tracked file contains it now; rotating it belongs to Cassie's security work.
