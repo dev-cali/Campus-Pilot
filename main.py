@@ -1,13 +1,14 @@
-import os
+﻿import os
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from database import SessionLocal, User, Department
 from openai import OpenAI
 
+from routers import documents, chunks, questions, users, ingest
+
 app = FastAPI(title="Campus Pilot API")
 
-# Enable CORS so your Next.js frontend can communicate with this backend without blocking
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,7 +17,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Dependency to get database session
 def get_db():
     db = SessionLocal()
     try:
@@ -28,13 +28,11 @@ def get_db():
 def read_root():
     return {"message": "Campus Pilot backend is running successfully!"}
 
-# 1. Minimal backend endpoint reading from the database
 @app.get("/departments")
 def get_departments(db: Session = Depends(get_db)):
     departments = db.query(Department).all()
     return {"departments": departments}
 
-# 2. Test call to your AI provider to confirm keys work
 @app.get("/test-ai")
 def test_ai():
     api_key = os.getenv("AI_API_KEY")
@@ -51,3 +49,12 @@ def test_ai():
         return {"ai_response": response.choices[0].message.content}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+app.include_router(users.router)
+app.include_router(documents.router)
+app.include_router(chunks.router)
+app.include_router(questions.router)
+
+
+app.include_router(ingest.router)
+

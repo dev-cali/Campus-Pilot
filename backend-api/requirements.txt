@@ -1,0 +1,25 @@
+# CampusPilot backend dependencies
+# Verified on Python 3.11 with 79 tests passing on 2026-10-28.
+# Install from the repository root: pip install -r backend-api/requirements.txt
+
+# API and persistence
+SQLAlchemy==2.1.6
+alembic==1.20.1
+fastapi==0.162.0
+uvicorn==0.54.0
+pydantic==2.14.1
+python-dotenv==1.2.4
+psycopg[binary]==3.3.6
+psycopg2-binary==2.9.13
+
+# Team direction: Supabase for new features
+supabase==2.33.0
+
+# AI client
+openai==3.37.0
+httpx==0.28.1
+
+# Tests
+pytest==9.2.0
+
+# Pinecone is deferred until deployment (team decision); add `pinecone` when enabled.

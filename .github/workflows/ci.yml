@@ -26,6 +26,8 @@ jobs:
           pip install -r requirements-demo.txt
 
       - name: Run Python unit tests
+        env:
+          DATABASE_URL: postgresql+psycopg://test:test@localhost:5432/test
         run: python -B -m unittest discover -s tests -v
 
       - name: Run Backend Tests (Pytest)
