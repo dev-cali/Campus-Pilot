@@ -1,10 +1,9 @@
-import os
+from database_config import get_database_url
 from sqlalchemy import create_engine, Column, Integer, String, Text, Date, ForeignKey, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-# Directly paste your Supabase session pooler URL with your actual password here:
-DATABASE_URL = "postgresql://postgres:cPPilot2026@db.gafztbgjhugbgcpnyyto.supabase.co:5432/postgres"
+DATABASE_URL = get_database_url()
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
