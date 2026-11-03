@@ -5,7 +5,7 @@ Last updated: 2026-11-03
 
 ## Current Status
 
-- Branch: `feature/backend-api`, in sync with its remote at `7d670c9` before the defect-fix commit below; 9 commits ahead of `main` before that commit.
+- Branch: `feature/backend-api`, pushed at `4264287`; PR #15 is open against `staging`.
 - `main`: local and remote both at `837d6a5`; already fully contained in the branch, so merging `main` adds nothing.
 - State: CRUD scaffolding, ingestion endpoint, tests, `DocumentChunk` schema alignment, CI-safety fixes, and the four defect fixes are done.
 - Tests: 102 passing in `.venv` (Python 3.11), re-run 2026-11-03, including a run in a copy with no `.env`.
@@ -282,6 +282,32 @@ Rules:
 
 **Left to do:** The 500s are gone, but deleting a **user** who has stored questions uses the same relationship pattern and was not changed (there is no cascade on `User.questions`). No test deletes such a user today, so it is a latent one-line follow-up, not a regression. Live-database work (baseline then `upgrade head`) is still a separate approval.
 
+### Task: Merge main, push, and open PR #15 - 2026-11-03
+**Goal:** Sync with `main`, publish the branch, and submit it for review against `staging`.
+
+**Files changed:** `backend-api/docs/JOURNAL.md` only; the code being shipped was committed in the two previous commits (`969a13c`, `4264287`).
+
+**Steps:**
+1. `git fetch origin --prune` -> `origin/main` still `837d6a5`, unchanged since the last check, and already contained in this branch.
+2. Committed the four defect fixes and the journal as `969a13c`, and the inventory correction separately as `4264287`, so the shared doc can be reviewed on its own.
+3. `git merge origin/main` -> "Already up to date"; there was nothing new to merge.
+4. Re-ran the full suite after the merge: 102 tests pass under both runners.
+5. `git push origin feature/backend-api` -> `7d670c9..4264287`.
+6. Opened PR #15 with base `staging` (head `4264287`) through the GitHub API. `gh` is not installed on this machine, so the stored Git credential was used for the API call; the token was never printed.
+
+**Problems hit:** `origin/staging` was not present as a remote-tracking ref until it was fetched explicitly, because the local clone had not fetched it before. `staging` is `384bc28` and is **2 commits behind `main`**, so main's two commits also appear in the PR diff (13 commits, 33 files). The GitHub API reports `mergeable: true` but `mergeable_state: blocked` even though no branch protection or ruleset applies to `staging`; the merge button should be checked in the UI rather than assumed.
+
+**Checks run:**
+- `git rev-list --left-right --count origin/main...HEAD` -> `0 11` before the journal commit
+- `git merge origin/main` -> exit 0, "Already up to date"
+- `.venv\Scripts\python.exe -B -m unittest discover -s tests` -> 102 tests, OK
+- `.venv\Scripts\python.exe -m pytest -q` -> 102 passed, 131 subtests
+- `git push origin feature/backend-api` -> `7d670c9..4264287`
+- GitHub API `POST /repos/dev-cali/Campus-Pilot/pulls` -> PR #15 open, base `staging`, +1512/-698
+- check runs on the head commit -> 1 (`Vercel Preview Comments`, success)
+
+**Left to do:** Hosted CI does not run for this PR because `.github/workflows/ci.yml` only triggers on `main`; Cassie's trigger change is still the fix for that. PR #15 must not be merged by me. `staging` being behind `main` is a team decision.
+
 ## What's Done
 
 - [x] Analyzed project structure, models, and existing endpoints
@@ -314,7 +340,7 @@ Rules:
 ## Next Priorities
 
 1. [x] Commit the pending work on `feature/backend-api` (schema, tests, migration, credential hardening, requirements)
-2. [ ] Open the PR for `feature/backend-api` (branch is pushed and in sync; the defect-fix commit is the next tip)
+2. [x] Open the PR for `feature/backend-api` -> PR #15 against `staging` (head `4264287`; merge is someone else's call)
 3. [ ] Baseline/stamp the Supabase database, then apply the migration
 4. [ ] Build the first endpoint on the Supabase SDK, leaving existing CRUD untouched
 5. [x] Ask Cassie to add `DATABASE_URL` to CI's `unittest` step and to trigger checks on branches, so this class of breakage is caught before merge
