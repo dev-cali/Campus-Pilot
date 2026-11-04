@@ -1,0 +1,214 @@
+
+.login-wrapper {
+  --home-green: #00703c;
+  --home-text: #064e3b;
+  --home-muted: #047857;
+  --home-line: rgba(0, 112, 60, 0.18);
+
+  width: min(100% - 32px, 440px);
+  margin: 60px auto;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid var(--home-line);
+  border-radius: 22px;
+  box-shadow: 0 12px 36px rgba(0, 70, 30, 0.1);
+  color: var(--home-text);
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.login-wrapper * {
+  box-sizing: border-box;
+}
+
+.login-wrapper .brand-head {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-wrapper .logo {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
+  background: var(--home-green);
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.login-wrapper .brand-title {
+  margin: 0;
+  font-family: "Outfit", sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--home-green);
+}
+
+.login-wrapper .brand-sub {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--home-muted);
+}
+
+.login-wrapper .auth-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 5px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.login-wrapper .tab-btn {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  border-radius: 9px;
+  padding: 11px;
+  font: inherit;
+  font-weight: 700;
+  color: var(--home-muted);
+  cursor: pointer;
+}
+
+.login-wrapper .tab-btn.active {
+  background: linear-gradient(135deg, #00703c, #059669);
+  color: white;
+}
+
+.login-wrapper .auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-wrapper .auth-form.hidden {
+  display: none;
+}
+
+.login-wrapper .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.login-wrapper .form-group label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.login-wrapper .input-field {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--home-line);
+  border-radius: 11px;
+  background: #ffffff;
+  color: var(--home-text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.login-wrapper .input-field:focus {
+  outline: 2px solid rgba(5, 150, 105, 0.25);
+  border-color: #059669;
+}
+
+.login-wrapper .form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.login-wrapper .remember-me {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.login-wrapper .forgot-password {
+  color: var(--home-green);
+  font-weight: 600;
+}
+
+.login-wrapper .submit-btn {
+  width: 100%;
+  padding: 13px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #00703c, #059669);
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-wrapper .submit-btn:hover {
+  filter: brightness(1.08);
+}
+
+.login-wrapper .auth-message {
+  margin: 16px 0 0;
+  padding: 12px;
+  background: #f0fdf4;
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--home-text);
+}
+
+.login-wrapper .divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  color: var(--home-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.login-wrapper .divider::before,
+.login-wrapper .divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--home-line);
+}
+
+.login-wrapper .sso-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-wrapper .sso-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1.5px solid var(--home-line);
+  border-radius: 11px;
+  background: white;
+  color: var(--home-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-wrapper .sso-btn:hover {
+  background: #f0fdf4;
+}
+
+@media (max-width: 480px) {
+  .login-wrapper {
+    width: calc(100% - 24px);
+    margin: 24px auto;
+    padding: 24px 18px;
+  }
+
+  .login-wrapper .brand-title {
+    font-size: 28px;
+  }
+}
