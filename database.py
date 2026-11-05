@@ -37,6 +37,19 @@ def SessionLocal(**kwargs):
         )
     return _session_factory(**kwargs)
 
+def get_db():
+    """FastAPI dependency that yields one session per request.
+
+    Every router and ``main.py`` import this single function, so overriding it
+    once (as the tests do) replaces the database for the whole application.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
 Base = declarative_base()
 
 # (Keep your model classes User, Department, Document, etc. below this)
