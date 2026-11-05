@@ -5,7 +5,7 @@ Last updated: 2026-11-05
 
 ## Current Status
 
-- Branch: `feature/backend-auth`, cut from `origin/staging` (`d00e3d8`); local only, not pushed yet.
+- Branch: `feature/backend-auth` at `b23e4d4`, pushed; PR #23 is open against `staging` (`d00e3d8`).
 - `staging`: `d00e3d8`; PR #15 (the earlier backend work) merged at `254b695` on 2026-11-03.
 - State: authentication/authorization, CORS restriction and `/test-ai` hardening are implemented and tested; nothing is committed yet.
 - Tests: 134 passing in `.venv` (Python 3.11), re-run 2026-11-05; the earlier 106 still pass.
@@ -67,6 +67,7 @@ Rules:
 - The project/keys are Cassie's to supply; no value is committed or logged here.
 - Follow-ups recorded in `docs/AUTH.md`: `/users/me`, a durable `supabase_user_id` link (needs the missing baseline migration), admin-only user management, rate limiting.
 - Frontend wiring is Josiah's; the contract is `Authorization: Bearer <supabase access token>`.
+- PR #23 is open against `staging` at `b23e4d4`; the `build-and-test` check must pass before merge.
 
 ### Task: Branch and workspace setup - 2026-10-27
 **Goal:** Get the project current and give the backend role its own place to work.
@@ -241,7 +242,7 @@ Rules:
 **Left to do:** CI's `unittest` step still has no `DATABASE_URL`; giving it the same dummy URL as `conftest.py`, or making it load a conftest, is a `ci.yml` change and belongs to Cassie. The `python-dotenv` pin has not been exercised by a fresh `pip install` in a clean venv, so that part is reasoned from `requirements-demo.txt`, not observed. Nothing was committed or pushed.
 
 ### Task: Clean-room CI parity and CI env fix - 2026-11-02
-**Goal:** Close both limits left open by the previous task — prove the dependency pin with a real install, and give CI the `DATABASE_URL` its `unittest` step needs. Brian approved both explicitly.
+**Goal:** Close both limits left open by the previous task ï¿½ prove the dependency pin with a real install, and give CI the `DATABASE_URL` its `unittest` step needs. Brian approved both explicitly.
 
 **Files changed:** `.github/workflows/ci.yml`, `backend-api/docs/JOURNAL.md`.
 
@@ -275,7 +276,7 @@ Rules:
 2. Added 16 error-path tests to the existing test class: 404 for missing ids on users/documents/chunks/questions, 422 for missing or malformed payloads, a non-integer path id, an empty list for an unknown `document_id` filter, and a `PUT` test that reads the row back to prove the update committed rather than being echoed.
 3. Migration rehearsal on a scratch SQLite database holding the pre-migration schema and one existing row: `alembic upgrade head` added the four columns, set the bookmark to `a1b2c3d4e5f6`, and preserved the row.
 4. Downgrade rehearsal on the same database: `alembic downgrade base` removed the four columns, cleared the bookmark, and preserved the row.
-5. Ran two negative cases on purpose: `upgrade head` against a database with no tables fails with `no such table: document_chunks`; `alembic stamp a1b2c3d4e5f6` followed by `upgrade head` leaves the bookmark at head while the columns are absent — silent drift.
+5. Ran two negative cases on purpose: `upgrade head` against a database with no tables fails with `no such table: document_chunks`; `alembic stamp a1b2c3d4e5f6` followed by `upgrade head` leaves the bookmark at head while the columns are absent ï¿½ silent drift.
 6. Probed duplicate user creation with the same email: first request 200, second **500** (unhandled unique-constraint error). Not fixed; recorded below.
 
 **Problems hit:** Nothing broke. The 16 new tests all passed on first run, so the routers already returned the documented codes; the value is that this is now enforced rather than assumed. A first attempt at the rehearsal used a PowerShell here-string that mangled SQL quotes and accidentally proved the empty-database failure early.
@@ -304,7 +305,7 @@ Rules:
 5. Existence checks in the routers so a missing reference is a clean **404**, not a database error: department on document create/update, document on chunk create, user and department on question create.
 6. Added seven tests: duplicate email 409 (and no second row), delete document with chunks removes them, unknown department on create and on update (and the rejected update does not partially apply), unknown document on chunk create, unknown user and unknown department on question create.
 
-**Problems hit:** Turning foreign keys on is what made the suite honest — before that, `department_id: 1` passed without a department existing. No production behavior was guessed: the cascade and 404 semantics were chosen deliberately and are stated above. `routers/documents.py` still imports `DocumentChunk` without using it; left as-is to keep the diff narrow.
+**Problems hit:** Turning foreign keys on is what made the suite honest ï¿½ before that, `department_id: 1` passed without a department existing. No production behavior was guessed: the cascade and 404 semantics were chosen deliberately and are stated above. `routers/documents.py` still imports `DocumentChunk` without using it; left as-is to keep the diff narrow.
 
 **Checks run:**
 - `.venv\Scripts\python.exe -B -m unittest discover -s tests` -> 102 tests, OK (was 95)
