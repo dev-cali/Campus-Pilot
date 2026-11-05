@@ -12,7 +12,8 @@ from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from ai.local_retrieval import Evidence, Retriever, validate_question
+from ai.local_retrieval import Evidence, Retriever, validate_question, validate_evidence_budget
+from ai.llm_client import DiagnosticFailure, diagnostic_event, diagnostic_request
 
 
 class StrictModel(BaseModel):
@@ -21,12 +22,12 @@ class StrictModel(BaseModel):
 
 class SelectedQuote(StrictModel):
     evidence_id: str = Field(min_length=1, max_length=20)
-    quote: str = Field(min_length=1, max_length=1000)
+    quote: str = Field(min_length=1, max_length=300)
 
 
 class ModelSelection(StrictModel):
     status: Literal["answered", "insufficient_evidence"]
-    selections: list[SelectedQuote] = Field(max_length=3)
+    selections: list[SelectedQuote] = Field(max_length=2)
 
 
 class Citation(StrictModel):
@@ -107,11 +108,16 @@ def validate_selection(raw: str, evidence: tuple[Evidence, ...]) -> AnswerRespon
 
 
 class AnswerService:
-    def __init__(self, retriever: Retriever, generator: AnswerGenerator):
+    def __init__(self, retriever: Retriever, generator: AnswerGenerator, *, readiness_check=None):
         self.retriever = retriever
         self.generator = generator
+        self.readiness_check = readiness_check
 
     def ask(self, question: str, *, reference_date: date) -> AnswerResponse:
+        with diagnostic_request():
+            return self._ask(question, reference_date=reference_date)
+
+    def _ask(self, question: str, *, reference_date: date) -> AnswerResponse:
         question = validate_question(question)
         words = set(re.findall(r"\w+", question.casefold()))
         # Conservative demo scope signals, not authentication or an exhaustive
@@ -120,26 +126,50 @@ class AnswerService:
             return fallback("denied")
         if words & {"historical", "superseded", "previous", "older"}:
             return fallback("insufficient_evidence")
+        failure_category = "retrieval_failed"
         try:
+            if self.readiness_check is not None:
+                self.readiness_check()
             evidence = self.retriever.retrieve(question, reference_date=reference_date)
             if not evidence:
                 return fallback("insufficient_evidence")
+            # Fail safely before paying for generation; preserve whole passages.
+            failure_category = "evidence_invalid"
+            try:
+                validate_evidence_budget(evidence)
+            except ValueError as error:
+                # Match only our fixed local code; never log the exception itself.
+                if error.args == ("evidence_budget_exceeded",):
+                    failure_category = "evidence_budget_exceeded"
+                raise
             text = " ".join(item.chunk.chunk_text for item in evidence).casefold()
             # Narrow absence checks for common factual requests. They do not
             # establish sufficiency, resolve conflicts, or understand negation.
             for term in ("gpa", "deadline", "fee", "amount"):
                 if term in words and not re.search(r"\b" + term + r"\b", text):
                     return fallback("insufficient_evidence")
+            failure_category = "provider_failed"
             raw = self.generator.generate(question, evidence)
+            failure_category = "selection_invalid"
             answer = validate_selection(raw, evidence)
             if answer.status == "answered":
                 # Fail closed if sources, permissions, or passage data changed
                 # during generation. This does not eliminate every race window.
+                failure_category = "retrieval_failed"
                 fresh = self.retriever.retrieve(question, reference_date=reference_date)
                 if fresh != evidence:
+                    diagnostic_event("evidence_changed")
                     return fallback("unavailable")
             return answer
+        except DiagnosticFailure as error:
+            diagnostic_event(error.category, error.http_status,
+                             provider_code=error.provider_code, provider_param=error.provider_param,
+                             provider_classification=error.provider_classification,
+                             provider_attribute_states=error.provider_attribute_states,
+                             provider_response=error.provider_response)
+            return fallback("unavailable")
         except Exception:
             # Deliberate application boundary: no provider/database error text,
             # raw model draft, source titles, or stack trace in student responses.
+            diagnostic_event(failure_category)
             return fallback("unavailable")
