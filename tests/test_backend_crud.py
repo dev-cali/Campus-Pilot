@@ -3,16 +3,16 @@ import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from database import Base, Department
-import main
+from auth import get_current_user
+from database import Base, Department, get_db
 from main import app
-from routers import documents, chunks, questions, users, ingest
 
 
 def _enable_sqlite_foreign_keys(dbapi_connection, _connection_record):
@@ -42,13 +42,16 @@ class BackendCrudTests(unittest.TestCase):
             finally:
                 db.close()
         
-        app.dependency_overrides[main.get_db] = override_get_db
-        app.dependency_overrides[documents.get_db] = override_get_db
-        app.dependency_overrides[chunks.get_db] = override_get_db
-        app.dependency_overrides[questions.get_db] = override_get_db
-        app.dependency_overrides[users.get_db] = override_get_db
-        app.dependency_overrides[ingest.get_db] = override_get_db
-        
+        # All routers import the same get_db callable, so one override covers
+        # the whole application.
+        app.dependency_overrides[get_db] = override_get_db
+
+        # These tests cover CRUD behaviour, not access control: act as staff and
+        # let tests/test_auth.py exercise the 401/403 paths.
+        app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(
+            id=1, name='Test Staff', email='staff@example.test', role='staff'
+        )
+
         self.client = TestClient(app)
 
         # Documents and questions reference a department, so create a real one
