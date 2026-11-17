@@ -20,14 +20,17 @@ class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
 
-class SelectedQuote(StrictModel):
-    evidence_id: str = Field(min_length=1, max_length=20)
-    quote: str = Field(min_length=1, max_length=300)
+class CoveragePart(StrictModel):
+    part_index: int = Field(ge=1, le=2)
+    part_text: str = Field(min_length=1, max_length=2000)
+    support: Literal["supported", "unsupported"]
+    evidence_id: str | None = Field(min_length=1, max_length=20)
+    quote: str | None = Field(min_length=1, max_length=300)
 
 
 class ModelSelection(StrictModel):
     status: Literal["answered", "insufficient_evidence"]
-    selections: list[SelectedQuote] = Field(max_length=2)
+    parts: list[CoveragePart] = Field(max_length=2)
 
 
 class Citation(StrictModel):
@@ -73,34 +76,48 @@ def _unique_json_object(pairs: list) -> dict:
     return result
 
 
-def validate_selection(raw: str, evidence: tuple[Evidence, ...]) -> AnswerResponse:
-    """Resolve metadata from supplied evidence and construct an extractive answer."""
+def validate_selection(raw: str, evidence: tuple[Evidence, ...], question: str) -> AnswerResponse:
+    """Check declared coverage, not semantic relevance or omitted requests."""
     if not isinstance(raw, str) or len(raw) > 20000:
         raise ValueError("invalid_model_output")
     selection = ModelSelection.model_validate(json.loads(raw, object_pairs_hook=_unique_json_object))
-    if selection.status == "insufficient_evidence":
-        if selection.selections:
+    if not selection.parts:
+        # Explicit whole-question abstention, including part-budget overflow.
+        if selection.status != "insufficient_evidence":
             raise ValueError("invalid_model_output")
         return fallback("insufficient_evidence")
-    if not selection.selections:
-        raise ValueError("invalid_model_output")
     by_id = {item.evidence_id: item.chunk for item in evidence}
     if len(by_id) != len(evidence):
         raise ValueError("invalid_evidence")
-    citations, lines, used = [], [], set()
-    for item in selection.selections:
+    citations, lines, used, excerpts = [], [], set(), set()
+    unsupported = False
+    for index, item in enumerate(selection.parts, 1):
+        if (item.part_index != index or not item.part_text.strip()
+                or item.part_text not in question or item.part_text.strip() in excerpts):
+            raise ValueError("invalid_model_output")
+        excerpts.add(item.part_text.strip())
+        if item.support == "unsupported":
+            if item.evidence_id is not None or item.quote is not None:
+                raise ValueError("invalid_model_output")
+            unsupported = True
+            continue
         chunk = by_id.get(item.evidence_id)
-        if chunk is None or item.evidence_id in used:
+        if chunk is None or item.quote is None:
             raise ValueError("invalid_model_output")
         if not item.quote.strip() or item.quote not in chunk.chunk_text or not chunk.version:
             raise ValueError("invalid_model_output")
-        used.add(item.evidence_id)
-        citations.append(Citation(
-            evidence_id=item.evidence_id, document_id=chunk.document_id,
-            page_no=chunk.page_no, chunk_index=chunk.chunk_index, title=chunk.title,
-            version=chunk.version, source_reference=chunk.source_reference,
-        ))
+        if item.evidence_id not in used:
+            used.add(item.evidence_id)
+            citations.append(Citation(
+                evidence_id=item.evidence_id, document_id=chunk.document_id,
+                page_no=chunk.page_no, chunk_index=chunk.chunk_index, title=chunk.title,
+                version=chunk.version, source_reference=chunk.source_reference,
+            ))
         lines.append(f'[{item.evidence_id}] "{item.quote}"')
+    if (selection.status == "insufficient_evidence") != unsupported:
+        raise ValueError("invalid_model_output")
+    if unsupported:
+        return fallback("insufficient_evidence")
     return AnswerResponse(
         status="answered", answer="Fictional demo source excerpts:\n" + "\n".join(lines),
         citations=citations,
@@ -151,7 +168,7 @@ class AnswerService:
             failure_category = "provider_failed"
             raw = self.generator.generate(question, evidence)
             failure_category = "selection_invalid"
-            answer = validate_selection(raw, evidence)
+            answer = validate_selection(raw, evidence, question)
             if answer.status == "answered":
                 # Fail closed if sources, permissions, or passage data changed
                 # during generation. This does not eliminate every race window.
