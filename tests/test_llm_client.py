@@ -55,12 +55,21 @@ class LlmClientTests(unittest.TestCase):
                          dict.fromkeys(("code", "param", "type"), "recognized"))
 
     def assert_rejection_diagnostics(self, code=None, param=None, *, missing=False,
-                                     message="DO_NOT_LOG_BODY", kind=None):
+                                     message="DO_NOT_LOG_BODY", kind=None,
+                                     response_headers=None, empty_body=False,
+                                     expected_content_type="json",
+                                     expected_request_id_present=False,
+                                     expected_server_header_present=False,
+                                     expected_via_header_present=False):
         body = {"code": code, "param": param, "message": message, "type": kind}
+        headers = ({"Content-Type": "application/json"}
+                   if response_headers is None else response_headers)
+        response_content = b"" if empty_body else json.dumps(body)
         error = BadRequestError(
             "DO_NOT_LOG_MESSAGE", response=httpx.Response(400, request=httpx.Request(
-                "POST", "https://example.invalid", headers={"Authorization": "DO_NOT_LOG_HEADER"}),
-                headers={"Content-Type": "application/json"}, content=json.dumps(body)), body=body)
+                "POST", "https://example.invalid/DO_NOT_LOG_PATH",
+                headers={"Authorization": "DO_NOT_LOG_HEADER"}),
+                headers=headers, content=response_content), body=None if empty_body else body)
         if missing:
             del error.code
             del error.param
@@ -92,14 +101,22 @@ class LlmClientTests(unittest.TestCase):
         self.assertEqual(set(rejected), {"request_id", "stage", "category", "elapsed_ms",
                                         "http_status", "provider_code", "provider_param", "provider_classification",
                                         "provider_attribute_states", "provider_content_type",
+                                        "provider_body_empty", "provider_request_id_present",
+                                        "provider_server_header_present", "provider_via_header_present",
                                         "provider_error_object_exists", "provider_structured_fields",
                                         "provider_response_format_recognized"})
         self.assertEqual(rejected["provider_attribute_states"], structured_error_states(error))
-        self.assertEqual(rejected["provider_content_type"], "json")
-        self.assertTrue(rejected["provider_error_object_exists"])
-        self.assertTrue(rejected["provider_response_format_recognized"])
+        self.assertEqual(rejected["provider_content_type"], expected_content_type)
+        self.assertEqual(rejected["provider_body_empty"], empty_body)
+        self.assertEqual(rejected["provider_request_id_present"], expected_request_id_present)
+        self.assertEqual(rejected["provider_server_header_present"], expected_server_header_present)
+        self.assertEqual(rejected["provider_via_header_present"], expected_via_header_present)
+        self.assertEqual(rejected["provider_error_object_exists"], not empty_body)
+        self.assertEqual(rejected["provider_response_format_recognized"],
+                         expected_content_type == "json" and not empty_body)
         combined = " ".join(captured.output) + response.text
         self.assertNotIn("DO_NOT_LOG", combined)
+        self.assertNotIn("example.invalid", combined)
         if type(message) is str and len(message) > 30:
             self.assertNotIn(message, combined)
         self.assertNotIn(self.evidence[0].chunk.chunk_text, combined)
@@ -123,7 +140,7 @@ class LlmClientTests(unittest.TestCase):
              "application/json", "json", True, True, "null"),
             (b"PRIVATE_PLAIN_ERROR", "text/plain", "text", False, False, "missing"),
             (b"<html>PRIVATE_HTML</html>", "text/html", "html", False, False, "missing"),
-            (b"", "application/json", "empty", False, False, "missing"),
+            (b"", "application/json", "json", False, False, "missing"),
             (b'{"error":', "application/json", "json", False, False, "missing"),
             (b"PRIVATE_BINARY", "application/octet-stream", "other", False, False, "missing"),
         )
@@ -139,6 +156,10 @@ class LlmClientTests(unittest.TestCase):
                 finally:
                     client.close()
                 self.assertEqual(diagnostic["content_type_category"], expected_type)
+                self.assertEqual(diagnostic["body_empty"], not raw_body)
+                self.assertFalse(diagnostic["request_id_present"])
+                self.assertFalse(diagnostic["server_header_present"])
+                self.assertFalse(diagnostic["via_header_present"])
                 self.assertEqual(diagnostic["error_object_exists"], has_error)
                 self.assertEqual(diagnostic["response_format_recognized"], recognized)
                 self.assertEqual(diagnostic["structured_fields"]["code"],
@@ -160,6 +181,28 @@ class LlmClientTests(unittest.TestCase):
             "param": {"exists": True, "type": "array"},
             "type": {"exists": True, "type": "boolean"},
         })
+
+    def test_empty_body_400_logs_only_mime_and_header_presence(self):
+        cases = (
+            ({}, "missing", False, False, False),
+            ({"Content-Type": "application/json; charset=utf-8",
+              "X-Request-ID": "DO_NOT_LOG_PROVIDER_REQUEST_ID",
+              "Server": "DO_NOT_LOG_SERVER_VALUE",
+              "Via": "DO_NOT_LOG_VIA_VALUE"}, "json", True, True, True),
+        )
+        for headers, mime_category, request_id, server, via in cases:
+            with self.subTest(mime_category=mime_category, request_id=request_id):
+                rejected = self.assert_rejection_diagnostics(
+                    response_headers=headers, empty_body=True,
+                    expected_content_type=mime_category,
+                    expected_request_id_present=request_id,
+                    expected_server_header_present=server,
+                    expected_via_header_present=via)
+                self.assertEqual(rejected["provider_content_type"], mime_category)
+                self.assertTrue(rejected["provider_body_empty"])
+                self.assertEqual(rejected["provider_request_id_present"], request_id)
+                self.assertEqual(rejected["provider_server_header_present"], server)
+                self.assertEqual(rejected["provider_via_header_present"], via)
 
     def test_text_rejection_classification(self):
         cases = (
@@ -220,7 +263,7 @@ class LlmClientTests(unittest.TestCase):
                                     title="Fictional example", version="v1")[0]
         self.evidence = (Evidence("e1", chunk, ("learners",)),)
 
-    def response(self, *, finish="stop", refusal=None, content='{"status":"insufficient_evidence","selections":[]}'):
+    def response(self, *, finish="stop", refusal=None, content='{"status":"insufficient_evidence","parts":[]}'):
         return SimpleNamespace(choices=[SimpleNamespace(finish_reason=finish,
                                message=SimpleNamespace(refusal=refusal, content=content))])
 
@@ -241,12 +284,42 @@ class LlmClientTests(unittest.TestCase):
             kwargs = client.chat.completions.create.call_args.kwargs
             self.assertEqual(kwargs["response_format"]["type"], "json_schema")
             self.assertEqual(kwargs["max_completion_tokens"], 400)
+            schema = kwargs["response_format"]["json_schema"]["schema"]
+            self.assertEqual(set(schema["required"]), {"status", "parts"})
+            self.assertFalse(schema["additionalProperties"])
+            parts = schema["properties"]["parts"]
+            self.assertEqual(parts["maxItems"], 2)
+            item = parts["items"]
+            self.assertFalse(item["additionalProperties"])
+            self.assertEqual(set(item["required"]), {"part_index", "part_text", "support", "evidence_id", "quote"})
+            self.assertEqual(set(item["properties"]), set(item["required"]))
+            for nullable in ("evidence_id", "quote"):
+                self.assertEqual(item["properties"][nullable]["type"], ["string", "null"])
+            self.assertEqual(json.loads(raw)["parts"], [])
+            self.assertIn("never silently drop", kwargs["messages"][0]["content"])
+
             client.chat.completions.create.assert_called_once()
             client.close.assert_called_once()
             self.assertFalse(kwargs["store"])
             self.assertNotIn("tools", kwargs)
             self.assertNotIn("fictional-test-value", json.dumps(kwargs["messages"]))
             self.assertEqual(json.loads(kwargs["messages"][1]["content"])["passages"][0]["evidence_id"], "e1")
+
+    def test_standard_openai_api_key_environment_name_is_supported(self):
+        with patch.dict("os.environ", {"OPENAI_API_KEY": "fictional-test-value", "AI_MODEL": "mock-model"}, clear=True), patch("openai.OpenAI") as sdk:
+            client = sdk.return_value
+            client.chat.completions.create.return_value = self.response()
+            OpenAIAnswerGenerator().generate("sample", self.evidence)
+            self.assertEqual(sdk.call_args.kwargs["api_key"], "fictional-test-value")
+            client.chat.completions.create.assert_called_once()
+            client.close.assert_called_once()
+
+    def test_openai_api_key_takes_precedence_when_both_names_are_set(self):
+        with patch.dict("os.environ", {"OPENAI_API_KEY": "standard-key", "AI_API_KEY": "legacy-key", "AI_MODEL": "mock-model"}), patch("openai.OpenAI") as sdk:
+            client = sdk.return_value
+            client.chat.completions.create.return_value = self.response()
+            OpenAIAnswerGenerator().generate("sample", self.evidence)
+            self.assertEqual(sdk.call_args.kwargs["api_key"], "standard-key")
 
     def test_refusal_truncation_and_missing_content_are_rejected(self):
         with patch.dict("os.environ", {"AI_API_KEY": "fictional-test-value", "AI_MODEL": "mock-model"}), patch("openai.OpenAI") as sdk:
