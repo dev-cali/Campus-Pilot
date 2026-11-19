@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   const timer = setTimeout(() => controller.abort(), 25000);
   try {
     // Set only in the Next.js server environment; never supplied by the browser.
-    const base = new URL(process.env.AI_API_BASE_URL || "http://127.0.0.1:8002");
+    const base = new URL(process.env.AI_API_BASE_URL || "http://127.0.0.1:8001");
     if (!["http:", "https:"].includes(base.protocol) || base.username || base.password ||
         base.pathname !== "/" || base.search || base.hash) throw new Error("invalid_configuration");
     const upstream = await fetch(new URL("/api/ai/ask", base), {

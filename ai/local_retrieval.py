@@ -9,6 +9,8 @@ from ai.document_processing import DocumentChunk
 
 
 MAX_QUESTION_CHARS = 2000
+MAX_EVIDENCE_CHUNKS = 2
+MAX_EVIDENCE_CHARS = 2000
 STOP_WORDS = frozenset({
     "a", "an", "and", "are", "at", "be", "can", "do", "does", "for", "from",
     "how", "i", "in", "is", "it", "me", "of", "on", "or", "please", "tell",
@@ -31,6 +33,24 @@ class Evidence:
     evidence_id: str
     chunk: DocumentChunk
     matched_terms: tuple[str, ...]
+
+
+def validate_evidence_budget(evidence: tuple[Evidence, ...]) -> None:
+    """Reject unusable/oversized evidence; never cut passages or drop context.
+
+    Eligibility remains the source's responsibility. These are additional
+    preflight checks, not proof that the evidence answers the question.
+    """
+    if not 1 <= len(evidence) <= MAX_EVIDENCE_CHUNKS:
+        raise ValueError("invalid_evidence_budget")
+    if len({item.evidence_id for item in evidence}) != len(evidence):
+        raise ValueError("invalid_evidence")
+    if any(not item.evidence_id.strip() or len(item.evidence_id) > 20
+           or not item.chunk.chunk_text.strip() or not item.chunk.version
+           for item in evidence):
+        raise ValueError("invalid_evidence")
+    if sum(len(item.chunk.chunk_text) for item in evidence) > MAX_EVIDENCE_CHARS:
+        raise ValueError("evidence_budget_exceeded")
 
 
 class Retriever(Protocol):
@@ -65,7 +85,7 @@ class KeywordRetriever:
     'unavailable', not be disguised as a successful search with no evidence.
     """
 
-    def __init__(self, source: PublicChunkSource, *, limit: int = 3):
+    def __init__(self, source: PublicChunkSource, *, limit: int = MAX_EVIDENCE_CHUNKS):
         if type(limit) is not int or not 1 <= limit <= 5:
             raise ValueError("invalid_retrieval_limit")
         self.source = source

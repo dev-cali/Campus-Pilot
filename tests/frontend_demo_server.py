@@ -22,8 +22,17 @@ from ai.local_retrieval import KeywordRetriever
 class MockGenerator:
     def generate(self, _question, evidence):
         # Deterministic integration fixture, NOT evidence of real model reasoning.
-        return json.dumps({"status": "answered", "selections": [{
-            "evidence_id": evidence[0].evidence_id, "quote": evidence[0].chunk.chunk_text,
+        supported_questions = {
+            "What sample course list do fictional learners review for enrollment?",
+            "What do fictional learners review for enrollment?",
+        }
+        quote = "Demo Campus University asks imaginary learners to review a sample course list in this exercise."
+        chosen = next((item for item in evidence if quote in item.chunk.chunk_text), None)
+        if _question not in supported_questions or chosen is None:
+            return json.dumps({"status": "insufficient_evidence", "parts": []})
+        return json.dumps({"status": "answered", "parts": [{
+            "part_index": 1, "part_text": _question, "support": "supported",
+            "evidence_id": chosen.evidence_id, "quote": quote,
         }]})
 
 
