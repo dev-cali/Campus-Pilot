@@ -410,7 +410,7 @@ Statuses describe the **current implementation**, not certification. Evidence is
 | Safe failure responses | Implemented | Fixed fallback messages and HTTP mappings | No raw rejected drafts/provider errors in demo responses; legacy /test-ai still exposes exception text. |
 | Timeout/provider-error handling | Implemented | SDK timeout/no retries; proxy/UI timers; mocked failures | SDK timeout is not a guaranteed global deadline; live reliability unverified. |
 | Pre-release source revalidation | Partial | Second retrieval compared with original evidence | Detects changes in tested cases, but not an atomic production authorization/revocation transaction. |
-| Live AI correctness and robustness | Unverified | No successful live-call record in this inventory | Requires approved real-model evaluation; mock success is not model quality evidence. |
+| Live AI correctness and robustness | One local successful demo reported; broader quality remains unverified | One reported HTTP 200 fictional enrollment test using `gpt-5-mini` and a 1,000-token override returned a grounded answer citing Document 103, Page 1. | This demonstrates one successful local integration test only; broader quality, reliability, security, and production testing remain unverified. |
 | Production authentication/rate limiting | Missing | No corresponding middleware/identity flow in isolated demo | Required before exposing it publicly. |
 
 The service's simple word checks can deny benign questions or miss paraphrases.
@@ -501,9 +501,9 @@ not documentation alone.
 
 | Requirement | Current evidence | Status | Remaining work |
 | --- | --- | --- | --- |
-| End-to-end AI feature through backend | Source flow implemented; fresh mocked API tests; previous browser mock demonstration | **Partially completed** | Approve and verify a genuine model call through the UI/backend; disclose extractive scope |
+| End-to-end AI feature through backend | One reported local HTTP 200 real-model call through the UI/backend using `gpt-5-mini` and a 1,000-token override; fictional enrollment answer cited Document 103, Page 1 | **Partially completed** | Perform broader human-reviewed evaluation and disclose the fictional demonstration scope; production readiness remains unverified |
 | Backend processing/validation of AI output | Fresh tests validate structured selections, citations, excerpts and final response | **Completed locally for prototype scope** | Semantic correctness and production hardening remain separate |
-| Small evaluation dataset | Fourteen fictional scenarios exercised in passing API subtests | **Completed locally** | Add live-model observations/human-reviewed quality evidence when approved |
+| Small evaluation dataset | Fourteen fictional scenarios exercised in passing API subtests; one reported successful local live demonstration | **Completed locally** | Add broader live-model observations and human-reviewed quality evidence |
 | Mocked LLM tests in CI | [Workflow](../.github/workflows/ci.yml) executes Python suite; fresh local tests pass | **Partially completed** | Verify a hosted passing run on the intended commit/PR; frontend Node tests are not configured in CI |
 | Safe timeout/provider/malformed-output handling | Fresh mock failure tests and fixed safe responses | **Completed locally for tested cases** | Verify real service behavior and operational budgets before broader use |
 
@@ -521,7 +521,7 @@ run or branch-protection state was fetched during this inventory.
 
 | Finding | Evidence label | Consequence / owner |
 | --- | --- | --- |
-| Live LLM success not verified | Unverified | Marc/Brian need an approved configured call and reviewed result; do not substitute mock output |
+| Live LLM evidence is limited | One reported local HTTP 200 fictional enrollment test using `gpt-5-mini` with a 1,000-token override returned a grounded citation to Document 103, Page 1 | This is evidence of one successful local integration test, not production readiness; broader correctness, reliability, security, and production testing remain unverified |
 | Hosted CI/S3-03 deployment not verified | Unverified | Cassie and branch owner must confirm checks on the intended pushed revision |
 | Homepage `any[]` lint error | Verified by test | Full frontend lint fails; Josiah should approve the small typed-data correction separately |
 | Next.js manifest 16.4.0 vs installed 16.4.3 | Verified from source/package metadata | Local build evidence covers installed version; coordinate reproducible alignment, do not silently npm-audit-fix |
@@ -642,9 +642,12 @@ an honest limitation instead of a guessed fact. Tests are repeatable checks that
 compare actual behavior with expected behavior. They verify specific cases; they
 do not prove that a real model always behaves safely.
 
-Current achievement: a locally tested integration with a mock model and a real
-provider adapter ready for controlled verification. Remaining proof: a genuine
-live response and hosted CI, plus separately scoped production work.
+Current achievement: one reported successful local real-provider integration
+test using `gpt-5-mini` with a 1,000-token environment override returned HTTP 200
+for a fictional enrollment question with a grounded citation to Document 103,
+Page 1. This demonstrates one successful local test, not production readiness.
+Remaining proof: broader human-reviewed quality, reliability, and security
+evaluation, hosted CI, and separately scoped production work.
 
 ## 14. Explain Like I'm 5
 

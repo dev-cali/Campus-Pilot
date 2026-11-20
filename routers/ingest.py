@@ -1,20 +1,13 @@
-﻿from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from pydantic import BaseModel
 
-from database import SessionLocal, Document, DocumentChunk
+from auth import require_staff
+from database import Document, DocumentChunk, User, get_db
 from ai.document_processing import split_document_text
 
 router = APIRouter(prefix='/ingest', tags=['ingestion'])
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 class IngestPageRequest(BaseModel):
@@ -26,7 +19,11 @@ class IngestPageRequest(BaseModel):
 
 
 @router.post('/chunk')
-def ingest_page(request: IngestPageRequest, db: Session = Depends(get_db)):
+def ingest_page(
+    request: IngestPageRequest,
+    _user: User = Depends(require_staff),
+    db: Session = Depends(get_db),
+):
     document = db.query(Document).filter(Document.id == request.document_id).first()
     if document is None:
         raise HTTPException(status_code=404, detail='Document not found')
