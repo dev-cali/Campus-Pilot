@@ -314,7 +314,7 @@ class OpenAIAnswerGenerator:
     fallback. AI_MODEL must name
     a model available to the account that supports Chat Completions JSON schema.
     Model availability/pricing and live compatibility are not assumed.
-    AI_MAX_COMPLETION_TOKENS defaults to 400 (allowed range 128-1000).
+    AI_MAX_COMPLETION_TOKENS defaults to 400 (allowed range 128-3000).
     This includes reasoning tokens for reasoning models. Truncated JSON is
     rejected, never repaired through an extra paid request.
     """
@@ -331,7 +331,7 @@ class OpenAIAnswerGenerator:
             completion_limit = int(os.environ.get("AI_MAX_COMPLETION_TOKENS", "400"))
         except ValueError:
             raise DiagnosticFailure("invalid_completion_limit") from None
-        if not 128 <= completion_limit <= 1000:
+        if not 128 <= completion_limit <= 3000:
             raise DiagnosticFailure("invalid_completion_limit")
         try:
             from openai import (OpenAI, AuthenticationError, PermissionDeniedError,

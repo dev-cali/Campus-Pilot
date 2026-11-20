@@ -107,5 +107,25 @@
       "expected_status": "insufficient_evidence",
       "expected_ids": []
     }
-  ]
+  ],
+  "partial_support_evaluation": {
+    "id": "PS01",
+    "description": "Offline declared-partial-support rejection and explicit model-omission limitation; neither proves semantic completeness.",
+    "question": "What sample course list do fictional learners review for enrollment, and what time does the fictional library open?",
+    "desired_status": "insufficient_evidence",
+    "supported_document_id": 103,
+    "supported_quote": "Demo Campus University asks imaginary learners to review a sample course list in this exercise.",
+    "scenarios": [
+      {
+        "id": "PS01A",
+        "mock_behavior": "cooperative_abstention",
+        "observed_status": "insufficient_evidence"
+      },
+      {
+        "id": "PS01B",
+        "mock_behavior": "quotes_supported_part_only",
+        "observed_status": "answered"
+      }
+    ]
+  }
 }

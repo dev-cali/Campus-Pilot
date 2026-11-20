@@ -126,7 +126,10 @@ export default function Assistant() {
     event.preventDefault();
     if (active.current) return;
     setError("");
-    const validated = parseQuestion({ question });
+    // Validate the visible value too: browser restoration can bypass onChange.
+    const submittedQuestion = inputRef.current?.value ?? question;
+    setQuestion(submittedQuestion);
+    const validated = parseQuestion({ question: submittedQuestion });
     if (!validated) {
       setError("Enter a question of 1–2,000 characters.");
       return;
@@ -288,8 +291,10 @@ export default function Assistant() {
                 aria-label="Your university question" aria-describedby="question-help"
                 aria-invalid={Boolean(error)} autoComplete="off" maxLength={2000}
                 value={question} disabled={pending}
+                onInput={(event) => setQuestion(event.currentTarget.value)}
+                onFocus={(event) => setQuestion(event.currentTarget.value)}
                 onChange={(event) => setQuestion(event.target.value)} />
-              <button type="submit" aria-label="Ask CampusPilot" disabled={pending || !question.trim()}>
+              <button type="submit" aria-label="Ask CampusPilot" disabled={pending || !parseQuestion({ question })}>
                 <Icon name="send" size={20} />
               </button>
             </form>

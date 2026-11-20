@@ -18,12 +18,14 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip
-          cache-dependency-path: requirements-demo.txt
+          cache-dependency-path: |
+            requirements-demo.txt
+            requirements-test.txt
 
       - name: Install Python & Backend Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-demo.txt
+          python -m pip install -r requirements-test.txt
 
       - name: Run Python unit tests
         env:
@@ -33,9 +35,7 @@ jobs:
       - name: Run Backend Tests (Pytest)
         env:
           DATABASE_URL: "sqlite:///:memory:"
-        run: |
-          pip install pytest  
-          python -m pytest
+        run: python -m pytest -rs -q
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
