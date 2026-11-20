@@ -42,7 +42,13 @@ test("response validation enforces status, fictional marker, citation shape and 
 test("proxy cases never contact a real service", async (t) => {
   const originalFetch = globalThis.fetch;
   const originalBase = process.env.AI_API_BASE_URL;
+  const originalSecret = process.env.AI_DEMO_SHARED_SECRET;
+
+  const testSecret = "a".repeat(64);
+
   process.env.AI_API_BASE_URL = "http://127.0.0.1:8012";
+  process.env.AI_DEMO_SHARED_SECRET = testSecret;
+
   try {
     await t.test("answered and non-2xx backend statuses retain the actual contract", async () => {
       for (const status of ["answered", "insufficient_evidence", "denied", "unavailable"]) {
@@ -52,6 +58,10 @@ test("proxy cases never contact a real service", async (t) => {
           assert.deepEqual(JSON.parse(options.body), { question: "enrollment" });
           assert.equal(options.redirect, "error");
           assert.equal(options.cache, "no-store");
+          assert.equal(
+  new Headers(options.headers).get("X-AI-Demo-Secret"),
+  testSecret
+);
           return Response.json(payload, { status: contract.statusCodes[status] });
         };
         const response = await POST(request({ question: " enrollment " }, {
@@ -91,9 +101,58 @@ test("proxy cases never contact a real service", async (t) => {
       assert.equal(response.status, 422);
       assert.doesNotMatch(await response.text(), /private/);
     });
+      await t.test("missing shared secret prevents upstream requests", async () => {
+      let calls = 0;
+
+      globalThis.fetch = async () => {
+        calls++;
+        throw new Error("unexpected_fetch");
+      };
+
+      delete process.env.AI_DEMO_SHARED_SECRET;
+
+      try {
+        const response = await POST(
+          request({ question: "enrollment" })
+        );
+
+        assert.equal(response.status, 503);
+        assert.equal(calls, 0);
+      } finally {
+        process.env.AI_DEMO_SHARED_SECRET = testSecret;
+      }
+    });
+        await t.test("backend rate limit returns sanitized 429", async () => {
+      globalThis.fetch = async () =>
+        Response.json(
+          { detail: "private rate limit information" },
+          { status: 429 }
+        );
+
+      const response = await POST(
+        request({ question: "enrollment" })
+      );
+
+      assert.equal(response.status, 429);
+      assert.doesNotMatch(await response.text(), /private/);
+      assert.equal(
+        response.headers.get("cache-control"),
+        "no-store"
+      );
+    });
   } finally {
     globalThis.fetch = originalFetch;
-    if (originalBase === undefined) delete process.env.AI_API_BASE_URL;
-    else process.env.AI_API_BASE_URL = originalBase;
+
+    if (originalBase === undefined) {
+      delete process.env.AI_API_BASE_URL;
+    } else {
+      process.env.AI_API_BASE_URL = originalBase;
+    }
+
+    if (originalSecret === undefined) {
+      delete process.env.AI_DEMO_SHARED_SECRET;
+    } else {
+      process.env.AI_DEMO_SHARED_SECRET = originalSecret;
+    }
   }
 });

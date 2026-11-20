@@ -61,4 +61,4 @@ Local frontend verification used Node.js 24.14.0 and npm 11.9.0. The production 
 
 ### Known limitations
 
-The AI assistant remains a fictional demonstration, not a production-ready university information system. Live multi-part answer completeness, semantic relevance, paraphrase retrieval robustness, and public deployment security require further verification. Pre-merge test results do not establish the correctness of the integrated authentication baseline.
+The AI assistant remains a fictional demonstration, not a production-ready university information system. Live multi-part answer completeness, semantic relevance, paraphrase retrieval robustness, and public deployment security require further verification. Pre-merge test results do not establish the correctness of the integrated authentication baseline.git add docs/STATUS.md
