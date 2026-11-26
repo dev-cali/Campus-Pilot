@@ -1,0 +1,265 @@
+.page {
+  width: 100%;
+}
+
+.explorePanel {
+  gap: 0;
+}
+
+.featureNav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.featureNavLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px 10px;
+  border-radius: 10px;
+  color: #064e3b;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.featureNavLink > svg {
+  flex: 0 0 auto;
+  color: #047857;
+}
+
+.featureNavLink:hover {
+  background: rgba(0, 112, 60, 0.09);
+  color: #00703c;
+  transform: translateX(2px);
+}
+
+.dashboardCard {
+  min-height: 600px;
+}
+
+.dashboardContent {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 26px;
+  min-width: 0;
+}
+
+.welcomeSection {
+  padding: 8px 6px 0;
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: #059669;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+}
+
+.welcomeSection h1 {
+  margin: 0;
+  color: #064e3b;
+  font-size: clamp(27px, 4vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.welcomeSection > p:last-child {
+  max-width: 660px;
+  margin: 10px 0 0;
+  color: #477464;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.announcementsSection {
+  min-width: 0;
+  padding: 17px 16px 14px;
+  border: 1px solid rgba(0, 112, 60, 0.13);
+  border-radius: 17px;
+  background: linear-gradient(145deg, rgba(240, 253, 244, 0.78), rgba(255, 255, 255, 0.92));
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.sectionHeading .eyebrow {
+  margin-bottom: 3px;
+}
+
+.sectionHeading h2 {
+  margin: 0;
+  color: #00703c;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.previewBadge {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border: 1px solid rgba(4, 120, 87, 0.16);
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.contentNotice {
+  margin: 0;
+  color: #668579;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.quickAccessSection {
+  min-width: 0;
+}
+
+.quickAccessSection .sectionHeading {
+  margin-bottom: 12px;
+}
+
+.quickAccessGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.quickAccessCard {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  min-height: 92px;
+  padding: 13px 12px;
+  border: 1.5px solid rgba(0, 112, 60, 0.14);
+  border-radius: 14px;
+  background: #fff;
+  color: #064e3b;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 70, 30, 0.035);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.quickAccessCard:hover {
+  transform: translateY(-3px);
+  border-color: rgba(5, 150, 105, 0.4);
+  box-shadow: 0 10px 22px rgba(0, 70, 30, 0.09);
+}
+
+.quickAccessIcon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.quickAccessText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 7px;
+}
+
+.quickAccessText strong {
+  color: #065f46;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.quickAccessText small {
+  color: #6b8b7e;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.cardArrow {
+  position: absolute;
+  top: 10px;
+  right: 11px;
+  color: #7aa493;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.footer {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 4px;
+  color: #6c8d80;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.footer span {
+  padding: 0 4px;
+}
+
+@media (max-width: 920px) {
+  .explorePanel {
+    order: 2;
+  }
+
+  .dashboardCard {
+    order: 1;
+  }
+
+  .featureNav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+@media (max-width: 640px) {
+  .dashboardContent {
+    gap: 20px;
+  }
+
+  .announcementsSection {
+    padding: 13px 9px 11px;
+  }
+
+  .quickAccessGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .quickAccessCard {
+    min-height: 76px;
+  }
+
+  .featureNav {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featureNavLink,
+  .quickAccessCard {
+    transition: none;
+  }
+}

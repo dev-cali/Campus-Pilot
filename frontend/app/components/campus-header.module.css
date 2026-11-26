@@ -1,0 +1,100 @@
+.header {
+  position: relative;
+}
+
+.brand {
+  text-decoration: none;
+}
+
+.header :global(.nav-bar .home-btn) {
+  text-decoration: none;
+}
+
+.signInButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1.5px solid rgba(0, 112, 60, 0.2);
+  border-radius: 11px;
+  background: linear-gradient(135deg, #00703c, #059669);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 112, 60, 0.16);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.signInButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 7px 16px rgba(0, 112, 60, 0.22);
+}
+
+@media (max-width: 920px) {
+  .header :global(.brand-section) { width: auto; flex: 1 1 auto; min-width: 0; }
+  .header :global(.nav-bar) { flex: 1 0 100%; order: 2; }
+  .signInButton { min-height: 34px; padding: 0 10px; font-size: 11px; }
+}
+@media (max-width: 420px) {
+  .brand { font-size: 19px; gap: 6px; }
+  .brand :global(.logo) { width: 29px; height: 29px; flex-shrink: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .signInButton { transition: none; }
+}
+.authActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.accountName {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #006b43;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.authPlaceholder {
+  display: inline-block;
+  width: 150px;
+  height: 38px;
+}
+
+.signInButton {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.signInButton:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+
+@media (max-width: 920px) {
+  .authActions {
+    gap: 6px;
+  }
+
+  .accountName {
+    max-width: 90px;
+    font-size: 11px;
+  }
+
+  .authPlaceholder {
+    width: 120px;
+    height: 34px;
+  }
+}

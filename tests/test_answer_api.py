@@ -31,7 +31,13 @@ class AnswerApiTests(unittest.TestCase):
         self.retriever = KeywordRetriever(self.store)
         self.generator = Mock()
         self.service = AnswerService(self.retriever, self.generator)
-        self.client = TestClient(create_app(self.service, reference_date=REFERENCE_DATE))
+        self.client = TestClient(
+    create_app(
+        self.service,
+        reference_date=REFERENCE_DATE,
+        require_auth=False,
+    )
+)
         self.addCleanup(self.client.close)
 
     def test_evaluation_cases_through_api(self):
@@ -235,7 +241,13 @@ class AnswerApiTests(unittest.TestCase):
         import runpy
         namespace = runpy.run_path(str(Path(__file__).parent / "frontend_demo_server.py"))
         service = namespace["LabeledMockService"](self.retriever, namespace["MockGenerator"]())
-        with TestClient(create_app(service, reference_date=REFERENCE_DATE)) as client:
+        with TestClient(
+    create_app(
+        service,
+        reference_date=REFERENCE_DATE,
+        require_auth=False,
+    )
+) as client:
             for question, status in (
                 ("What sample course list do fictional learners review for enrollment?", "answered"),
                 ("What do fictional learners review for enrollment?", "answered"),

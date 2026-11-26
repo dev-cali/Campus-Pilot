@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import {
   parseAnswer,
   parseQuestion,
@@ -9,6 +9,7 @@ import {
   statusLabels,
   type Answer,
 } from "@/lib/ai-contract";
+import CampusHeader from "../components/campus-header";
 import "../home.css";
 import styles from "./assistant.module.css";
 
@@ -45,8 +46,6 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
     "aria-hidden": true as const,
   };
   const shapes: Record<string, ReactNode> = {
-    home: <><path d="M3 12l9-9 9 9" /><path d="M5 10v10h5v-6h4v6h5V10" /></>,
-    profile: <><circle cx="12" cy="8" r="4" /><path d="M4 21v-2a8 8 0 0 1 16 0v2" /></>,
     filter: <path d="M4 7h16M7 12h10M10 17h4" />,
     plus: <path d="M12 5v14M5 12h14" />,
     send: <><path d="M3 4l18 8-18 8 3-8z" /><path d="M6 12h15" /></>,
@@ -60,8 +59,12 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
   return <svg {...common}>{shapes[name] ?? null}</svg>;
 }
 
-export default function Assistant() {
-  const [category, setCategory] = useState<Category | null>(null);
+export default function Assistant({
+  initialCategory = null,
+}: {
+  initialCategory?: Category | null;
+}) {
+  const [category, setCategory] = useState<Category | null>(initialCategory);
   const [question, setQuestion] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -70,22 +73,12 @@ export default function Assistant() {
   const [filterCategory, setFilterCategory] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
   const active = useRef<AbortController | null>(null);
   const chatRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => () => active.current?.abort(), []);
-  useEffect(() => {
-    const onOutsideClick = (event: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-        setProfileOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onOutsideClick);
-    return () => document.removeEventListener("mousedown", onOutsideClick);
-  }, []);
+
 
   const current = conversations.find((chat) => chat.id === currentId) ?? null;
   const entries = current?.entries ?? [];
@@ -113,6 +106,14 @@ export default function Assistant() {
     setCurrentId(null);
     setError("");
     inputRef.current?.focus();
+  }
+
+  function handleHeaderCategory(event: MouseEvent<HTMLAnchorElement>, next: Category | null) {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    event.preventDefault();
+    if (pending || category === next) return;
+    if (next === null) newChat();
+    else selectCategory(next);
   }
 
   function openConversation(chat: Conversation) {
@@ -190,31 +191,11 @@ export default function Assistant() {
 
   return (
     <div className="page">
-      <header className="top-header">
-        <div className="brand-section">
-          <Link href="/" className="brand" aria-label="CampusPilot homepage">
-            <span className="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z" /></svg></span>
-            CampusPilot
-          </Link>
-        </div>
-        <nav className="nav-bar" aria-label="CampusPilot categories">
-          <Link href="/" className="home-btn"><Icon name="home" /> Home</Link>
-          {CATEGORIES.map((item) => <button key={item} type="button" className="cat"
-            aria-pressed={category === item} onClick={() => selectCategory(item)} disabled={pending}>
-            <Icon name={item} /> {item}
-          </button>)}
-        </nav>
-        <div className="profile-container" ref={profileRef}>
-          <button type="button" className="profile-btn" aria-label="User profile"
-            aria-expanded={profileOpen} onClick={() => setProfileOpen((value) => !value)}>
-            <Icon name="profile" size={20} />
-          </button>
-          <div className={`profile-dropdown${profileOpen ? " open" : ""}`} aria-hidden={!profileOpen}>
-            <div className="profile-header"><strong>Demo User</strong><small>Authentication not connected</small></div>
-            <Link href="/" className="profile-item" onClick={() => setProfileOpen(false)}>CampusPilot home</Link>
-          </div>
-        </div>
-      </header>
+      <CampusHeader
+        active={category === "Policies" ? "policies" : "ai"}
+        onAssistantClick={(event) => handleHeaderCategory(event, null)}
+        onPoliciesClick={(event) => handleHeaderCategory(event, "Policies")}
+      />
 
       <div className="layout">
         <aside className="savedpanel" aria-label="Conversation history">
@@ -251,6 +232,31 @@ export default function Assistant() {
         </aside>
 
         <main className="card">
+          <nav className={styles.categoryNav} aria-label="Assistant categories">
+          {CATEGORIES.map((item) => {
+            const isPublicCategory = item === "News" || item === "Policies";
+
+            if (!isPublicCategory) {
+              const next = `/ai?category=${item}`;
+              return (
+                <Link
+                  key={item}
+                  href={`/login?next=${encodeURIComponent(next)}`}
+                  className={`cat ${styles.categoryLink}`}
+                >
+                  <Icon name={item} /> {item}
+                </Link>
+              );
+            }
+
+            return (
+              <button key={item} type="button" className="cat"
+                aria-pressed={category === item} onClick={() => selectCategory(item)} disabled={pending}>
+                <Icon name={item} /> {item}
+              </button>
+            );
+          })}
+          </nav>
           <section className="main">
             {entries.length === 0 && <div className="stage">
               <h2 className="news-heading">CampusPilot AI Assistant</h2>

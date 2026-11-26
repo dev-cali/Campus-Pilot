@@ -212,3 +212,191 @@
     font-size: 28px;
   }
 }
+.login-wrapper .guest-navigation {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.login-wrapper .guest-navigation a {
+  color: #00703c;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.login-wrapper .guest-navigation a:hover {
+  color: #059669;
+  text-decoration: underline;
+}
+/* Password visibility toggle */
+.password-field {
+  position: relative;
+  width: 100%;
+}
+
+.password-field .input-field {
+  padding-right: 65px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #00703c;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.password-toggle:hover {
+  color: #059669;
+}
+/* Authentication feedback */
+.auth-feedback {
+  padding: 12px 14px;
+  margin: 10px 0;
+  border: 1px solid;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.auth-feedback.error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.auth-feedback.info {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+}
+.forgot-password-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #00703c;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.forgot-password-btn:hover {
+  text-decoration: underline;
+}
+/* Forgot Password Modal */
+
+.forgot-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 35, 20, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.forgot-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border: 2px solid var(--line);
+  border-radius: 22px;
+  padding: 32px 28px;
+  box-shadow: 0 20px 60px rgba(0, 70, 30, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: forgotModalIn 0.2s ease;
+}
+
+.forgot-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.forgot-modal-close:hover {
+  color: #00703c;
+}
+
+.forgot-modal-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #e6f4ed;
+  color: #00703c;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+}
+
+.forgot-modal h2 {
+  margin: 0;
+  text-align: center;
+  color: #00703c;
+  font-size: 25px;
+}
+
+.forgot-modal-description {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.forgot-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.forgot-back-btn {
+  border: none;
+  background: transparent;
+  color: #00703c;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.forgot-back-btn:hover {
+  color: #059669;
+}
+
+@keyframes forgotModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .forgot-modal {
+    padding: 28px 20px;
+  }
+}

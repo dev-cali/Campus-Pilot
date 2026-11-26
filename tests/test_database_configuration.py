@@ -35,8 +35,14 @@ class DatabaseConfigurationTests(unittest.TestCase):
     def test_backend_uses_environment_without_connecting(self):
         result = subprocess.run(
             [sys.executable, "-B", "-c",
-             "import database; assert database.get_engine().url.database == ':memory:'"],
-            cwd=ROOT, env={**os.environ, "DATABASE_URL": "sqlite:///:memory:"},
+             "from unittest.mock import patch; "
+             "from sqlalchemy.pool import Pool; "
+             "guard = patch.object(Pool, 'connect', side_effect=AssertionError('Unexpected connection')); "
+             "connect = guard.start(); "
+             "import database; assert database.get_engine().url.database == ':memory:'; "
+             "connect.assert_not_called(); guard.stop()"],
+            cwd=ROOT, env={**os.environ, "DATABASE_URL": "sqlite:///:memory:",
+                           "PYTHON_DOTENV_DISABLED": "1"},
             capture_output=True, text=True,
         )
         self.assertEqual(result.returncode, 0, "Backend environment configuration failed")

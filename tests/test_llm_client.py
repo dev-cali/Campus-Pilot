@@ -79,7 +79,7 @@ class LlmClientTests(unittest.TestCase):
         with patch.dict("os.environ", {"AI_API_KEY": "DO_NOT_LOG_KEY", "AI_MODEL": "gpt-5-mini"}), \
                 patch("openai.OpenAI") as sdk, \
                 self.assertLogs("uvicorn.error", level="WARNING") as captured, \
-                TestClient(create_app(service, reference_date=date(2026, 10, 26))) as api:
+                TestClient(create_app(service, reference_date=date(2026, 10, 26), require_auth=False)) as api:
             client = sdk.return_value
             client.chat.completions.create.side_effect = error
             response = api.post("/api/ai/ask", json={"question": "DO_NOT_LOG_QUESTION"})
@@ -123,7 +123,7 @@ class LlmClientTests(unittest.TestCase):
         client.chat.completions.create.assert_called_once()
         client.close.assert_called_once()
         self.assertEqual(sdk.call_args.kwargs["max_retries"], 0)
-        self.assertEqual(sdk.call_args.kwargs["timeout"], 20.0)
+        self.assertEqual(sdk.call_args.kwargs["timeout"], 60.0)
         kwargs = client.chat.completions.create.call_args.kwargs
         self.assertEqual(set(kwargs), {"model", "store", "max_completion_tokens", "messages", "response_format"})
         self.assertEqual(kwargs["model"], "gpt-5-mini")
@@ -279,7 +279,7 @@ class LlmClientTests(unittest.TestCase):
             client.chat.completions.create.return_value = self.response()
             raw = OpenAIAnswerGenerator().generate("sample", self.evidence)
             self.assertEqual(json.loads(raw)["status"], "insufficient_evidence")
-            self.assertEqual(sdk.call_args.kwargs["timeout"], 20.0)
+            self.assertEqual(sdk.call_args.kwargs["timeout"], 60.0)
             self.assertEqual(sdk.call_args.kwargs["max_retries"], 0)
             kwargs = client.chat.completions.create.call_args.kwargs
             self.assertEqual(kwargs["response_format"]["type"], "json_schema")
