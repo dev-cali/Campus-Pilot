@@ -1,5 +1,5 @@
-
 import { parseAnswer, parseQuestion, statusCodes } from "@/lib/ai-contract";
+import { createClient } from "@/utils/supabase/server";
 
 function json(body: unknown, status: number) {
   return Response.json(body, {
@@ -41,6 +41,28 @@ async function limitedText(
 }
 
 export async function POST(request: Request) {
+  // Verify Supabase authentication before processing questions.
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getClaims();
+
+    if (
+      error ||
+      !data?.claims?.sub ||
+      data.claims.role !== "authenticated" ||
+      data.claims.is_anonymous === true
+    ) {
+      return json(
+        { detail: "Authentication required. Please sign in." },
+        401
+      );
+    }
+  } catch {
+    return json(
+      { detail: "Authentication service is unavailable." },
+      503
+    );
+  }
   // Origin validation is not user authentication.
   const origin = request.headers.get("origin");
 
