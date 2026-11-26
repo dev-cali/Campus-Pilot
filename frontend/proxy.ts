@@ -1,62 +1,112 @@
 
+import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
-import { createHash, timingSafeEqual } from "node:crypto";
 
-function secureEqual(left: string, right: string): boolean {
-  const leftHash = createHash("sha256").update(left).digest();
-  const rightHash = createHash("sha256").update(right).digest();
-
-  return timingSafeEqual(leftHash, rightHash);
-}
-
-function unauthorized() {
-  return new NextResponse("Evaluator authentication required.", {
-    status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="CampusPilot AI Demo", charset="UTF-8"',
-      "Cache-Control": "no-store",
-    },
+function copyAuthState(
+  source: NextResponse,
+  destination: NextResponse
+) {
+  source.cookies.getAll().forEach((cookie) => {
+    destination.cookies.set(cookie);
   });
+
+  for (const name of ["cache-control", "expires", "pragma"]) {
+    const value = source.headers.get(name);
+
+    if (value) {
+      destination.headers.set(name, value);
+    }
+  }
 }
 
-export function proxy(request: NextRequest) {
-  const username = process.env.AI_DEMO_USERNAME || "";
-  const password = process.env.AI_DEMO_PASSWORD || "";
+export async function proxy(request: NextRequest) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-  // Fail closed if evaluator credentials are not configured.
-  if (!username || password.trim().length < 24) {
-    return new NextResponse("Demo access is not configured.", {
+  const isApiRequest = request.nextUrl.pathname.startsWith("/api/ai/");
+
+  // Fail closed if Supabase configuration is missing.
+  if (!url || !key) {
+    if (isApiRequest) {
+      return NextResponse.json(
+        { detail: "Authentication is not configured." },
+        { status: 503 }
+      );
+    }
+
+    return new NextResponse("Authentication is not configured.", {
       status: 503,
-      headers: {
-        "Cache-Control": "no-store",
-      },
+      headers: { "Cache-Control": "no-store" },
     });
   }
 
-  const authorization = request.headers.get("authorization");
+  let supabaseResponse = NextResponse.next({ request });
 
-  if (!authorization || !authorization.startsWith("Basic ")) {
-    return unauthorized();
+  const supabase = createServerClient(url, key, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+
+      setAll(cookiesToSet, headers) {
+        cookiesToSet.forEach(({ name, value }) => {
+          request.cookies.set(name, value);
+        });
+
+        supabaseResponse = NextResponse.next({ request });
+
+        cookiesToSet.forEach(({ name, value, options }) => {
+          supabaseResponse.cookies.set(name, value, options);
+        });
+
+        Object.entries(headers).forEach(([name, value]) => {
+          supabaseResponse.headers.set(name, value);
+        });
+      },
+    },
+  });
+
+  // Verify the JWT signature and refresh the session when necessary.
+  const { data, error } = await supabase.auth.getClaims();
+
+  const claims = error ? null : data?.claims;
+  const authenticated =
+    typeof claims?.sub === "string" && claims.sub.length > 0;
+
+  if (!authenticated) {
+    if (isApiRequest) {
+      const response = NextResponse.json(
+        { detail: "Authentication required." },
+        { status: 401 }
+      );
+
+      copyAuthState(supabaseResponse, response);
+      response.headers.set("Cache-Control", "no-store");
+
+      return response;
+    }
+
+    const loginUrl = request.nextUrl.clone();
+
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set(
+      "next",
+      `${request.nextUrl.pathname}${request.nextUrl.search}`
+    );
+
+    const response = NextResponse.redirect(loginUrl);
+
+    copyAuthState(supabaseResponse, response);
+    response.headers.set("Cache-Control", "no-store");
+
+    return response;
   }
 
-  const expectedCredentials = Buffer.from(
-    `${username}:${password}`,
-    "utf8"
-  ).toString("base64");
+  supabaseResponse.headers.set("Cache-Control", "no-store");
 
-  const suppliedCredentials = authorization.slice(6);
-
-  if (!secureEqual(suppliedCredentials, expectedCredentials)) {
-    return unauthorized();
-  }
-
-  const response = NextResponse.next();
-  response.headers.set("Cache-Control", "no-store");
-
-  return response;
+  return supabaseResponse;
 }
 
-// Protect both the AI page and its server-side API endpoints.
 export const config = {
   matcher: ["/ai/:path*", "/api/ai/:path*"],
 };

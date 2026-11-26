@@ -141,3 +141,21 @@
 @media (prefers-reduced-motion: reduce) {
   .page *, .page *::before, .page *::after { transition:none !important; animation:none !important; }
 }
+
+
+.page :global(.cathead) {
+  display: block;
+  text-align: center;
+  padding: 10px 4px;
+}
+
+.categoryNav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.categoryLink { text-decoration: none; }
+.categoryNav button:disabled { opacity: .55; cursor: not-allowed; }

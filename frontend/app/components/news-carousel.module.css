@@ -1,0 +1,137 @@
+.carousel {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  margin: 12px 0 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #065f46;
+  color: #fff;
+}
+
+.viewport {
+  position: relative;
+  width: 100%;
+  height: clamp(240px, 27vw, 330px);
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px clamp(48px, 8vw, 80px) 48px;
+  text-align: center;
+  color: #fff;
+}
+
+.news { background: linear-gradient(115deg, #064e3b, #00703c 50%, #047857); }
+.notice { background: linear-gradient(115deg, #065f46, #047857 55%, #087e65); }
+.policy { background: linear-gradient(115deg, #064e3b, #036b51 55%, #047857); }
+
+.slideContent {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.slideContent > svg { width: 40px; height: 40px; }
+.slideLabel {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #d1fae5;
+}
+.slideContent h3 {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 40px);
+  line-height: 1.15;
+  font-weight: 800;
+  color: #fff;
+}
+.subtitle {
+  margin: 0;
+  font-size: clamp(13px, 1.6vw, 16px);
+  line-height: 1.5;
+  color: #ecfdf5;
+}
+
+.enterRight { animation: enterRight 480ms ease both; }
+.enterLeft { animation: enterLeft 480ms ease both; }
+.exitLeft { animation: exitLeft 480ms ease both; }
+.exitRight { animation: exitRight 480ms ease both; }
+@keyframes enterRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes enterLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes exitLeft { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes exitRight { from { transform: translateX(0); } to { transform: translateX(100%); } }
+
+.arrow {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.65);
+  background: rgba(0,0,0,.18);
+  color: #fff;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.arrow:hover { background: rgba(0,0,0,.42); }
+.arrow svg { width: 20px; height: 20px; }
+.prev { left: 12px; }
+.next { right: 12px; }
+
+.carouselDots {
+  position: absolute;
+  z-index: 2;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.carouselDot {
+  width: 26px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.carouselDot::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.55);
+  transition: width 180ms ease, background 180ms ease;
+}
+.carouselDotActive::after { width: 23px; background: #fff; }
+.carousel button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+@media (max-width: 640px) {
+  .viewport { height: 250px; }
+  .slide { padding-inline: 45px; }
+  .arrow { width: 32px; height: 32px; }
+  .prev { left: 6px; }
+  .next { right: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .enterRight, .enterLeft { animation: none; }
+  .exitLeft, .exitRight { animation: none; visibility: hidden; }
+  .arrow, .carouselDot::after { transition: none; }
+}
