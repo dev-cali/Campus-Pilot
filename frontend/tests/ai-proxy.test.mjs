@@ -11,8 +11,15 @@ const compile = (source) => ts.transpileModule(source, {
 const moduleUrl = (source) => `data:text/javascript;base64,${Buffer.from(source).toString("base64")}`;
 const contractUrl = moduleUrl(compile(await readFile(new URL("../lib/ai-contract.ts", import.meta.url), "utf8")));
 const contract = await import(contractUrl);
+const authUrl = moduleUrl(`export async function createClient() {
+  return { auth: { getClaims: async () => globalThis.__supabaseClaimsResult } };
+}`);
+globalThis.__supabaseClaimsResult = {
+  data: { claims: { sub: "fictional-test-user", role: "authenticated" } }, error: null,
+};
 const route = compile(await readFile(new URL("../app/api/ai/ask/route.ts", import.meta.url), "utf8"))
-  .replace('"@/lib/ai-contract"', JSON.stringify(contractUrl));
+  .replace(/(["'])@\/lib\/ai-contract\1/g, JSON.stringify(contractUrl))
+  .replace(/(["'])@\/utils\/supabase\/server\1/g, JSON.stringify(authUrl));
 const { POST } = await import(moduleUrl(route));
 const answered = {
   status: "answered", answer: "Fictional source excerpt.", fictional: true,
@@ -81,6 +88,28 @@ test("proxy cases never contact a real service", async (t) => {
       assert.equal((await POST(request({ question: "x".repeat(20000) }))).status, 422);
       assert.equal(calls, 0);
     });
+    await t.test("anonymous and invalid claims are rejected before backend access", async () => {
+      let calls = 0;
+      globalThis.fetch = async () => { calls++; throw new Error("unexpected_fetch"); };
+      const rejected = [
+        { data: null, error: { message: "sanitized test error" } },
+        { data: { claims: { role: "authenticated" } }, error: null },
+        { data: { claims: { sub: "anonymous", role: "authenticated", is_anonymous: true } }, error: null },
+      ];
+      try {
+        for (const result of rejected) {
+          globalThis.__supabaseClaimsResult = result;
+          const response = await POST(request({ question: "enrollment" }));
+          assert.equal(response.status, 401);
+          assert.match((await response.json()).detail, /sign in/i);
+        }
+        assert.equal(calls, 0);
+      } finally {
+        globalThis.__supabaseClaimsResult = {
+          data: { claims: { sub: "fictional-test-user", role: "authenticated" } }, error: null,
+        };
+      }
+    });
     await t.test("network, timeout, invalid JSON and status mismatch are sanitized", async () => {
       for (const fake of [
         async () => { throw new Error("private upstream detail"); },
@@ -142,6 +171,7 @@ test("proxy cases never contact a real service", async (t) => {
     });
   } finally {
     globalThis.fetch = originalFetch;
+    delete globalThis.__supabaseClaimsResult;
 
     if (originalBase === undefined) {
       delete process.env.AI_API_BASE_URL;

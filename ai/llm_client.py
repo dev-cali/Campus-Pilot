@@ -337,7 +337,7 @@ class OpenAIAnswerGenerator:
             from openai import (OpenAI, AuthenticationError, PermissionDeniedError,
                                 RateLimitError, APITimeoutError, APIStatusError,
                                 APIConnectionError)
-            client = OpenAI(api_key=key, timeout=20.0, max_retries=0)
+            client = OpenAI(api_key=key, timeout=60.0, max_retries=0)
         except Exception:
             raise DiagnosticFailure("sdk_initialization_failed") from None
 

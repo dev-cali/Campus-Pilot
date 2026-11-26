@@ -1,4 +1,5 @@
 import { parseAnswer, parseQuestion, statusCodes } from "@/lib/ai-contract";
+export const maxDuration = 120;
 import { createClient } from "@/utils/supabase/server";
 
 function json(body: unknown, status: number) {
@@ -126,7 +127,7 @@ export async function POST(request: Request) {
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 25000);
+  const timer = setTimeout(() => controller.abort(), 75000);
 
   try {
     const base = new URL(

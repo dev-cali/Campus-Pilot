@@ -123,7 +123,7 @@ class LlmClientTests(unittest.TestCase):
         client.chat.completions.create.assert_called_once()
         client.close.assert_called_once()
         self.assertEqual(sdk.call_args.kwargs["max_retries"], 0)
-        self.assertEqual(sdk.call_args.kwargs["timeout"], 20.0)
+        self.assertEqual(sdk.call_args.kwargs["timeout"], 60.0)
         kwargs = client.chat.completions.create.call_args.kwargs
         self.assertEqual(set(kwargs), {"model", "store", "max_completion_tokens", "messages", "response_format"})
         self.assertEqual(kwargs["model"], "gpt-5-mini")
@@ -279,7 +279,7 @@ class LlmClientTests(unittest.TestCase):
             client.chat.completions.create.return_value = self.response()
             raw = OpenAIAnswerGenerator().generate("sample", self.evidence)
             self.assertEqual(json.loads(raw)["status"], "insufficient_evidence")
-            self.assertEqual(sdk.call_args.kwargs["timeout"], 20.0)
+            self.assertEqual(sdk.call_args.kwargs["timeout"], 60.0)
             self.assertEqual(sdk.call_args.kwargs["max_retries"], 0)
             kwargs = client.chat.completions.create.call_args.kwargs
             self.assertEqual(kwargs["response_format"]["type"], "json_schema")
