@@ -18,8 +18,8 @@ globalThis.__supabaseClaimsResult = {
   data: { claims: { sub: "fictional-test-user", role: "authenticated" } }, error: null,
 };
 const route = compile(await readFile(new URL("../app/api/ai/ask/route.ts", import.meta.url), "utf8"))
-  .replace('"@/lib/ai-contract"', JSON.stringify(contractUrl))
-  .replace('"@/utils/supabase/server"', JSON.stringify(authUrl));
+  .replace(/(["'])@\/lib\/ai-contract\1/g, JSON.stringify(contractUrl))
+  .replace(/(["'])@\/utils\/supabase\/server\1/g, JSON.stringify(authUrl));
 const { POST } = await import(moduleUrl(route));
 const answered = {
   status: "answered", answer: "Fictional source excerpt.", fictional: true,
