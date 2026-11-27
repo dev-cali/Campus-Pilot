@@ -7,6 +7,7 @@ verifier, production authorization system, or complete injection defense.
 
 import json
 import re
+from contextlib import nullcontext
 from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Literal, Protocol
@@ -688,7 +689,9 @@ class AnswerService:
         self.readiness_check = readiness_check
 
     def ask(self, question: str, *, reference_date: date) -> AnswerResponse:
-        with diagnostic_request():
+        scope_factory = getattr(type(self.retriever), "request_scope", None)
+        request_scope = scope_factory(self.retriever) if callable(scope_factory) else nullcontext()
+        with diagnostic_request(), request_scope:
             return self._ask(question, reference_date=reference_date)
 
     def _ask(self, question: str, *, reference_date: date) -> AnswerResponse:

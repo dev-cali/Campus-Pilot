@@ -23,7 +23,8 @@ from ai.demo_security import require_demo_secret
 from ai.demo_rate_limit import create_demo_rate_limiter
 from ai.demo_store import DemoStore
 from ai.llm_client import OpenAIAnswerGenerator, configuration_diagnostics
-from ai.local_retrieval import KeywordRetriever, validate_question
+from ai.local_retrieval import validate_question
+from ai.pinecone_retrieval import create_retriever
 
 
 class AskRequest(StrictModel):
@@ -69,7 +70,7 @@ def create_app(
                 connection.close()
 
         service = AnswerService(
-            KeywordRetriever(store),
+            create_retriever(store),
             OpenAIAnswerGenerator(),
             readiness_check=check_readiness,
         )
