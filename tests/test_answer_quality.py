@@ -6,8 +6,10 @@ import unittest
 from datetime import date
 from pathlib import Path
 from unittest.mock import Mock
+from fastapi.testclient import TestClient
 
 from ai.answer_service import AnswerService, IncompleteAnswer, _answer_question_parts, validate_selection
+from ai.demo_api import create_app
 from ai.demo_store import DemoStore
 from ai.document_eligibility import load_fictional_documents
 from ai.document_processing import split_document_text
@@ -89,6 +91,7 @@ class AnswerQualityTests(unittest.TestCase):
             ("How much is tuition for 18 units before scholarships, excluding fixed charges?", "₱18,000", "excluding fixed charges"),
             ("What is the total assessment for 18 units before scholarships?", "₱21,000", "₱3,000 fixed charges"),
             ("What is the total assessment for 15 units before scholarships?", "₱18,000", "₱15,000"),
+            ("How much is the total cost for 18 units before scholarships?", "₱21,000", "₱3,000 fixed charges"),
         )
         for question, expected, supporting_text in cases:
             with self.subTest(question=question):
@@ -99,6 +102,53 @@ class AnswerQualityTests(unittest.TestCase):
                 self.assertIn(supporting_text, result.answer)
                 self.assertEqual([citation.document_id for citation in result.citations], [110])
                 self.generator.generate.assert_not_called()
+
+    def test_requested_academic_questions_with_mocked_grounded_selections(self):
+        retriever = KeywordRetriever(self.store)
+        cases = (
+            ("When does Term A enrollment open?", (
+                ("Enrollment opens January 4, 2027, and closes January 8, 2027.",
+                 "Enrollment opens January 4, 2027, and closes January 8, 2027."),), (107,)),
+            ("When do Term A classes begin?", (
+                ("Classes begin January 11, 2027.", "Classes begin January 11, 2027."),), (107,)),
+            ("What are the requirements for the Lakbay Academic Merit Award?", (), ()),
+            ("How do I request a transcript?", (
+                ("Submit a mock transcript request to the Registrar; processing takes five working days and costs ₱300 per official copy.",
+                 "submit a mock transcript request to the Registrar; processing takes five working days and costs ₱300 per official copy."),), (112,)),
+            ("What is the passing grade?", (("3.00 is passing.", "3.00 is passing"),), (111,)),
+            ("When does enrollment open, and when do classes start?", (
+                ("Enrollment opens January 4, 2027, and closes January 8, 2027.",
+                 "Enrollment opens January 4, 2027, and closes January 8, 2027."),
+                ("Classes begin January 11, 2027.", "Classes begin January 11, 2027.")), (107,)),
+        )
+        for question, requested_parts, expected_documents in cases:
+            with self.subTest(question=question):
+                evidence = retriever.retrieve(question, reference_date=REFERENCE_DATE)
+                self.generator.reset_mock()
+                if not expected_documents:
+                    self.assertEqual(evidence, ())
+                    result = self.service(evidence).ask(question, reference_date=REFERENCE_DATE)
+                    self.assertEqual(result.status, "insufficient_evidence")
+                    self.generator.generate.assert_not_called()
+                    continue
+                self.assertTrue(evidence)
+                output_parts = []
+                for index, (answer_text, quote) in enumerate(requested_parts, 1):
+                    source = next(item for item in evidence if quote in item.chunk.chunk_text)
+                    output_parts.append({
+                        "part_index": index,
+                        "part_text": _answer_question_parts(question)[index - 1],
+                        "support": "supported",
+                        "answer_text": answer_text,
+                        "evidence": [{"evidence_id": source.evidence_id, "quote": quote}],
+                    })
+                self.generator.generate.return_value = json.dumps(
+                    {"status": "answered", "parts": output_parts}, ensure_ascii=False,
+                )
+                result = self.service(evidence).ask(question, reference_date=REFERENCE_DATE)
+                self.assertEqual(result.status, "answered")
+                self.assertEqual({citation.document_id for citation in result.citations},
+                                 set(expected_documents))
 
     def test_conditional_scholarship_discount_affects_tuition_only(self):
         evidence = self.evidence((110, 1), (109, 2))
@@ -283,6 +333,114 @@ class AnswerQualityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_selection(json.dumps({"status": "answered", "parts": [part]}),
                                evidence, question)
+
+    def test_selection_diagnostics_classify_parser_schema_and_grounding_failures(self):
+        evidence = self.evidence((107, 1))
+        question = "When does Term A enrollment open?"
+        part_text = _answer_question_parts(question)[0]
+        valid_shape_bad_id = json.dumps({"status": "answered", "parts": [{
+            "part_index": 1, "part_text": part_text, "support": "supported",
+            "answer_text": "Enrollment opens January 4, 2027.",
+            "evidence": [{"evidence_id": "private-do-not-log", "quote": "January 4, 2027"}],
+        }]})
+        incomplete = json.dumps({"status": "answered", "parts": [{
+            "part_index": 1, "part_text": part_text, "support": "supported",
+            "answer_text": "Orientation begins January 4, 2027.",
+            "evidence": [{"evidence_id": evidence[0].evidence_id,
+                          "quote": "Term A academic calendar. Enrollment opens January 4, 2027, and closes January 8, 2027."}],
+        }]})
+        valid_part = {"part_index": 1, "part_text": part_text, "support": "supported",
+                      "answer_text": "Enrollment opens January 4, 2027.",
+                      "evidence": [{"evidence_id": evidence[0].evidence_id,
+                                    "quote": "Term A academic calendar. Enrollment opens January 4, 2027, and closes January 8, 2027."}]}
+        cases = [
+            ("{malformed-do-not-log", "malformed_json", "unavailable"),
+            ("{}", "schema_invalid", "unavailable"),
+            (valid_shape_bad_id, "unknown_evidence_identifier", "unavailable"),
+            (incomplete, "incomplete_answer", "insufficient_evidence"),
+            (json.dumps({"status": "answered", "parts": [dict(valid_part, part_index=2)]}),
+             "question_part_index_mismatch", "unavailable"),
+            (json.dumps({"status": "answered", "parts": [dict(valid_part, part_text="another question")]}),
+             "question_part_mapping_mismatch", "unavailable"),
+            (json.dumps({"status": "answered", "parts": [dict(valid_part, evidence=[])]}),
+             "supported_part_missing_answer_or_evidence", "unavailable"),
+            (json.dumps({"status": "answered", "parts": [dict(valid_part, evidence=[{
+                "evidence_id": evidence[0].evidence_id, "quote": " "}])]}),
+             "empty_evidence_quote", "unavailable"),
+            (json.dumps({"status": "answered", "parts": [dict(valid_part, evidence=[{
+                "evidence_id": evidence[0].evidence_id, "quote": "Enrollment opens January 5, 2027."}])]}),
+             "exact_quote_mismatch", "unavailable"),
+            (json.dumps({"status": "answered", "parts": [{
+                "part_index": 1, "part_text": part_text, "support": "unsupported",
+                "answer_text": "Enrollment opens January 4, 2027.",
+                "evidence": valid_part["evidence"],
+            }]}), "unsupported_part_has_answer_or_evidence", "unavailable"),
+            ('{"status":"answered","status":"answered","parts":[]}',
+             "duplicate_json_key", "unavailable"),
+            (json.dumps({"status": "answered", "parts": []}),
+             "answered_without_parts", "unavailable"),
+            ("x" * 20001, "invalid_selection_response", "unavailable"),
+        ]
+        for raw, expected, status in cases:
+            with self.subTest(reason=expected):
+                self.generator.reset_mock()
+                self.generator.generate.return_value = raw
+                with self.assertLogs("uvicorn.error", level="WARNING") as captured:
+                    result = self.service(evidence).ask(question, reference_date=REFERENCE_DATE)
+                events = [json.loads(record.getMessage()) for record in captured.records]
+                failure = next(event for event in events if event.get("selection_reason"))
+                self.assertEqual(failure["selection_reason"], expected)
+                self.assertEqual(result.status, status)
+                self.assertNotIn("do-not-log", " ".join(captured.output))
+
+    def test_real_retrieval_and_api_accept_question_punctuation_but_keep_grounding(self):
+        question = "When does Term A enrollment open?"
+        retriever = KeywordRetriever(self.store)
+        evidence = retriever.retrieve(question, reference_date=REFERENCE_DATE)
+        self.assertEqual([(item.chunk.document_id, item.chunk.page_no) for item in evidence], [(107, 1)])
+        item = evidence[0]
+        quote = next(text for text in (
+            "Term A academic calendar. Enrollment opens January 4, 2027, and closes January 8, 2027.",
+            "Enrollment opens January 4, 2027, and closes January 8, 2027.",
+        ) if text in item.chunk.chunk_text)
+
+        def response(*, part_text=question,
+                     answer_text="Term A enrollment opens January 4, 2027, and closes January 8, 2027.",
+                     evidence_id=item.evidence_id, source_quote=quote, part_index=1):
+            return json.dumps({"status": "answered", "parts": [{
+                "part_index": part_index, "part_text": part_text, "support": "supported",
+                "answer_text": answer_text,
+                "evidence": [{"evidence_id": evidence_id, "quote": source_quote}],
+            }]})
+
+        app = create_app(AnswerService(retriever, self.generator),
+                         reference_date=REFERENCE_DATE, require_auth=False)
+        with TestClient(app) as client:
+            for part_text in (question, "  " + question + "  ", _answer_question_parts(question)[0]):
+                with self.subTest(part_text=part_text):
+                    self.generator.generate.return_value = response(part_text=part_text)
+                    result = client.post("/api/ai/ask", json={"question": question})
+                    self.assertEqual(result.status_code, 200)
+                    self.assertEqual(result.json()["status"], "answered")
+                    self.assertEqual([(citation["document_id"], citation["page_no"])
+                                      for citation in result.json()["citations"]], [(107, 1)])
+                    self.assertIn("January 4, 2027", result.json()["answer"])
+                    self.assertIn("January 8, 2027", result.json()["answer"])
+
+            rejected = (
+                (response(answer_text="Term A enrollment opens January 5, 2027."), "insufficient_evidence"),
+                (response(evidence_id="invented-evidence"), "unavailable"),
+                (response(source_quote="Enrollment opens January 4, 2027; and closes January 8, 2027."), "unavailable"),
+                (response(part_index=2), "unavailable"),
+                (response(answer_text="Term A enrollment opens January 4, 2027 and you are guaranteed admission."),
+                 "insufficient_evidence"),
+            )
+            for raw, expected_status in rejected:
+                with self.subTest(expected_status=expected_status, raw=raw):
+                    self.generator.generate.return_value = raw
+                    result = client.post("/api/ai/ask", json={"question": question})
+                    self.assertEqual(result.json()["status"], expected_status)
+                    self.assertEqual(result.json()["citations"], [])
 
 
 if __name__ == "__main__":

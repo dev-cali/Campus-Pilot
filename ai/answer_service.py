@@ -11,7 +11,7 @@ from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from ai.local_retrieval import (
     Evidence, Retriever, _passage_tokens, _tokens,
@@ -76,11 +76,19 @@ class AnswerGenerator(Protocol):
         ...
 
 
+class SelectionValidationFailure(ValueError):
+    """A fixed, safe reason for a rejected provider selection."""
+
+    def __init__(self, reason: str):
+        self.reason = reason
+        super().__init__(reason)
+
+
 def _unique_json_object(pairs: list) -> dict:
     result = {}
     for key, value in pairs:
         if key in result:
-            raise ValueError("invalid_model_output")
+            raise SelectionValidationFailure("duplicate_json_key")
         result[key] = value
     return result
 
@@ -91,10 +99,16 @@ def _answer_question_parts(question: str) -> tuple[str, ...]:
         r";\s*|\band\s+(?=(?:when|what|who|where|how|which|whether|can|does|do|is)\b)",
         question, maxsplit=2, flags=re.IGNORECASE,
     )
-    parts = tuple(piece.strip(" ,;?") for piece in pieces if piece.strip(" ,;?"))
+    parts = tuple(_normalize_question_part(piece) for piece in pieces
+                  if _normalize_question_part(piece))
     if len(parts) > 2 or not parts or not all(_tokens(part) for part in parts):
         return ()
     return parts
+
+
+def _normalize_question_part(part: str) -> str:
+    """Ignore only boundary whitespace and separators used by question splitting."""
+    return part.strip(" ,;?")
 
 
 class IncompleteAnswer(ValueError):
@@ -608,43 +622,63 @@ def deterministic_financial_answer(question: str, evidence: tuple[Evidence, ...]
 def validate_selection(raw: str, evidence: tuple[Evidence, ...], question: str) -> AnswerResponse:
     """Validate answer-part coverage, quote IDs, high-risk values, and lexical grounding."""
     if not isinstance(raw, str) or len(raw) > 20000:
-        raise ValueError("invalid_model_output")
+        raise SelectionValidationFailure("invalid_selection_response")
     selection = ModelSelection.model_validate(json.loads(raw, object_pairs_hook=_unique_json_object))
     if not selection.parts:
         # Explicit whole-question abstention, including part-budget overflow.
         if selection.status != "insufficient_evidence":
-            raise ValueError("invalid_model_output")
+            raise SelectionValidationFailure("answered_without_parts")
         return fallback("insufficient_evidence")
     by_id = {item.evidence_id: item.chunk for item in evidence}
     if len(by_id) != len(evidence):
-        raise ValueError("invalid_evidence")
+        raise SelectionValidationFailure("duplicate_evidence_ids")
     question_parts = _answer_question_parts(question)
     if not question_parts or len(selection.parts) != len(question_parts):
         return fallback("insufficient_evidence")
     answers, cited_ids = [], set()
     unsupported = False
     for index, item in enumerate(selection.parts, 1):
-        if item.part_index != index or item.part_text.strip() != question_parts[index - 1]:
-            raise ValueError("invalid_model_output")
+        normalized_part = _normalize_question_part(item.part_text)
+        if item.part_index != index:
+            raise SelectionValidationFailure("question_part_index_mismatch")
+        if normalized_part != question_parts[index - 1]:
+            raise SelectionValidationFailure("question_part_mapping_mismatch")
         if item.support == "unsupported":
             if item.answer_text is not None or item.evidence:
-                raise ValueError("invalid_model_output")
+                raise SelectionValidationFailure("unsupported_part_has_answer_or_evidence")
             unsupported = True
             continue
         if not item.answer_text or not item.answer_text.strip() or not item.evidence:
-            raise ValueError("invalid_model_output")
+            raise SelectionValidationFailure("supported_part_missing_answer_or_evidence")
         quotes = []
         for supporting in item.evidence:
             chunk = by_id.get(supporting.evidence_id)
-            if chunk is None or not supporting.quote.strip() or supporting.quote not in chunk.chunk_text or not chunk.version:
-                raise ValueError("invalid_model_output")
+            if chunk is None:
+                raise SelectionValidationFailure("unknown_evidence_identifier")
+            if not supporting.quote.strip():
+                raise SelectionValidationFailure("empty_evidence_quote")
+            if supporting.quote not in chunk.chunk_text:
+                raise SelectionValidationFailure("exact_quote_mismatch")
+            if not chunk.version:
+                raise SelectionValidationFailure("source_version_missing")
             quotes.append(supporting.quote)
             cited_ids.add(supporting.evidence_id)
-        _validate_answer_text(item.answer_text, item.part_text, quotes)
+        _validate_answer_text(item.answer_text, normalized_part, quotes)
         answers.append(item.answer_text.strip())
     if unsupported or selection.status != "answered":
         return fallback("insufficient_evidence")
     return _render_answer(answers, _citation_list(evidence, cited_ids))
+
+
+def _selection_failure_reason(error: Exception) -> str:
+    """Return only fixed failure labels; never include model output or exception text."""
+    if isinstance(error, json.JSONDecodeError):
+        return "malformed_json"
+    if isinstance(error, ValidationError):
+        return "schema_invalid"
+    if isinstance(error, SelectionValidationFailure):
+        return error.reason
+    return "validation_failed"
 
 
 class AnswerService:
@@ -693,7 +727,13 @@ class AnswerService:
                 failure_category = "provider_failed"
                 raw = self.generator.generate(question, evidence)
                 failure_category = "selection_invalid"
-                answer = validate_selection(raw, evidence, question)
+                try:
+                    answer = validate_selection(raw, evidence, question)
+                except IncompleteAnswer:
+                    raise
+                except Exception as error:
+                    diagnostic_event("selection_invalid", selection_reason=_selection_failure_reason(error))
+                    return fallback("unavailable")
             if answer.status == "answered":
                 # Fail closed if sources, permissions, or passage data changed
                 # during generation. This does not eliminate every race window.
@@ -704,14 +744,15 @@ class AnswerService:
                     return fallback("unavailable")
             return answer
         except IncompleteAnswer:
-            diagnostic_event("selection_invalid")
+            diagnostic_event("selection_invalid", selection_reason="incomplete_answer")
             return fallback("insufficient_evidence")
         except DiagnosticFailure as error:
             diagnostic_event(error.category, error.http_status,
                              provider_code=error.provider_code, provider_param=error.provider_param,
                              provider_classification=error.provider_classification,
                              provider_attribute_states=error.provider_attribute_states,
-                             provider_response=error.provider_response)
+                             provider_response=error.provider_response,
+                             selection_reason=error.selection_reason)
             return fallback("unavailable")
         except Exception:
             # Deliberate application boundary: no provider/database error text,
