@@ -13,7 +13,7 @@ import {
   type AiFailureAction,
 } from "@/lib/ai-errors";
 import { requestAiAnswer } from "@/lib/ai-request";
-import { shouldSubmitOnEnter } from "@/lib/ai-composer";
+import { getComposerAction, shouldSubmitOnEnter } from "@/lib/ai-composer";
 import { AiRequestLifecycle, type RequestLease } from "@/lib/ai-request-lifecycle";
 import CampusHeader from "../components/campus-header";
 import "../home.css";
@@ -62,6 +62,7 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
     filter: <path d="M4 7h16M7 12h10M10 17h4" />,
     plus: <path d="M12 5v14M5 12h14" />,
     send: <><path d="M3 4l18 8-18 8 3-8z" /><path d="M6 12h15" /></>,
+    stop: <rect x="6" y="6" width="12" height="12" rx="1" fill="currentColor" stroke="none" />,
     News: <><path d="M4 4h16v16H4z" /><path d="M8 8h8M8 12h8M8 16h5" /></>,
     Scholarships: <><circle cx="12" cy="12" r="9" /><path d="M12 6v12M15 9c-3-2-6 0-6 2s6 1 6 4-4 3-6 1" /></>,
     Policies: <><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 8h6M9 12h6M9 16h3" /></>,
@@ -109,6 +110,7 @@ export default function Assistant({
     : conversations;
   const shown = showAll ? visibleConversations : visibleConversations.slice(0, 7);
   const questionLength = Array.from(question).length;
+  const composerAction = getComposerAction(pending, Boolean(parseQuestion({ question })));
   const questionTooLong = questionLength > 2000;
   const questionError = error || (questionTooLong ? "Questions must be no longer than 2,000 characters." : "");
   const latestEntry = entries.at(-1);
@@ -146,7 +148,7 @@ export default function Assistant({
 
   function newChat() {
     cancelActiveRequest(
-      "Waiting stopped because you started a new chat. The backend may still be processing; you can retry this question later.",
+      "Waiting stopped because you started a new chat. The backend may still be processing, and provider billing may continue; you can retry this question later.",
       "retry",
     );
     setCurrentId(null);
@@ -158,7 +160,7 @@ export default function Assistant({
 
   function selectCategory(next: Category) {
     cancelActiveRequest(
-      "Waiting stopped because you changed the selected category. The backend may still be processing; you can retry this question later.",
+      "Waiting stopped because you changed the selected category. The backend may still be processing, and provider billing may continue; you can retry this question later.",
       "retry",
     );
     setCategory((previous) => previous === next ? null : next);
@@ -177,7 +179,7 @@ export default function Assistant({
 
   function openConversation(chat: Conversation) {
     cancelActiveRequest(
-      "Waiting stopped because you opened another conversation. The backend may still be processing; you can retry this question later.",
+      "Waiting stopped because you opened another conversation. The backend may still be processing, and provider billing may continue; you can retry this question later.",
       "retry",
     );
     setCurrentId(chat.id);
@@ -298,7 +300,7 @@ export default function Assistant({
                 onClick={() => {
                   if (activeRequest.current?.chatId === chat.id) {
                     cancelActiveRequest(
-                      "Waiting stopped because this conversation was deleted. The backend may still be processing.",
+                      "Waiting stopped because this conversation was deleted. The backend may still be processing, and provider billing may continue.",
                     );
                   }
                   setConversations((previous) => previous.filter((item) => item.id !== chat.id));
@@ -379,10 +381,9 @@ export default function Assistant({
                 </div>}
               </div>)}
               {pending && <div className={`msg ${styles.pending}`}>
-                <span>{slowRequest ? "This is taking longer than usual. Please keep waiting or stop waiting." : "Processing your question…"}</span>
-                <button type="button" className={styles.stop} onClick={() => cancelActiveRequest(
-                  "Waiting stopped. The backend may still be processing; you can retry this question manually.", "retry",
-                )}>Stop waiting</button>
+                <span>{slowRequest
+                  ? "This is taking longer than usual. You can stop waiting from the send button."
+                  : "Processing your question…"}</span>
               </div>}
             </div>
             {questionError && <p id="question-error" className={styles.error} role="alert">{questionError}</p>}
@@ -398,8 +399,15 @@ export default function Assistant({
                   if (error) setError("");
                 }}
                 onKeyDown={handleComposerKeyDown} />
-              <button type="submit" aria-label="Ask CampusPilot" disabled={pending || !parseQuestion({ question })}>
-                <Icon name="send" size={20} />
+              <button type={composerAction.type} aria-label={composerAction.label} title={composerAction.title}
+                disabled={composerAction.disabled} onClick={pending ? (event) => {
+                  event.preventDefault();
+                  cancelActiveRequest(
+                    "Waiting stopped. The backend may still be processing, and provider billing may continue; you can retry this question manually.",
+                    "retry",
+                  );
+                } : undefined}>
+                <Icon name={composerAction.action} size={20} />
               </button>
             </form>
             <p id="question-help" className={styles.hint}>
