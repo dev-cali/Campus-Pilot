@@ -91,10 +91,16 @@ def _answer_question_parts(question: str) -> tuple[str, ...]:
         r";\s*|\band\s+(?=(?:when|what|who|where|how|which|whether|can|does|do|is)\b)",
         question, maxsplit=2, flags=re.IGNORECASE,
     )
-    parts = tuple(piece.strip(" ,;?") for piece in pieces if piece.strip(" ,;?"))
+    parts = tuple(_normalize_question_part(piece) for piece in pieces
+                  if _normalize_question_part(piece))
     if len(parts) > 2 or not parts or not all(_tokens(part) for part in parts):
         return ()
     return parts
+
+
+def _normalize_question_part(part: str) -> str:
+    """Ignore only boundary whitespace and separators used by question splitting."""
+    return part.strip(" ,;?")
 
 
 class IncompleteAnswer(ValueError):
@@ -624,7 +630,8 @@ def validate_selection(raw: str, evidence: tuple[Evidence, ...], question: str) 
     answers, cited_ids = [], set()
     unsupported = False
     for index, item in enumerate(selection.parts, 1):
-        if item.part_index != index or item.part_text.strip() != question_parts[index - 1]:
+        normalized_part = _normalize_question_part(item.part_text)
+        if item.part_index != index or normalized_part != question_parts[index - 1]:
             raise ValueError("invalid_model_output")
         if item.support == "unsupported":
             if item.answer_text is not None or item.evidence:
@@ -640,7 +647,7 @@ def validate_selection(raw: str, evidence: tuple[Evidence, ...], question: str) 
                 raise ValueError("invalid_model_output")
             quotes.append(supporting.quote)
             cited_ids.add(supporting.evidence_id)
-        _validate_answer_text(item.answer_text, item.part_text, quotes)
+        _validate_answer_text(item.answer_text, normalized_part, quotes)
         answers.append(item.answer_text.strip())
     if unsupported or selection.status != "answered":
         return fallback("insufficient_evidence")
