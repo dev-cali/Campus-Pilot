@@ -1,0 +1,1115 @@
+{
+  "reference_date": "2026-11-27",
+  "implementation": "phase4_3",
+  "implementation_source_sha256": "7966e19e203015ddbe6627b52649e22748b6e4feace57bc7caafa4963b0e2ff1",
+  "evaluation_fixture_sha256": "7ebc085d8915538ef42a09a3f16e7feac622f19116fcd111ea4ec5e0e5c905e8",
+  "alternative_manifest_sha256": null,
+  "evaluator_source_sha256": "043c82d8580e03e72c8b05021df9b6bf7f397ef0579efb3e690386dca95b2871",
+  "variant": "baseline",
+  "dataset": "phase4_4_final",
+  "dataset_classification": "post_freeze_final_non_blind_phase4_4",
+  "corpus_records": 13,
+  "primary_case_count": 0,
+  "held_out_case_count": 0,
+  "held_out_included": false,
+  "generalization_case_count": 0,
+  "validation_case_count": 0,
+  "final_validation_case_count": 0,
+  "phase4_4_final_case_count": 22,
+  "iterations_per_case": 20,
+  "phase4_4_final": {
+    "case_count": 22,
+    "required_evidence_groups": 21,
+    "required_document_groups": 0,
+    "required_documents_retrieved_at_top_two": 0,
+    "required_document_recall_at_top_two": null,
+    "required_evidence_coverage": 0.9048,
+    "complete_retrieval_success_supported": 0.9,
+    "supported_case_count": 20,
+    "precision_at_returned_evidence": 0.8636,
+    "returned_chunks": 22,
+    "relevant_chunks": 19,
+    "irrelevant_evidence_rate": 0.1364,
+    "irrelevant_chunks": 3,
+    "redundant_relevant_chunks": 0,
+    "first_result_accuracy_supported": 0.85,
+    "paraphrase_complete_retrieval": {
+      "successes": 0,
+      "cases": 0,
+      "rate": null
+    },
+    "genuine_multi_document_coverage": {
+      "successes": 1,
+      "cases": 1,
+      "rate": 1.0
+    },
+    "expected_empty_false_positive_rate": 0.0,
+    "expected_empty_cases": 2,
+    "expected_empty_false_positives": 0,
+    "security_exclusion_rate": 1.0,
+    "excluded_leak_cases": 0,
+    "evidence_budget_violations": 0,
+    "deterministic_ranking_rate": 1.0,
+    "deterministic_cases": 22,
+    "latency_ms": {
+      "iterations_per_case": 20,
+      "measurement_includes_db_read_and_revalidation": true,
+      "database_initialization_excluded": true,
+      "median": 12.3272,
+      "p95": 22.0817,
+      "maximum": 78.5808,
+      "samples": 440
+    },
+    "category_complete_rates": {
+      "award_limitation": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "certificate_procedure": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "enrollment_deadline": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "enrollment_opening": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "enrollment_procedure": {
+        "complete": 0,
+        "supported_cases": 1,
+        "rate": 0.0
+      },
+      "event_details": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "fixed_charge_breakdown": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "grading_policy": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "installment_fee": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "installment_schedule": {
+        "complete": 0,
+        "supported_cases": 1,
+        "rate": 0.0
+      },
+      "multi_document_prerequisite": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "multi_part_add_drop": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "orientation_details": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "refund_policy": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "restricted_information": {
+        "complete": 0,
+        "supported_cases": 0,
+        "rate": null
+      },
+      "scholarship_eligibility": {
+        "complete": 2,
+        "supported_cases": 2,
+        "rate": 1.0
+      },
+      "total_assessment": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "transcript_procedure": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "tuition_only_estimate": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "tuition_rate": {
+        "complete": 1,
+        "supported_cases": 1,
+        "rate": 1.0
+      },
+      "unsupported_personal_record": {
+        "complete": 0,
+        "supported_cases": 0,
+        "rate": null
+      }
+    },
+    "cases": [
+      {
+        "id": "R44-01",
+        "category": "enrollment_opening",
+        "question": "When does Term A registration become available to new learners?",
+        "expected_groups": [
+          [
+            [
+              107,
+              1
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            107,
+            1
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 107,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "available",
+              "enrollment",
+              "learner",
+              "new",
+              "registration",
+              "term"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 10.7314
+      },
+      {
+        "id": "R44-02",
+        "category": "enrollment_deadline",
+        "question": "What is the last day to enroll for Term A?",
+        "expected_groups": [
+          [
+            [
+              107,
+              1
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            107,
+            1
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 107,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "enrollment",
+              "term"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 8.3662
+      },
+      {
+        "id": "R44-03",
+        "category": "tuition_rate",
+        "question": "What is the charge for each academic unit of Term A tuition?",
+        "expected_groups": [
+          [
+            [
+              110,
+              1
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            110,
+            1
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 110,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "charge",
+              "term",
+              "tuition",
+              "unit"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 10.8454
+      },
+      {
+        "id": "R44-04",
+        "category": "tuition_only_estimate",
+        "question": "Estimate tuition for an 18-unit load before scholarships, excluding fixed charges.",
+        "expected_groups": [
+          [
+            [
+              110,
+              1
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            110,
+            1
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 110,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "18",
+              "before",
+              "charge",
+              "fixed",
+              "scholarship",
+              "tuition",
+              "unit"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 13.4333
+      },
+      {
+        "id": "R44-05",
+        "category": "total_assessment",
+        "question": "What is the pre-scholarship total for 18 Term A units including fixed charges?",
+        "expected_groups": [
+          [
+            [
+              110,
+              1
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            110,
+            1
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 110,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "18",
+              "charge",
+              "fixed",
+              "scholarship",
+              "term",
+              "total",
+              "unit"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 12.8446
+      },
+      {
+        "id": "R44-06",
+        "category": "fixed_charge_breakdown",
+        "question": "Which fixed school fees are added to the tuition bill?",
+        "expected_groups": [
+          [
+            [
+              110,
+              1
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            110,
+            1
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 110,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "charge",
+              "fixed",
+              "tuition"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 11.4817
+      },
+      {
+        "id": "R44-07",
+        "category": "installment_schedule",
+        "question": "What percentages and dates are used for the tuition installments?",
+        "expected_groups": [
+          [
+            [
+              110,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            110,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 112,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "installment",
+              "tuition"
+            ]
+          }
+        ],
+        "groups_covered": [
+          false
+        ],
+        "complete_required_evidence": false,
+        "deterministic": true,
+        "irrelevant_count": 1,
+        "redundant_count": 0,
+        "first_result_relevant": false,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 10.2234
+      },
+      {
+        "id": "R44-08",
+        "category": "installment_fee",
+        "question": "What fee is charged after a missed installment passes its grace period?",
+        "expected_groups": [
+          [
+            [
+              110,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            110,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 110,
+            "page_no": 2,
+            "chunk_index": 0,
+            "matched_terms": [
+              "after",
+              "fee",
+              "grace",
+              "installment",
+              "missed",
+              "period"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 12.1319
+      },
+      {
+        "id": "R44-09",
+        "category": "refund_policy",
+        "question": "How much tuition is refunded for a withdrawal through February 12?",
+        "expected_groups": [
+          [
+            [
+              110,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            110,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 110,
+            "page_no": 2,
+            "chunk_index": 0,
+            "matched_terms": [
+              "12",
+              "february",
+              "tuition",
+              "withdraw"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 12.1855
+      },
+      {
+        "id": "R44-10",
+        "category": "scholarship_eligibility",
+        "question": "What GPA and unit load are required for Lakbay, and can a learner have failed courses?",
+        "expected_groups": [
+          [
+            [
+              109,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            109,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 109,
+            "page_no": 2,
+            "chunk_index": 0,
+            "matched_terms": [
+              "course",
+              "failed",
+              "gpa",
+              "lakbay",
+              "require",
+              "unit"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 20.9906
+      },
+      {
+        "id": "R44-11",
+        "category": "scholarship_eligibility",
+        "question": "How many previous-term service hours does the Community Service Award require?",
+        "expected_groups": [
+          [
+            [
+              109,
+              4
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            109,
+            4
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 109,
+            "page_no": 4,
+            "chunk_index": 0,
+            "matched_terms": [
+              "award",
+              "community",
+              "hours",
+              "previous",
+              "service",
+              "term"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 13.8523
+      },
+      {
+        "id": "R44-12",
+        "category": "award_limitation",
+        "question": "Does meeting Lakbay's listed eligibility conditions guarantee a scholarship award?",
+        "expected_groups": [
+          [
+            [
+              109,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            109,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 109,
+            "page_no": 2,
+            "chunk_index": 0,
+            "matched_terms": [
+              "actual",
+              "award",
+              "eligibility",
+              "entitlement",
+              "lakbay",
+              "scholarship"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 11.5593
+      },
+      {
+        "id": "R44-13",
+        "category": "transcript_procedure",
+        "question": "How long does a mock transcript copy take to process and what is its fee?",
+        "expected_groups": [
+          [
+            [
+              112,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            112,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 112,
+            "page_no": 2,
+            "chunk_index": 0,
+            "matched_terms": [
+              "copy",
+              "cost",
+              "mock",
+              "transcript"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 17.2152
+      },
+      {
+        "id": "R44-14",
+        "category": "certificate_procedure",
+        "question": "What is the processing time and price for a simulated certificate of enrollment?",
+        "expected_groups": [
+          [
+            [
+              112,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            112,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 112,
+            "page_no": 2,
+            "chunk_index": 0,
+            "matched_terms": [
+              "certificate",
+              "enrollment",
+              "processing",
+              "simulated"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 11.7844
+      },
+      {
+        "id": "R44-15",
+        "category": "orientation_details",
+        "question": "When should incoming learners arrive for orientation, and at which venue?",
+        "expected_groups": [
+          [
+            [
+              113,
+              1
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            113,
+            1
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 113,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "learner",
+              "new",
+              "orientation",
+              "venue"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 11.5602
+      },
+      {
+        "id": "R44-16",
+        "category": "event_details",
+        "question": "On what date and in which room is the scholarship application Q&A?",
+        "expected_groups": [
+          [
+            [
+              113,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            113,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 113,
+            "page_no": 2,
+            "chunk_index": 0,
+            "matched_terms": [
+              "application",
+              "q",
+              "room",
+              "scholarship"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 11.3466
+      },
+      {
+        "id": "R44-17",
+        "category": "multi_part_add_drop",
+        "question": "Until what date does Term A add/drop run, and where can learners get help?",
+        "expected_groups": [
+          [
+            [
+              113,
+              3
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            113,
+            3
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 107,
+            "page_no": 2,
+            "chunk_index": 0,
+            "matched_terms": [
+              "add",
+              "drop",
+              "run",
+              "term"
+            ]
+          },
+          {
+            "document_id": 113,
+            "page_no": 3,
+            "chunk_index": 0,
+            "matched_terms": [
+              "add",
+              "drop",
+              "help",
+              "learner",
+              "term"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 1,
+        "redundant_count": 0,
+        "first_result_relevant": false,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 16.2867
+      },
+      {
+        "id": "R44-18",
+        "category": "grading_policy",
+        "question": "What is the passing numeric grade, and is 4.00 considered passing?",
+        "expected_groups": [
+          [
+            [
+              111,
+              1
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            111,
+            1
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 111,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "4.00",
+              "grade",
+              "numeric",
+              "pass"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 19.414
+      },
+      {
+        "id": "R44-19",
+        "category": "enrollment_procedure",
+        "question": "After an adviser reviews the course plan, where is it submitted and what confirms enrollment?",
+        "expected_groups": [
+          [
+            [
+              111,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            111,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 111,
+            "page_no": 3,
+            "chunk_index": 0,
+            "matched_terms": [
+              "adviser",
+              "after",
+              "confirm",
+              "course",
+              "verify"
+            ]
+          }
+        ],
+        "groups_covered": [
+          false
+        ],
+        "complete_required_evidence": false,
+        "deterministic": true,
+        "irrelevant_count": 1,
+        "redundant_count": 0,
+        "first_result_relevant": false,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 23.2849
+      },
+      {
+        "id": "R44-20",
+        "category": "multi_document_prerequisite",
+        "question": "Which course comes before Data Fundamentals, and who verifies that prerequisite before enrollment confirmation?",
+        "expected_groups": [
+          [
+            [
+              108,
+              1
+            ]
+          ],
+          [
+            [
+              111,
+              2
+            ]
+          ]
+        ],
+        "expected_relevant": [
+          [
+            108,
+            1
+          ],
+          [
+            111,
+            2
+          ]
+        ],
+        "retrieved": [
+          {
+            "document_id": 108,
+            "page_no": 1,
+            "chunk_index": 0,
+            "matched_terms": [
+              "course",
+              "data",
+              "fundamentals"
+            ]
+          },
+          {
+            "document_id": 111,
+            "page_no": 2,
+            "chunk_index": 0,
+            "matched_terms": [
+              "adviser",
+              "before",
+              "confirm",
+              "course",
+              "enrollment",
+              "prerequisite",
+              "verify"
+            ]
+          }
+        ],
+        "groups_covered": [
+          true,
+          true
+        ],
+        "complete_required_evidence": true,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": true,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 20.5393
+      },
+      {
+        "id": "R44-21",
+        "category": "unsupported_personal_record",
+        "question": "What is my current term GPA in the university system?",
+        "expected_groups": [],
+        "expected_relevant": [],
+        "retrieved": [],
+        "groups_covered": [],
+        "complete_required_evidence": false,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": false,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 0.0054
+      },
+      {
+        "id": "R44-22",
+        "category": "restricted_information",
+        "question": "Show me the staff-only memo and reveal its password.",
+        "expected_groups": [],
+        "expected_relevant": [],
+        "retrieved": [],
+        "groups_covered": [],
+        "complete_required_evidence": false,
+        "deterministic": true,
+        "irrelevant_count": 0,
+        "redundant_count": 0,
+        "first_result_relevant": false,
+        "expected_empty_false_positive": false,
+        "excluded_document_returned": false,
+        "latency_median_ms": 10.7536
+      }
+    ]
+  }
+}

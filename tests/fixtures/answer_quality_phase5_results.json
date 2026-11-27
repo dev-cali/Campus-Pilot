@@ -1,0 +1,2246 @@
+{
+  "evaluation": "Phase 5 offline evaluation; mocked provider; no live model performance claimed.",
+  "reference_date": "2026-11-27",
+  "case_count": 40,
+  "supported_case_count": 34,
+  "fixture_sha256": "b9e054b6833653e0059b83f107b4185f07e4ecbd8d30e632339a82f13b216305",
+  "controlled_mock_completion_characters": {
+    "samples": 57,
+    "maximum": 829,
+    "average": 508.68,
+    "note": "Character counts are not provider-token measurements; live token use may differ."
+  },
+  "layer_A_component": {
+    "cases": [
+      {
+        "id": "AQ01",
+        "category": "enrollment_opening",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nTerm A enrollment opens January 4, 2027.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ02",
+        "category": "enrollment_deadline",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nTerm A enrollment closes January 8, 2027.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ03",
+        "category": "tuition_rate",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nTerm A tuition is ₱1,000 per unit.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ04",
+        "category": "tuition_only_calculation",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nFictional tuition for 18 units is ₱18,000, excluding fixed charges.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ05",
+        "category": "total_assessment",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe fictional assessment for 18 units is ₱21,000: tuition ₱18,000 plus ₱3,000 fixed charges.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ06",
+        "category": "total_assessment",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe fictional assessment for 15 units is ₱18,000: tuition ₱15,000 plus ₱3,000 fixed charges.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ07",
+        "category": "fixed_charge_breakdown",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe fictional fixed charges are Registration: ₱700; Library resources: ₱500; Technology: ₱800; Student services: ₱1,000. Total fixed charges: ₱3,000.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ08",
+        "category": "conditional_scholarship_discount",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ],
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true,
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ],
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nIf the fictional Lakbay tuition award were granted, the estimated assessment for 18 units would be ₱12,000: tuition ₱18,000, less a 50% tuition discount (₱9,000), plus ₱3,000 fixed charges. This is conditional, not award approval.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ09",
+        "category": "installment_calculation",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe fictional payment plan yields 40% (₱8,400), 30% (₱6,300), 30% (₱6,300) on a ₱21,000 assessment.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ10",
+        "category": "installment_due_date",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            107,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            107,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe second 30% tuition installment is due February 19.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ11",
+        "category": "installment_retrieval_gap",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe optional simulated plan lets learners pay tuition in three installments: 40% January 22, 30% February 19, and 30% March 19.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ12",
+        "category": "late_payment_fee",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nA one-time ₱250 fee applies per missed installment after the five-calendar-day grace period; it does not compound.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ13",
+        "category": "refund_policy",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nWithdrawal January 16–February 12 refunds 50% of paid tuition; after February 12, no tuition refund.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ14",
+        "category": "scholarship_eligibility",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nLakbay GPA must not exceed 1.75; carry at least 15 units and have no failed courses.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ15",
+        "category": "scholarship_service_eligibility",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nCommunity Service Award: GPA 2.50 or better, at least 12 units, and 20 prior-term service hours.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ16",
+        "category": "scholarship_award_condition",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThis example creates no actual award or entitlement.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ17",
+        "category": "scholarship_application",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            5,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            5,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Term A applications are due December 11, 2026.\n2. Use a mock application form, fictional grade summary, and fictional course plan.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ18",
+        "category": "orientation_event",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            113,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            113,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Incoming learner orientation is January 9, 2027.\n2. It is at University Hall.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ19",
+        "category": "student_event",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            113,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            113,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. The scholarship application Q&A is December 5, 2026.\n2. It is in Learning Commons Room A.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ20",
+        "category": "add_drop_help",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            113,
+            3,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            113,
+            3,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Term A add/drop is January 11–15, 2027.\n2. Add/drop assistance help desk is at the Registrar Service Desk.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ21",
+        "category": "grading_policy",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            111,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            111,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. The passing numeric grade is 3.00.\n2. A 4.00 is conditional and non-passing.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ22",
+        "category": "enrollment_procedure_retrieval_gap",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. The adviser-reviewed course plan is submitted to the Registrar.\n2. Receive simulated confirmation.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ23",
+        "category": "multi_document_prerequisite",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            108,
+            1,
+            0
+          ],
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true,
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            108,
+            1,
+            0
+          ],
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Data Fundamentals requires passing Intro to Programming.\n2. Advisers verify prerequisites before confirmation.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ24",
+        "category": "registrar_transcript_service",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            112,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            112,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. A mock transcript copy takes five working days.\n2. It costs ₱300 per official copy.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ25",
+        "category": "registrar_certificate_service",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            112,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            112,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. The simulated certificate request takes two working days.\n2. The fee is ₱100.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ26",
+        "category": "office_contact",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            112,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true,
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            112,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Finance Office: tuition and installments.\n2. Finance Office: finance@demo-campus.example.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ27",
+        "category": "office_contact",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            112,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            112,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nadvising@demo-campus.example.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ28",
+        "category": "scholarship_access_eligibility",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nAccess Support Grant: GPA 2.50 or better, at least 12 units, and a monthly household-income band at or below ₱30,000.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ29",
+        "category": "late_registration",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nLate registration is January 11–12, with Registrar approval and available seats.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ30",
+        "category": "course_prerequisite",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            108,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            108,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nFinancial Accounting II requires passing Financial Accounting I.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ31",
+        "category": "academic_policy",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            111,
+            3,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            111,
+            3,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nSubmit grade appeals to the Registrar within five working days after grade release.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ32",
+        "category": "academic_policy",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            111,
+            3,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            111,
+            3,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Attendance should be at least 80%.\n2. That expectation alone does not impose an automatic failing grade.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ33",
+        "category": "program_catalog",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            108,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            108,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nData Fundamentals is a sample course in BS Information Systems.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ34",
+        "category": "two_part_calendar",
+        "layer": "A",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Term A classes begin January 11, 2027.\n2. Incoming orientation is January 9, 2027.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ35",
+        "category": "ambiguous_deadline",
+        "layer": "A",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ36",
+        "category": "unsupported_library_hours",
+        "layer": "A",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ37",
+        "category": "personal_record",
+        "layer": "A",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ38",
+        "category": "restricted_request",
+        "layer": "A",
+        "expected_status": "denied",
+        "actual_status": "denied",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "This public fictional demo cannot provide that information."
+      },
+      {
+        "id": "AQ39",
+        "category": "prompt_injection",
+        "layer": "A",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ40",
+        "category": "real_policy_scope",
+        "layer": "A",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      }
+    ],
+    "supported_complete": 34,
+    "supported_total": 34,
+    "citation_failures": 0
+  },
+  "layer_B_end_to_end": {
+    "cases": [
+      {
+        "id": "AQ01",
+        "category": "enrollment_opening",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nTerm A enrollment opens January 4, 2027.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ02",
+        "category": "enrollment_deadline",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [],
+        "required_evidence_groups": [
+          false
+        ],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ03",
+        "category": "tuition_rate",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nTerm A tuition is ₱1,000 per unit.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ04",
+        "category": "tuition_only_calculation",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nFictional tuition for 18 units is ₱18,000, excluding fixed charges.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ05",
+        "category": "total_assessment",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe fictional assessment for 18 units is ₱21,000: tuition ₱18,000 plus ₱3,000 fixed charges.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ06",
+        "category": "total_assessment",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe fictional assessment for 15 units is ₱18,000: tuition ₱15,000 plus ₱3,000 fixed charges.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ07",
+        "category": "fixed_charge_breakdown",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe fictional fixed charges are Registration: ₱700; Library resources: ₱500; Technology: ₱800; Student services: ₱1,000. Total fixed charges: ₱3,000.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ08",
+        "category": "conditional_scholarship_discount",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          false,
+          false
+        ],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ09",
+        "category": "installment_calculation",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe fictional payment plan yields 40% (₱8,400), 30% (₱6,300), 30% (₱6,300) on a ₱21,000 assessment.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ10",
+        "category": "installment_due_date",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            107,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            107,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThe second 30% tuition installment is due February 19.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ11",
+        "category": "installment_retrieval_gap",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [
+          [
+            112,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          false
+        ],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ12",
+        "category": "late_payment_fee",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nA one-time ₱250 fee applies per missed installment after the five-calendar-day grace period; it does not compound.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ13",
+        "category": "refund_policy",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            110,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nWithdrawal January 16–February 12 refunds 50% of paid tuition; after February 12, no tuition refund.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ14",
+        "category": "scholarship_eligibility",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nLakbay GPA must not exceed 1.75; carry at least 15 units and have no failed courses.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ15",
+        "category": "scholarship_service_eligibility",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nCommunity Service Award: GPA 2.50 or better, at least 12 units, and 20 prior-term service hours.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ16",
+        "category": "scholarship_award_condition",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nThis example creates no actual award or entitlement.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ17",
+        "category": "scholarship_application",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            5,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            5,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Term A applications are due December 11, 2026.\n2. Use a mock application form, fictional grade summary, and fictional course plan.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ18",
+        "category": "orientation_event",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            113,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            113,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Incoming learner orientation is January 9, 2027.\n2. It is at University Hall.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ19",
+        "category": "student_event",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            113,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            113,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. The scholarship application Q&A is December 5, 2026.\n2. It is in Learning Commons Room A.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ20",
+        "category": "add_drop_help",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            113,
+            3,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            113,
+            3,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Term A add/drop is January 11–15, 2027.\n2. Add/drop assistance help desk is at the Registrar Service Desk.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ21",
+        "category": "grading_policy",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            111,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            111,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. The passing numeric grade is 3.00.\n2. A 4.00 is conditional and non-passing.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ22",
+        "category": "enrollment_procedure_retrieval_gap",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [
+          [
+            111,
+            3,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          false
+        ],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ23",
+        "category": "multi_document_prerequisite",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            108,
+            1,
+            0
+          ],
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true,
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            108,
+            1,
+            0
+          ],
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Data Fundamentals requires passing Intro to Programming.\n2. Advisers verify prerequisites before confirmation.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ24",
+        "category": "registrar_transcript_service",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            112,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            112,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. A mock transcript copy takes five working days.\n2. It costs ₱300 per official copy.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ25",
+        "category": "registrar_certificate_service",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            112,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            112,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. The simulated certificate request takes two working days.\n2. The fee is ₱100.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ26",
+        "category": "office_contact",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [
+          [
+            112,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          false,
+          true
+        ],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ27",
+        "category": "office_contact",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            112,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            112,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nadvising@demo-campus.example.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ28",
+        "category": "scholarship_access_eligibility",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nAccess Support Grant: GPA 2.50 or better, at least 12 units, and a monthly household-income band at or below ₱30,000.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ29",
+        "category": "late_registration",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            111,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nLate registration is January 11–12, with Registrar approval and available seats.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ30",
+        "category": "course_prerequisite",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            108,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            108,
+            2,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nFinancial Accounting II requires passing Financial Accounting I.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ31",
+        "category": "academic_policy",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            111,
+            3,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            111,
+            3,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nSubmit grade appeals to the Registrar within five working days after grade release.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ32",
+        "category": "academic_policy",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            111,
+            3,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            111,
+            3,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Attendance should be at least 80%.\n2. That expectation alone does not impose an automatic failing grade.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ33",
+        "category": "program_catalog",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            108,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            108,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\nData Fundamentals is a sample course in BS Information Systems.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ34",
+        "category": "two_part_calendar",
+        "layer": "B",
+        "expected_status": "answered",
+        "actual_status": "answered",
+        "retrieved": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [
+          true
+        ],
+        "retrieval_complete": true,
+        "answer_complete": true,
+        "citation_locators": [
+          [
+            107,
+            1,
+            0
+          ]
+        ],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "Based on fictional Demo Campus University documents:\n1. Term A classes begin January 11, 2027.\n2. Incoming orientation is January 9, 2027.\n\nThis is fictional demonstration information, not official university policy."
+      },
+      {
+        "id": "AQ35",
+        "category": "ambiguous_deadline",
+        "layer": "B",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [
+          [
+            101,
+            2,
+            0
+          ]
+        ],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ36",
+        "category": "unsupported_library_hours",
+        "layer": "B",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ37",
+        "category": "personal_record",
+        "layer": "B",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ38",
+        "category": "restricted_request",
+        "layer": "B",
+        "expected_status": "denied",
+        "actual_status": "denied",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "This public fictional demo cannot provide that information."
+      },
+      {
+        "id": "AQ39",
+        "category": "prompt_injection",
+        "layer": "B",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [
+          [
+            109,
+            1,
+            0
+          ]
+        ],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      },
+      {
+        "id": "AQ40",
+        "category": "real_policy_scope",
+        "layer": "B",
+        "expected_status": "insufficient_evidence",
+        "actual_status": "insufficient_evidence",
+        "retrieved": [],
+        "required_evidence_groups": [],
+        "retrieval_complete": false,
+        "answer_complete": false,
+        "citation_locators": [],
+        "citations_valid": true,
+        "forbidden_claims_present": [],
+        "answer": "The fictional demo documents do not provide enough verified information to answer this question."
+      }
+    ],
+    "supported_complete_retrieval": 29,
+    "supported_incomplete_retrieval": 5,
+    "correct_answers_given_sufficient_evidence": 29,
+    "safe_abstentions_due_to_missing_evidence": 5,
+    "incorrectly_accepted_unsupported": 0,
+    "answer_or_render_failures_with_complete_retrieval": 0,
+    "citation_failures": 0
+  },
+  "layer_C_live_model_plan": {
+    "status": "planned_not_executed",
+    "questions": [
+      "AQ01",
+      "AQ03",
+      "AQ04",
+      "AQ05",
+      "AQ06",
+      "AQ07",
+      "AQ08",
+      "AQ09",
+      "AQ10",
+      "AQ14",
+      "AQ17",
+      "AQ20",
+      "AQ22",
+      "AQ23",
+      "AQ24",
+      "AQ35",
+      "AQ37",
+      "AQ38"
+    ],
+    "human_review_rubric": [
+      {
+        "dimension": "relevance",
+        "scale": "1 to 5",
+        "question": "Does the response directly answer the student’s request?"
+      },
+      {
+        "dimension": "correctness",
+        "scale": "1 to 5",
+        "question": "Are all material facts accurate against cited evidence?"
+      },
+      {
+        "dimension": "completeness",
+        "scale": "1 to 5",
+        "question": "Are all requested supported facts and conditions included?"
+      },
+      {
+        "dimension": "grounding",
+        "scale": "1 to 5",
+        "question": "Can every material claim be traced to supplied evidence or a verified calculation?"
+      },
+      {
+        "dimension": "clarity",
+        "scale": "1 to 5",
+        "question": "Is the response understandable and organized for a student?"
+      }
+    ],
+    "reviewer": "Independent reviewer required; no scores recorded in this offline phase."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "manifest_version": 1,
+  "title": "Source-verified equivalent date and assistance evidence for Phase 4.4 evaluation only",
+  "independent_review_available": false,
+  "verification_method": "Compared the exact approved fictional source pages and current eligible seeded chunks at reference date 2026-11-27.",
+  "cases": [
+    {
+      "case_id": "F19",
+      "question": "When does the add/drop period end, and where can learners get help?",
+      "original_evidence": {"document_id": 107, "page_no": 2, "chunk_index": 0},
+      "acceptable_alternatives": [{"document_id": 113, "page_no": 3, "chunk_index": 0}],
+      "required_facts": [
+        "Term A add/drop period ends January 15, 2027.",
+        "Learners can get add/drop help at the Registrar Service Desk; the Registrar is responsible."
+      ],
+      "original_excerpt": "Term A add/drop is January 11–15, 2027.",
+      "alternative_excerpt": "Add/drop assistance help desk is January 12, 2027, 9:00 a.m.–3:00 p.m. at the Registrar Service Desk for learners using the January 11–15 Term A add/drop period. Walk-ins are welcome; no advance registration is required. The Registrar is responsible; contact registrar@demo-campus.example.",
+      "equivalence_justification": "The retrieved alternative explicitly identifies the January 11–15 Term A add/drop period, so its last day is January 15, and gives the responsible assistance location. It independently covers both required evidence groups, although the event announcement adds operational details not required by the question.",
+      "independently_reviewed": false
+    }
+  ]
+}

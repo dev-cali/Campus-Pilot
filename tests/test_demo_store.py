@@ -15,6 +15,9 @@ from ai.document_eligibility import load_fictional_documents
 
 
 REFERENCE_DATE = date(2026, 10, 26)
+EXPANDED_REFERENCE_DATE = date(2026, 11, 27)
+LEGACY_DOCUMENT_IDS = set(range(101, 107))
+EXPECTED_PUBLIC_DOCUMENT_IDS = {101, 103, 107, 108, 109, 110, 111, 112, 113}
 
 
 class DemoStoreTests(unittest.TestCase):
@@ -24,7 +27,10 @@ class DemoStoreTests(unittest.TestCase):
         self.store = DemoStore(Path(self.directory.name) / "demo.sqlite3")
         self.addCleanup(self.store.close)
         self.store.initialize()
-        self.documents = load_fictional_documents(DEFAULT_FIXTURE)
+        self.all_documents = load_fictional_documents(DEFAULT_FIXTURE)
+        # Existing store tests retain their original six-record fixture behavior.
+        self.documents = [d for d in self.all_documents
+                          if d["document_id"] in LEGACY_DOCUMENT_IDS]
 
     def counts(self):
         with Session(self.store.engine) as session:
@@ -99,6 +105,37 @@ class DemoStoreTests(unittest.TestCase):
 
     def test_empty_store_returns_no_evidence(self):
         self.assertEqual(self.store.public_chunks(reference_date=REFERENCE_DATE), ())
+
+    def test_expanded_catalog_ingests_only_approved_public_current_chunks(self):
+        document_count, chunk_count = self.store.seed(
+            self.all_documents, reference_date=EXPANDED_REFERENCE_DATE,
+        )
+        self.assertEqual(document_count, 13)
+        self.assertEqual(self.counts()[0], 13)
+        self.assertEqual(self.store.load_documents(), self.all_documents)
+
+        chunks = self.store.public_chunks(reference_date=EXPANDED_REFERENCE_DATE)
+        self.assertEqual(chunk_count, len(chunks))
+        self.assertEqual(self.counts(), (13, chunk_count))
+        self.assertEqual({chunk.document_id for chunk in chunks},
+                         EXPECTED_PUBLIC_DOCUMENT_IDS)
+        counts_by_document = {identifier: sum(c.document_id == identifier for c in chunks)
+                              for identifier in EXPECTED_PUBLIC_DOCUMENT_IDS}
+        self.assertTrue(all(count > 0 for count in counts_by_document.values()))
+
+        documents_by_id = {d["document_id"]: d for d in self.all_documents}
+        for chunk in chunks:
+            document = documents_by_id[chunk.document_id]
+            page = document["pages"][chunk.page_no - 1]
+            with self.subTest(document_id=chunk.document_id, page_no=chunk.page_no,
+                              chunk_index=chunk.chunk_index):
+                self.assertEqual(chunk.title, document["title"])
+                self.assertEqual(chunk.version, document["version"])
+                self.assertEqual(chunk.source_reference, document["source_reference"])
+                self.assertEqual(chunk.chunk_text,
+                                 page["text"][chunk.start_char:chunk.end_char])
+                self.assertLessEqual(len(chunk.chunk_text), 1000)
+        self.assertFalse({c.document_id for c in chunks} & {102, 104, 105, 106})
 
 
 if __name__ == "__main__":
