@@ -16,7 +16,7 @@ const loadTypeScript = async (path, imports = {}) => {
 };
 
 const { AiRequestLifecycle } = await loadTypeScript("../lib/ai-request-lifecycle.ts");
-const { shouldSubmitOnEnter } = await loadTypeScript("../lib/ai-composer.ts");
+const { getComposerAction, shouldSubmitOnEnter } = await loadTypeScript("../lib/ai-composer.ts");
 const errors = await loadTypeScript("../lib/ai-errors.ts");
 const contractSource = await readFile(new URL("../lib/ai-contract.ts", import.meta.url), "utf8");
 const contractJavascript = ts.transpileModule(contractSource, {
@@ -84,6 +84,18 @@ test("composer submits on Enter, preserves Shift+Enter, and ignores IME composit
   assert.equal(shouldSubmitOnEnter({ ...base, keyCode: 229 }), false);
   assert.equal(shouldSubmitOnEnter({ ...base, pending: true }), false);
   assert.equal(shouldSubmitOnEnter({ ...base, key: "a" }), false);
+});
+
+test("composer action sends valid questions and becomes a clickable non-submit stop while pending", () => {
+  assert.deepEqual(getComposerAction(false, true), {
+    type: "submit", action: "send", label: "Ask CampusPilot", disabled: false,
+  });
+  assert.deepEqual(getComposerAction(false, false), {
+    type: "submit", action: "send", label: "Ask CampusPilot", disabled: true,
+  });
+  assert.deepEqual(getComposerAction(true, false), {
+    type: "button", action: "stop", label: "Stop waiting", title: "Stop waiting", disabled: false,
+  });
 });
 
 test("HTTP failures have safe, distinct next steps", () => {
