@@ -209,6 +209,11 @@ _categories = frozenset({
 _selection_reasons = frozenset({
     "empty_choices", "non_stop_finish", "refusal", "missing_content",
     "malformed_json", "schema_invalid", "validation_failed", "incomplete_answer",
+    "invalid_selection_response", "duplicate_json_key", "answered_without_parts",
+    "duplicate_evidence_ids", "question_part_index_mismatch",
+    "question_part_mapping_mismatch", "unsupported_part_has_answer_or_evidence",
+    "supported_part_missing_answer_or_evidence", "unknown_evidence_identifier",
+    "empty_evidence_quote", "exact_quote_mismatch", "source_version_missing",
 })
 _finish_reasons = frozenset({"stop", "length", "content_filter", "tool_calls", "function_call"})
 
