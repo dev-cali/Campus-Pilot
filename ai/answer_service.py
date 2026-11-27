@@ -11,7 +11,7 @@ from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from ai.local_retrieval import (
     Evidence, Retriever, _passage_tokens, _tokens,
@@ -647,6 +647,15 @@ def validate_selection(raw: str, evidence: tuple[Evidence, ...], question: str) 
     return _render_answer(answers, _citation_list(evidence, cited_ids))
 
 
+def _selection_failure_reason(error: Exception) -> str:
+    """Return only fixed failure labels; never include model output or exception text."""
+    if isinstance(error, json.JSONDecodeError):
+        return "malformed_json"
+    if isinstance(error, ValidationError):
+        return "schema_invalid"
+    return "validation_failed"
+
+
 class AnswerService:
     def __init__(self, retriever: Retriever, generator: AnswerGenerator, *, readiness_check=None):
         self.retriever = retriever
@@ -693,7 +702,13 @@ class AnswerService:
                 failure_category = "provider_failed"
                 raw = self.generator.generate(question, evidence)
                 failure_category = "selection_invalid"
-                answer = validate_selection(raw, evidence, question)
+                try:
+                    answer = validate_selection(raw, evidence, question)
+                except IncompleteAnswer:
+                    raise
+                except Exception as error:
+                    diagnostic_event("selection_invalid", selection_reason=_selection_failure_reason(error))
+                    return fallback("unavailable")
             if answer.status == "answered":
                 # Fail closed if sources, permissions, or passage data changed
                 # during generation. This does not eliminate every race window.
@@ -704,14 +719,15 @@ class AnswerService:
                     return fallback("unavailable")
             return answer
         except IncompleteAnswer:
-            diagnostic_event("selection_invalid")
+            diagnostic_event("selection_invalid", selection_reason="incomplete_answer")
             return fallback("insufficient_evidence")
         except DiagnosticFailure as error:
             diagnostic_event(error.category, error.http_status,
                              provider_code=error.provider_code, provider_param=error.provider_param,
                              provider_classification=error.provider_classification,
                              provider_attribute_states=error.provider_attribute_states,
-                             provider_response=error.provider_response)
+                             provider_response=error.provider_response,
+                             selection_reason=error.selection_reason)
             return fallback("unavailable")
         except Exception:
             # Deliberate application boundary: no provider/database error text,
