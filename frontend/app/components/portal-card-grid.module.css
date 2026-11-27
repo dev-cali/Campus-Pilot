@@ -1,0 +1,34 @@
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.card { min-width: 0; display: flex; }
+.cardButton { width: 100%; min-height: 244px; display: flex; flex-direction: column; align-items: flex-start; gap: 11px; text-align: left; font: inherit; color: #174238; background: #fff; border: 1px solid #e2eae4; border-radius: 13px; padding: 23px; box-shadow: 0 4px 14px rgba(20,63,45,.035); cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.cardButton:hover { transform: translateY(-4px); border-color: #80b69c; box-shadow: 0 12px 26px rgba(20,63,45,.10); }
+.cardButton:focus-visible, .dialog button:focus-visible { outline: 3px solid #00855c; outline-offset: 3px; }
+.icon { width: 46px; height: 46px; display: grid; place-items: center; color: #08704c; background: #eaf4ed; border-radius: 12px; }
+.icon svg { width: 25px; height: 25px; }
+.category { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: #376f58; }
+.title { font-family: Georgia, serif; font-size: clamp(19px, 2vw, 24px); font-weight: 600; line-height: 1.22; color: #173f35; }
+.summary { font-size: 14px; line-height: 1.65; color: #50645b; }
+.metadata { font-size: 12px; color: #45665a; }
+.action { margin-top: auto; padding-top: 12px; display: flex; width: 100%; justify-content: space-between; align-items: center; border-top: 1px solid #edf1ed; color: #006747; font-size: 13px; font-weight: 700; }
+.action > span { font-size: 19px; }
+.dialog { box-sizing: border-box; width: min(640px, calc(100% - 28px)); max-height: 88dvh; margin: auto; padding: 0; overflow: auto; border: 1px solid #d6e5dc; border-radius: 18px; color: #173f35; background: #fff; box-shadow: 0 24px 80px rgba(0,35,22,.25); }
+.dialog::backdrop { background: rgba(8,35,26,.58); }
+.dialogBody { padding: clamp(20px, 4vw, 34px); display: grid; gap: 16px; }
+.dialogTop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.demo { color: #34614e; background: #edf5ee; border-radius: 6px; padding: 7px 10px; font-size: 11px; font-weight: 800; letter-spacing: .06em; }
+.closeIcon { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid #dce8df; border-radius: 50%; color: #174238; background: #fff; font-size: 26px; cursor: pointer; }
+.dialogCategory { font-size: 12px; color: #327253; font-weight: 700; margin: 0; }
+.dialogBody h2 { font-family: Georgia, serif; font-size: clamp(25px, 4vw, 34px); line-height: 1.2; margin: 0; }
+.disclaimer { margin: 0; font-size: 12px; line-height: 1.5; color: #50645b; border-left: 3px solid #81af97; padding-left: 10px; }
+.details { margin: 0; line-height: 1.75; color: #354e44; font-size: 15px; }
+.facts { margin: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.facts > div { padding: 14px; border-radius: 9px; background: #f2f7f3; overflow-wrap: anywhere; }
+.facts dt { font-size: 11px; font-weight: 700; color: #426f58; margin-bottom: 6px; }
+.facts dd { font-size: 14px; line-height: 1.5; margin: 0; }
+.steps h3 { margin: 0 0 8px; font-size: 17px; }
+.steps ul { margin: 0; padding-left: 20px; color: #354e44; font-size: 14px; line-height: 1.7; }
+.closeButton { justify-self: end; padding: 11px 18px; font: inherit; font-weight: 700; font-size: 14px; color: white; border: 0; border-radius: 8px; background: #006747; cursor: pointer; }
+.closeButton:hover { background: #004e37; }
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 600px) { .grid, .facts { grid-template-columns: 1fr; } .cardButton { min-height: 0; padding: 20px; } }
+@media (prefers-reduced-motion: reduce) { .cardButton { transition: none; } .cardButton:hover { transform: none; } }

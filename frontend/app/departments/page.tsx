@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import CampusHeader from "../components/campus-header";
+import PortalCardGrid, { type PortalItem } from "../components/portal-card-grid";
 import styles from "./departments.module.css";
 
 const categories = ["All", "Academic", "Administration", "Student Services"] as const;
@@ -11,13 +12,187 @@ type Department = { id: string; name: string; category?: Exclude<Category, "All"
 type LiveStatus = "idle" | "loading" | "ready" | "empty" | "error";
 
 // Fictional directory examples, not verified offices at the university.
-const previewDepartments: Department[] = [
-  { id: "registrar", name: "Registrar's Office", category: "Administration", summary: "Example directory entry for enrollment, academic records, and document requests." },
-  { id: "admissions", name: "Admissions Office", category: "Administration", summary: "Example entry for application and admission-related inquiries." },
-  { id: "computing", name: "College of Computing", category: "Academic", summary: "Example entry for computing programs and academic inquiries." },
-  { id: "engineering", name: "College of Engineering", category: "Academic", summary: "Example entry for engineering programs and academic inquiries." },
-  { id: "student-affairs", name: "Student Affairs Office", category: "Student Services", summary: "Example entry for student organizations, activities, and support." },
-  { id: "library", name: "University Library", category: "Student Services", summary: "Example entry for learning resources and library services." },
+const previewDepartments: (PortalItem & { category: Exclude<Category, "All"> })[] = [
+  {
+    "id": "registrar",
+    "category": "Administration",
+    "title": "Registrar's Office",
+    "summary": "Sample academic records and enrollment services.",
+    "icon": "department",
+    "details": "The fictional registrar manages enrollment records, academic certifications and transcript requests.",
+    "facts": [
+      {
+        "label": "Location",
+        "value": "Demo Administration Building, ground floor"
+      },
+      {
+        "label": "Hours",
+        "value": "8 AM–5 PM, weekdays"
+      },
+      {
+        "label": "Services",
+        "value": "Registration, transcripts, certifications"
+      },
+      {
+        "label": "Contact",
+        "value": "No real contact provided"
+      }
+    ],
+    "nextSteps": [
+      "Review the sample document checklist.",
+      "Use verified university channels for actual requests."
+    ]
+  },
+  {
+    "id": "admissions",
+    "category": "Administration",
+    "title": "Admissions Office",
+    "summary": "Sample assistance for prospective students.",
+    "icon": "department",
+    "details": "The fictional office provides application guidance and program information.",
+    "facts": [
+      {
+        "label": "Location",
+        "value": "Demo Administration Building, room 102"
+      },
+      {
+        "label": "Hours",
+        "value": "8 AM–5 PM, weekdays"
+      },
+      {
+        "label": "Services",
+        "value": "Application guidance, program inquiries"
+      },
+      {
+        "label": "Contact",
+        "value": "No real contact provided"
+      }
+    ],
+    "nextSteps": [
+      "Review example admission requirements.",
+      "Confirm official deadlines independently."
+    ]
+  },
+  {
+    "id": "computing",
+    "category": "Academic",
+    "title": "College of Computing",
+    "summary": "Explore sample computing programs and academic support.",
+    "icon": "department",
+    "details": "The fictional college offers computing courses, advising and project consultations.",
+    "facts": [
+      {
+        "label": "Location",
+        "value": "Demo Technology Building, room 201"
+      },
+      {
+        "label": "Hours",
+        "value": "9 AM–4 PM, weekdays"
+      },
+      {
+        "label": "Services",
+        "value": "Program advising, lab inquiries"
+      },
+      {
+        "label": "Contact",
+        "value": "No real contact provided"
+      }
+    ],
+    "nextSteps": [
+      "Prepare sample course questions.",
+      "Check real program offerings with the institution."
+    ]
+  },
+  {
+    "id": "engineering",
+    "category": "Academic",
+    "title": "College of Engineering",
+    "summary": "Sample engineering program and laboratory guidance.",
+    "icon": "department",
+    "details": "The fictional college coordinates engineering courses, laboratory activities and design projects.",
+    "facts": [
+      {
+        "label": "Location",
+        "value": "Demo Engineering Building, room 205"
+      },
+      {
+        "label": "Hours",
+        "value": "9 AM–4 PM, weekdays"
+      },
+      {
+        "label": "Services",
+        "value": "Course advising, laboratory inquiries"
+      },
+      {
+        "label": "Contact",
+        "value": "No real contact provided"
+      }
+    ],
+    "nextSteps": [
+      "Review example lab schedules.",
+      "Confirm actual laboratory guidelines."
+    ]
+  },
+  {
+    "id": "student-affairs",
+    "category": "Student Services",
+    "title": "Student Affairs Office",
+    "summary": "Sample student organization and support services.",
+    "icon": "department",
+    "details": "The fictional office assists student groups, provides general referrals and coordinates campus activities.",
+    "facts": [
+      {
+        "label": "Location",
+        "value": "Demo Student Center, ground floor"
+      },
+      {
+        "label": "Hours",
+        "value": "9 AM–4 PM, weekdays"
+      },
+      {
+        "label": "Services",
+        "value": "Organizations, activities, referrals"
+      },
+      {
+        "label": "Contact",
+        "value": "No real contact provided"
+      }
+    ],
+    "nextSteps": [
+      "Explore sample student services.",
+      "Use official channels for personal concerns."
+    ]
+  },
+  {
+    "id": "library",
+    "category": "Student Services",
+    "title": "University Library",
+    "summary": "Sample study areas and learning resources.",
+    "icon": "department",
+    "details": "The fictional library provides reading spaces, book lending and collaborative study desks.",
+    "facts": [
+      {
+        "label": "Location",
+        "value": "Demo Library Building"
+      },
+      {
+        "label": "Hours",
+        "value": "8 AM–7 PM, weekdays"
+      },
+      {
+        "label": "Services",
+        "value": "Study spaces, lending, research guidance"
+      },
+      {
+        "label": "Contact",
+        "value": "No real contact provided"
+      }
+    ],
+    "nextSteps": [
+      "Review example room-use guidelines.",
+      "Confirm real opening hours independently."
+    ]
+  }
 ];
 
 function parseDepartments(value: unknown): Department[] {
@@ -51,11 +226,13 @@ export default function DepartmentsPage() {
   const [status, setStatus] = useState<LiveStatus>("idle");
   const [notice, setNotice] = useState("");
 
-  const source = mode === "preview" ? previewDepartments : departments;
-  const results = source.filter((department) =>
-    (mode === "live" || category === "All" || department.category === category) &&
-    `${department.name} ${department.category ?? ""} ${department.summary ?? ""}`.toLowerCase().includes(query.trim().toLowerCase())
+  const normalizedQuery = query.trim().toLowerCase();
+  const previewResults = previewDepartments.filter((item) =>
+    (category === "All" || item.category === category) &&
+    [item.title, item.category, item.summary, item.details, ...item.facts.flatMap((fact) => [fact.label, fact.value]), ...(item.nextSteps ?? [])].join(" ").toLowerCase().includes(normalizedQuery)
   );
+  const liveResults = departments.filter((item) => item.name.toLowerCase().includes(normalizedQuery));
+  const resultCount = mode === "preview" ? previewResults.length : liveResults.length;
 
   function resetFilters() {
     setQuery("");
@@ -104,21 +281,21 @@ export default function DepartmentsPage() {
             <h1 id="departments-title">Departments</h1>
             <p>Explore academic departments, administrative offices, and student services in one place.</p>
           </div>
-          <section className={styles.featured} aria-labelledby="directory-intro">
+          <section className={styles.featured} aria-labelledby="directory-intro" style={{ backgroundImage: "linear-gradient(90deg, rgba(5,39,29,.96), rgba(5,39,29,.82) 48%, rgba(5,39,29,.32)), url('/images/important-notices.jpg')" }}>
             <div className={styles.heroIcon}><OfficeIcon /></div>
             <div>
-              <span className={styles.preview}>DIRECTORY PREVIEW</span>
+              <span className={styles.preview}>CAMPUS DIRECTORY</span>
               <h2 id="directory-intro">Find the right office</h2>
               <p>Browse sample departments or load names from the existing connected directory. Official contacts, services, and office hours have not been verified.</p>
             </div>
           </section>
           <section className={styles.listSection} aria-labelledby="directory-title">
-            <h2 id="directory-title">Browse departments</h2>
+            <header className={styles.sectionHeading}><p className={styles.eyebrow}>EXPLORE CAMPUS OFFICES</p><h2 id="directory-title">Find campus support</h2><p>Explore fictional office details, or load connected names separately.</p></header>
             <div className={styles.filters} role="group" aria-label="Directory source">
               <button className={styles.filter} type="button" aria-pressed={mode === "preview"} onClick={() => { setMode("preview"); resetFilters(); }}>Sample directory</button>
               <button className={styles.filter} type="button" aria-pressed={mode === "live"} disabled={status === "loading"} onClick={loadDirectory}>{status === "loading" ? "Loading directory..." : "Load connected directory"}</button>
             </div>
-            {mode === "preview" && <p className={styles.count}>Sample entries only — these are not confirmed university departments.</p>}
+            {mode === "preview" && <p className={styles.count}>Fictional demo entries only — not confirmed university departments.</p>}
             {mode === "live" && status === "loading" && <p role="status" className={styles.count}>Loading department names...</p>}
             {mode === "live" && status === "error" && <div className={styles.empty} role="status"><h3>Directory unavailable</h3><p>{notice}</p><button type="button" className={styles.reset} onClick={loadDirectory}>Retry</button></div>}
             {mode === "live" && status === "empty" && <div className={styles.empty} role="status"><h3>No departments returned</h3><p>The connected directory returned an empty list.</p></div>}
@@ -131,19 +308,16 @@ export default function DepartmentsPage() {
               {mode === "preview" && <div className={styles.filters} role="group" aria-label="Filter departments by category">
                 {categories.map((item) => <button type="button" key={item} className={styles.filter} aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</button>)}
               </div>}
-              <p role="status" className={styles.count}>{results.length} {results.length === 1 ? "department" : "departments"} · {mode === "preview" ? "Preview" : "Connected directory names"}</p>
-              {results.length ? <div className={styles.grid}>
-                {results.map((department) => <article key={department.id} className={styles.article}>
+              <p role="status" className={styles.count}>{resultCount} {resultCount === 1 ? "department" : "departments"} · {mode === "preview" ? "Preview" : "Connected directory names"}</p>
+              {resultCount ? (mode === "preview" ? <PortalCardGrid items={previewResults} /> : <div className={styles.grid}>
+                {liveResults.map((department) => <details key={department.id} className={styles.article}><summary className={styles.liveSummary}>
                   <span className={styles.officeIcon}><OfficeIcon /></span>
                   <span className={styles.category}>{department.category ?? "Directory entry"}</span>
-                  <h3>{department.name}</h3>
-                  <p>{department.summary ?? "Name supplied by the connected directory."}</p>
-                  <details className={styles.details}>
-                    <summary>View details</summary>
-                    <dl className={styles.info}><dt>Services</dt><dd>{mode === "preview" ? "Illustrative description only" : "Not supplied"}</dd><dt>Contact information</dt><dd>Not available</dd><dt>Office hours</dt><dd>Not available</dd></dl>
-                  </details>
-                </article>)}
-              </div> : <div className={styles.empty}><h3>No matching departments</h3><p>Try a different search or category.</p><button type="button" className={styles.reset} onClick={resetFilters}>Clear filters</button></div>}
+                  <span className={styles.liveTitle}>{department.name}</span>
+                  <span>Name supplied by the connected directory.</span><span className={styles.liveAction}>View details</span></summary>
+                    <dl className={styles.info}><dt>Services</dt><dd>Not supplied</dd><dt>Contact information</dt><dd>Not available</dd><dt>Office hours</dt><dd>Not available</dd></dl>
+                  </details>)}
+              </div>) : <div className={styles.empty}><h3>No matching departments</h3><p>Try a different search or category.</p><button type="button" className={styles.reset} onClick={resetFilters}>Clear filters</button></div>}
             </>}
           </section>
         </section>

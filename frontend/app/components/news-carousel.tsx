@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import styles from "./news-carousel.module.css";
 
 type Slide = {
@@ -8,6 +9,9 @@ type Slide = {
   title: string;
   subtitle: string;
   icon: "news" | "notice" | "policy";
+  image: string;
+  href: string;
+  action: string;
 };
 
 // These are clearly labeled design previews, not real university announcements.
@@ -17,18 +21,27 @@ const slides: Slide[] = [
     title: "Campus News",
     subtitle: "Official campus updates will appear here.",
     icon: "news",
+    image: "/images/campus-news.jpg",
+    href: "/news",
+    action: "Explore campus news",
   },
   {
     badge: "PREVIEW",
     title: "Important Notices",
     subtitle: "Public notices will be displayed here.",
     icon: "notice",
+    image: "/images/important-notices.jpg",
+    href: "/news",
+    action: "View announcements",
   },
   {
     badge: "PREVIEW",
     title: "Public Policies",
     subtitle: "Policy updates will be linked here.",
     icon: "policy",
+    image: "/images/public-policies.jpg",
+    href: "/policies",
+    action: "Explore policies",
   },
 ];
 
@@ -81,14 +94,16 @@ export default function NewsCarousel() {
     direction: "next",
     revision: 0,
   });
+  const [paused, setPaused] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (paused || hovered || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = window.setTimeout(() => {
       setState((current) => moveTo(current, (current.active + 1) % slides.length, "next"));
     }, ROTATION_MS);
     return () => window.clearTimeout(timer);
-  }, [state.revision]);
+  }, [paused, hovered, state.revision]);
 
   function showPrevious() {
     setState((current) => moveTo(current, (current.active - 1 + slides.length) % slides.length, "previous"));
@@ -111,25 +126,46 @@ export default function NewsCarousel() {
     return (
       <div
         key={`${state.revision}-${outgoing ? "out" : "in"}`}
-        className={`${styles.slide} ${styles[slide.icon]} ${motion}`}
+        className={`${styles.slide} ${styles[slide.icon]} ${motion} ${outgoing ? styles.outgoing : ""}`}
+        style={{ backgroundImage: `url("${slide.image}")` }}
         role="group"
         aria-roledescription="slide"
         aria-label={`${index + 1} of ${slides.length}`}
         aria-hidden={outgoing || undefined}
       >
         <div className={styles.slideContent}>
-          <SlideIcon name={slide.icon} />
-          <p className={styles.slideLabel}>{slide.badge}</p>
+          <div className={styles.eyebrow}>
+            <SlideIcon name={slide.icon} />
+            <p className={styles.slideLabel}>{slide.badge}</p>
+          </div>
           <h3>{slide.title}</h3>
           <p className={styles.subtitle}>{slide.subtitle}</p>
+          {outgoing ? (
+            <span className={styles.cta}>{slide.action} <span aria-hidden="true">→</span></span>
+          ) : (
+            <Link href={slide.href} className={styles.cta} onFocus={() => setPaused(true)}>
+              {slide.action} <span aria-hidden="true">→</span>
+            </Link>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.carousel} role="region" aria-roledescription="carousel" aria-label="Campus news preview">
-      <div className={styles.viewport} aria-live="off">
+    <div
+      className={styles.carousel}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Campus news preview"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <button type="button" className={styles.playButton} onClick={() => setPaused((value) => !value)} aria-label={paused ? "Resume automatic slideshow" : "Pause automatic slideshow"}>
+        {paused ? "Play" : "Pause"}
+      </button>
+
+      <div className={styles.viewport} aria-live={paused ? "polite" : "off"}>
         {state.previous !== null && renderSlide(state.previous, true)}
         {renderSlide(state.active, false)}
       </div>
