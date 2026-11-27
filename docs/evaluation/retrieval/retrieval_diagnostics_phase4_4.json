@@ -1,0 +1,21 @@
+{
+  "description": "Non-blind diagnostic comparison for Phase 4.4. The 22-case Phase 4.3 validation fixture is diagnostic only here; no question, expected fact, support label, or denominator was changed.",
+  "reference_date": "2026-11-27",
+  "phase4_3_source_sha256": "0b0b0eb687e1c3d41980ded94abad081266f46ad8e9e0242bd0eb1c802970787",
+  "phase4_4_source_sha256": "7966e19e203015ddbe6627b52649e22748b6e4feace57bc7caafa4963b0e2ff1",
+  "cases": [
+    {"id":"F01","before":[],"after":[[107,1]],"cause":"The sentence-initial word On was incorrectly classified as a named entity, preventing a match to the calendar's enrollment opening. Treating On as a question starter removes the false name constraint."},
+    {"id":"F02","before":[[107,1],[113,1]],"after":[[107,1]],"cause":"Document 107 page 1 already gives both the class start and orientation date. Incoming is now normalized to new, allowing that shared calendar passage to satisfy both clauses and suppressing a redundant second orientation announcement."},
+    {"id":"F07","before":[[109,2]],"after":[[110,1]],"cause":"The earlier unit-rate intent pattern recognized per unit or for each unit but not for each academic unit, so scholarship passages outranked the tuition rate. Intent now uses normalized unit terms and the evidence must state a monetary per-unit rate."},
+    {"id":"F08","before":[[110,2]],"after":[[110,1]],"cause":"Sentence-initial Estimate was incorrectly classified as a named entity; the worked tuition example did not contain that false name. Treating Estimate as a question starter restores the requested 18-unit calculation evidence."},
+    {"id":"F09","before":[[109,2]],"after":[[110,1]],"cause":"Generic fixed/charge overlap favored scholarship pages. A bounded itemization signal now prefers a passage explicitly listing multiple fixed-charge amounts when the question asks for categories or fees added to tuition."},
+    {"id":"F19","before":[[113,3]],"after":[[113,3]],"cause":"Document 113 page 3 states the January 11–15 add/drop dates and the Registrar Service Desk location. It independently satisfies both required groups; the Phase 4.3 expected date locator was too narrow. Phase 4.4 records the equivalent within the original date group."}
+  ],
+  "verified_f19_alternative": {
+    "case_id":"F19",
+    "original_date_locator":[107,2],
+    "alternative_locator":[113,3],
+    "exact_alternative_excerpt":"Add/drop assistance help desk is January 12, 2027, 9:00 a.m.–3:00 p.m. at the Registrar Service Desk for learners using the January 11–15 Term A add/drop period. Walk-ins are welcome; no advance registration is required. The Registrar is responsible; contact registrar@demo-campus.example.",
+    "verification":"Compared the approved fictional source page and exact public seeded chunk at reference date 2026-11-27. No independent reviewer was available."
+  }
+}
