@@ -111,5 +111,183 @@
         "text": "FICTIONAL TEST DATA. Demo Campus University's imaginary lantern display announcement was withdrawn."
       }
     ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 107,
+    "title": "Fictional Academic Calendar",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2026-11-01",
+    "source_reference": "fictional://demo-campus/107/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. AY 2026–2027, Term A academic calendar. Enrollment opens January 4, 2027, and closes January 8, 2027. New-learner orientation is January 9, 2027. Classes begin January 11, 2027. Late registration is January 11–12, with Registrar approval and available seats."
+      },
+      {
+        "page_no": 2,
+        "text": "FICTIONAL TEST DATA. Term A add/drop is January 11–15, 2027. Full payment or the first 40% installment is due January 22; the second 30% installment is due February 19; the final 30% is due March 19. Midterms are March 1–5. The partial tuition-refund withdrawal deadline is February 12. Instruction ends April 30, final exams run May 3–7, and Term A closes May 14, 2027."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 108,
+    "title": "Fictional Program and Course Catalog",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2026-11-01",
+    "source_reference": "fictional://demo-campus/108/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Program overview: BS Information Systems—School of Computing; BS Business Administration—School of Business; BA Communication—School of Communication. Each is a four-year, 120-unit program. The following are sample courses, not complete curricula. BS Information Systems: Intro to Programming, 3 units; Data Fundamentals, 3 units, requires passing Intro to Programming."
+      },
+      {
+        "page_no": 2,
+        "text": "FICTIONAL TEST DATA. BS Business Administration, School of Business, is a four-year, 120-unit program. Sample courses: Principles of Management, 3 units; Financial Accounting I, 3 units; Financial Accounting II, 3 units. Financial Accounting II requires passing Financial Accounting I. These sample courses are not a complete curriculum."
+      },
+      {
+        "page_no": 3,
+        "text": "FICTIONAL TEST DATA. BA Communication, School of Communication, is a four-year, 120-unit program. Sample courses: Media Writing, 3 units; Communication Theory, 3 units. No prerequisite is specified for Communication Theory in this fictional sample catalog. These sample courses are not a complete curriculum."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 109,
+    "title": "Fictional Scholarship Eligibility and Application Guide",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2026-11-01",
+    "source_reference": "fictional://demo-campus/109/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Scholarships available in the simulated guide: Lakbay Academic Merit Award—term GPA 1.75 or better, at least 15 units, no failed courses; benefit 50% of tuition. Access Support Grant—GPA 2.50 or better, at least 12 units, fictional monthly household-income band at or below ₱30,000; benefit 35% of tuition. Community Service Award—GPA 2.50 or better, at least 12 units, 20 prior-term service hours; benefit 25% of tuition. Lower GPA numbers are stronger. Fictional examples."
+      },
+      {
+        "page_no": 2,
+        "text": "FICTIONAL TEST DATA. Lakbay Academic Merit Award: Term GPA must not exceed 1.75 on this scale; carry at least 15 units and have no failed courses. The simulated benefit is 50% of tuition, excluding fixed charges. Renewal requires requalification each term. This example creates no actual award or entitlement."
+      },
+      {
+        "page_no": 3,
+        "text": "FICTIONAL TEST DATA. Access Support Grant: Term GPA must not exceed 2.50; carry at least 12 units and meet the fictional monthly household-income band of ₱30,000 or below. Use a fictional income-band declaration in this exercise, never actual financial documents. The simulated benefit is 35% of tuition, excluding fixed charges; requalify each term."
+      },
+      {
+        "page_no": 4,
+        "text": "FICTIONAL TEST DATA. Community Service Award: Term GPA must not exceed 2.50; carry at least 12 units and complete at least 20 service hours during the previous term. The simulated benefit is 25% of tuition, excluding fixed charges. Submit a fictional service log and requalify each term. This is not an actual scholarship entitlement."
+      },
+      {
+        "page_no": 5,
+        "text": "FICTIONAL TEST DATA. Term A applications are due December 11, 2026, to the Scholarships Office. Use the mock scholarship application form, fictional grade summary, and fictional course plan; Access Support applicants add a fictional income-band declaration. The Scholarships Office reviews simulated applications. Benefits reduce tuition and exclude fixed charges; renewal requires requalification each term. These hypothetical programs do not create real applications, deadlines, awards, or entitlements and do not amend Document 101’s practice-form example."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 110,
+    "title": "Fictional Tuition and Payment Guide",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2026-11-01",
+    "source_reference": "fictional://demo-campus/110/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Term A tuition is ₱1,000 per unit. Fixed charges: registration ₱700, library resources ₱500, technology ₱800, student services ₱1,000; total fixed charges ₱3,000. Worked example before scholarships: 18 units × ₱1,000 = ₱18,000 tuition; plus ₱3,000 fixed charges = ₱21,000 total. Scholarship benefits reduce tuition and exclude fixed charges."
+      },
+      {
+        "page_no": 2,
+        "text": "FICTIONAL TEST DATA. Full payment is due January 22, 2027. The optional simulated plan lets learners pay tuition in three installments: 40% January 22, 30% February 19, and 30% March 19, calculated after any tuition award. For a ₱21,000 balance: ₱8,400, ₱6,300, and ₱6,300. A one-time ₱250 fee applies per missed installment after a five-calendar-day grace period; fees do not compound. Dropped units by January 15 receive tuition credit; fixed fees are non-refundable. Withdrawal January 16–February 12 refunds 50% of paid tuition; after February 12, no tuition refund."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 111,
+    "title": "Fictional Academic Policies and Student Handbook",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2026-11-01",
+    "source_reference": "fictional://demo-campus/111/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Fictional grading: 1.00 is the highest numeric grade; lower numbers mean stronger performance. 3.00 is passing, 4.00 is conditional and non-passing, and 5.00 is failing. INC (incomplete) and W (withdrawn) are non-numeric. GPA is a unit-weighted average of numeric course grades. Scholarship GPA thresholds use this same scale."
+      },
+      {
+        "page_no": 2,
+        "text": "FICTIONAL TEST DATA. Simulated enrollment procedure: select a sample program and courses, prepare a mock registration worksheet and fictional prior-course summary when prerequisite review is needed, obtain an adviser-reviewed course plan, submit it to the Registrar, and receive simulated confirmation. Advisers verify prerequisites before confirmation. Late registration January 11–12 requires Registrar approval and available seats; follow the January 11–15 calendar for add/drop. Document 103 states no real enrollment requirements apply. Never submit actual IDs or transcripts."
+      },
+      {
+        "page_no": 3,
+        "text": "FICTIONAL TEST DATA. Attendance should be at least 80%; this expectation alone does not impose an automatic failing grade. Submit grade appeals to the Registrar within five working days after grade release. Academic concerns receive adviser review. Course changes follow the academic calendar and prerequisites must be verified before confirmation. Program completion requires 120 units and the program final project. These are fictional demonstration policies."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 112,
+    "title": "Fictional Registrar and Student Services Directory",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2026-11-01",
+    "source_reference": "fictional://demo-campus/112/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Fictional offices, responsibilities, and contacts: Registrar—enrollment, transcripts, certificates; registrar@demo-campus.example. Admissions Office—simulated admissions questions; admissions@demo-campus.example. Scholarships Office—award applications and renewal; scholarships@demo-campus.example. Finance Office—tuition and installments; finance@demo-campus.example. Academic advising—course plans and prerequisites; advising@demo-campus.example. Student Affairs—orientation and events; studentaffairs@demo-campus.example. Guidance and Wellness Center—simulated wellness support; wellness@demo-campus.example. All offices: Monday–Friday, 8:30 a.m.–5:00 p.m. Philippine Time, excluding fictional campus holidays."
+      },
+      {
+        "page_no": 2,
+        "text": "FICTIONAL TEST DATA. Simulated transcript: submit a mock transcript request to the Registrar; processing takes five working days and costs ₱300 per official copy. Simulated certificate of enrollment: submit a mock certificate request to the Registrar; processing takes two working days and costs ₱100. These exercises do not access actual student records. For Term A course-plan advising, contact advising@demo-campus.example; for payment questions, contact finance@demo-campus.example."
+      }
+    ]
+  },
+  {
+    "fictional": true,
+    "institution": "Demo Campus University",
+    "document_id": 113,
+    "title": "Fictional University News and Events",
+    "version": "v1",
+    "status": "approved",
+    "access_level": "public",
+    "effective_date": "2026-11-01",
+    "source_reference": "fictional://demo-campus/113/v1",
+    "version_state": "current",
+    "pages": [
+      {
+        "page_no": 1,
+        "text": "FICTIONAL TEST DATA. Announcement published November 20, 2026: New-learner orientation is January 9, 2027, 9:00 a.m.–12:00 noon at University Hall for incoming learners. No advance registration is required; check in at the venue. Student Affairs is responsible. Fictional event questions: studentaffairs@demo-campus.example."
+      },
+      {
+        "page_no": 2,
+        "text": "FICTIONAL TEST DATA. Announcement published November 20, 2026: Scholarship application Q&A is December 5, 2026, 10:00–11:00 a.m. in Learning Commons Room A for prospective and continuing fictional learners. No advance registration is required. The Scholarships Office hosts the session; contact scholarships@demo-campus.example. The session occurs before the December 11 Term A application deadline."
+      },
+      {
+        "page_no": 3,
+        "text": "FICTIONAL TEST DATA. Announcement published November 20, 2026: Add/drop assistance help desk is January 12, 2027, 9:00 a.m.–3:00 p.m. at the Registrar Service Desk for learners using the January 11–15 Term A add/drop period. Walk-ins are welcome; no advance registration is required. The Registrar is responsible; contact registrar@demo-campus.example."
+      }
+    ]
   }
 ]

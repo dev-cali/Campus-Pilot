@@ -16,11 +16,18 @@ from ai.document_processing import normalize_document_text, split_document_text
 
 FIXTURE = Path(__file__).parent / "fixtures" / "fictional_documents.json"
 REFERENCE_DATE = date(2026, 10, 25)
+EXPANDED_REFERENCE_DATE = date(2026, 11, 27)
+LEGACY_DOCUMENT_IDS = set(range(101, 107))
+EXPECTED_PUBLIC_DOCUMENT_IDS = {101, 103, 107, 108, 109, 110, 111, 112, 113}
+EXPECTED_EXCLUDED_DOCUMENT_IDS = {102, 104, 105, 106}
 
 
 class DocumentEligibilityTests(unittest.TestCase):
     def setUp(self):
-        self.documents = load_fictional_documents(FIXTURE)
+        self.all_documents = load_fictional_documents(FIXTURE)
+        # Keep the original six-record contract isolated for its existing tests.
+        self.documents = [d for d in self.all_documents
+                          if d["document_id"] in LEGACY_DOCUMENT_IDS]
 
     def evaluate(self, documents=None, **options):
         arguments = {"trusted_permissions": {"public"}, "reference_date": REFERENCE_DATE}
@@ -38,6 +45,60 @@ class DocumentEligibilityTests(unittest.TestCase):
             self.assertTrue(validate_document(document).eligible)
             for page in document["pages"]:
                 self.assertIn("FICTIONAL TEST DATA", page["text"])
+
+    def test_expanded_catalog_preserves_legacy_records_and_exact_eligibility(self):
+        self.assertEqual(len(self.all_documents), 13)
+        self.assertEqual(self.all_documents[:6], self.documents)
+        ids = [document["document_id"] for document in self.all_documents]
+        references = [document["source_reference"] for document in self.all_documents]
+        self.assertEqual(len(set(ids)), 13)
+        self.assertEqual(set(ids), set(range(101, 114)))
+        self.assertEqual(len(set(references)), 13)
+
+        for document in self.all_documents:
+            with self.subTest(document_id=document["document_id"]):
+                self.assertTrue(validate_document(document).eligible)
+                self.assertNotIn("category", document)
+                self.assertEqual(document["fictional"], True)
+                for page in document["pages"]:
+                    self.assertTrue(page["text"].startswith("FICTIONAL TEST DATA."))
+                    self.assertLessEqual(len(page["text"]), 1000)
+
+        decisions = evaluate_documents(
+            self.all_documents, trusted_permissions={"public"},
+            reference_date=EXPANDED_REFERENCE_DATE,
+        )
+        eligible = {d["document_id"] for d, result in zip(self.all_documents, decisions)
+                    if result.eligible}
+        excluded = {d["document_id"] for d, result in zip(self.all_documents, decisions)
+                    if not result.eligible}
+        self.assertEqual(eligible, EXPECTED_PUBLIC_DOCUMENT_IDS)
+        self.assertEqual(excluded, EXPECTED_EXCLUDED_DOCUMENT_IDS)
+        self.assertEqual(decisions[1].reason, "superseded")
+        self.assertEqual(decisions[4].reason, "access_denied")
+
+    def test_approved_fictional_facts_are_consistent_across_documents(self):
+        by_id = {d["document_id"]: " ".join(p["text"] for p in d["pages"])
+                 for d in self.all_documents}
+        self.assertIn("January 4, 2027", by_id[107])
+        self.assertIn("January 11–15, 2027", by_id[107])
+        self.assertIn("January 15", by_id[110])
+        self.assertIn("December 11, 2026", by_id[109])
+        self.assertIn("December 11", by_id[113])
+        self.assertIn("1.75", by_id[109])
+        self.assertIn("2.50", by_id[109])
+        self.assertIn("3.00 is passing", by_id[111])
+        self.assertIn("₱1,000 per unit", by_id[110])
+        self.assertIn("₱21,000", by_id[110])
+        self.assertIn("₱8,400", by_id[110])
+        self.assertIn("₱6,300", by_id[110])
+        self.assertEqual(8400 + 6300 + 6300, 21000)
+        self.assertIn("Data Fundamentals, 3 units, requires passing Intro to Programming",
+                      by_id[108])
+        self.assertIn("no real enrollment requirements apply", by_id[111].casefold())
+        self.assertIn("do not amend Document 101", by_id[109])
+        self.assertIn("registrar@demo-campus.example", by_id[112])
+        self.assertIn("registrar@demo-campus.example", by_id[113])
 
     def test_approved_public_accepted(self):
         decisions = self.evaluate()

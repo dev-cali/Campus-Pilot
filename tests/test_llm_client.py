@@ -291,10 +291,13 @@ class LlmClientTests(unittest.TestCase):
             self.assertEqual(parts["maxItems"], 2)
             item = parts["items"]
             self.assertFalse(item["additionalProperties"])
-            self.assertEqual(set(item["required"]), {"part_index", "part_text", "support", "evidence_id", "quote"})
+            self.assertEqual(set(item["required"]), {"part_index", "part_text", "support", "answer_text", "evidence"})
             self.assertEqual(set(item["properties"]), set(item["required"]))
-            for nullable in ("evidence_id", "quote"):
-                self.assertEqual(item["properties"][nullable]["type"], ["string", "null"])
+            self.assertEqual(item["properties"]["answer_text"]["type"], ["string", "null"])
+            self.assertEqual(item["properties"]["evidence"]["maxItems"], 2)
+            self.assertEqual(item["properties"]["evidence"]["items"]["additionalProperties"], False)
+            self.assertEqual(set(item["properties"]["evidence"]["items"]["required"]),
+                             {"evidence_id", "quote"})
             self.assertEqual(json.loads(raw)["parts"], [])
             self.assertIn("never silently drop", kwargs["messages"][0]["content"])
 

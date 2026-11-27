@@ -12,7 +12,7 @@ from tempfile import TemporaryDirectory
 
 import uvicorn
 
-from ai.answer_service import AnswerService
+from ai.answer_service import AnswerService, _answer_question_parts
 from ai.demo_api import create_app
 from ai.demo_store import DEFAULT_FIXTURE, DemoStore
 from ai.document_eligibility import load_fictional_documents
@@ -31,8 +31,9 @@ class MockGenerator:
         if _question not in supported_questions or chosen is None:
             return json.dumps({"status": "insufficient_evidence", "parts": []})
         return json.dumps({"status": "answered", "parts": [{
-            "part_index": 1, "part_text": _question, "support": "supported",
-            "evidence_id": chosen.evidence_id, "quote": quote,
+            "part_index": 1, "part_text": _answer_question_parts(_question)[0], "support": "supported",
+            "answer_text": "Learners review a sample course list in this exercise.",
+            "evidence": [{"evidence_id": chosen.evidence_id, "quote": quote}],
         }]})
 
 
