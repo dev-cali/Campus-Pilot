@@ -1,0 +1,52 @@
+{
+  "manifest_version": 1,
+  "title": "Source-verified equivalent scholarship evidence for Phase 4.3 evaluation only",
+  "independent_review_available": false,
+  "verification_method": "Compared the exact eligible seeded chunk text and source page text at reference date 2026-11-27; no independent reviewer was available.",
+  "cases": [
+    {
+      "case_id": "G05",
+      "question": "For Access Support, what GPA and unit load do I need?",
+      "original_evidence": {"document_id": 109, "page_no": 3, "chunk_index": 0},
+      "acceptable_alternatives": [{"document_id": 109, "page_no": 1, "chunk_index": 0}],
+      "required_facts": ["Access Support term GPA threshold is 2.50 or better (lower numeric GPA is stronger).", "At least 12 units are required."],
+      "original_excerpt": "Access Support Grant: Term GPA must not exceed 2.50; carry at least 12 units and meet the fictional monthly household-income band of ₱30,000 or below.",
+      "alternative_excerpt": "Access Support Grant—GPA 2.50 or better, at least 12 units",
+      "equivalence_justification": "Both exact chunks identify Access Support and state the same GPA threshold and minimum unit load. Page 1 also states that lower GPA numbers are stronger, so '2.50 or better' is equivalent to 'must not exceed 2.50'. Income and benefit details are not required by this question.",
+      "independently_reviewed": false
+    },
+    {
+      "case_id": "V04",
+      "question": "What GPA and prior-term service hours does the Community Service Award require?",
+      "original_evidence": {"document_id": 109, "page_no": 4, "chunk_index": 0},
+      "acceptable_alternatives": [{"document_id": 109, "page_no": 1, "chunk_index": 0}],
+      "required_facts": ["Community Service Award GPA threshold is 2.50 or better (lower numeric GPA is stronger).", "At least 20 service hours from the prior term are required."],
+      "original_excerpt": "Community Service Award: Term GPA must not exceed 2.50; carry at least 12 units and complete at least 20 service hours during the previous term.",
+      "alternative_excerpt": "Community Service Award—GPA 2.50 or better, at least 12 units, 20 prior-term service hours",
+      "equivalence_justification": "The summary passage explicitly names Community Service Award and contains both asked-for facts, including the prior-term qualifier; the GPA direction is equivalent because the same passage explains that lower GPA numbers are stronger. The extra 12-unit condition does not conflict with or replace the requested facts.",
+      "independently_reviewed": false
+    },
+    {
+      "case_id": "V05",
+      "question": "For Access Support, what GPA and course load are required?",
+      "original_evidence": {"document_id": 109, "page_no": 3, "chunk_index": 0},
+      "acceptable_alternatives": [{"document_id": 109, "page_no": 1, "chunk_index": 0}],
+      "required_facts": ["Access Support term GPA threshold is 2.50 or better (lower numeric GPA is stronger).", "At least 12 units are required."],
+      "original_excerpt": "Access Support Grant: Term GPA must not exceed 2.50; carry at least 12 units and meet the fictional monthly household-income band of ₱30,000 or below.",
+      "alternative_excerpt": "Access Support Grant—GPA 2.50 or better, at least 12 units",
+      "equivalence_justification": "Both exact chunks identify Access Support and state the same GPA threshold and unit minimum; lower GPA numbers are explicitly defined as stronger. The question does not require income-band or benefit facts.",
+      "independently_reviewed": false
+    },
+    {
+      "case_id": "V06",
+      "question": "What is Lakbay's minimum unit load?",
+      "original_evidence": {"document_id": 109, "page_no": 2, "chunk_index": 0},
+      "acceptable_alternatives": [{"document_id": 109, "page_no": 1, "chunk_index": 0}],
+      "required_facts": ["Lakbay Academic Merit Award requires at least 15 units."],
+      "original_excerpt": "Lakbay Academic Merit Award: Term GPA must not exceed 1.75 on this scale; carry at least 15 units and have no failed courses.",
+      "alternative_excerpt": "Lakbay Academic Merit Award—term GPA 1.75 or better, at least 15 units, no failed courses;",
+      "equivalence_justification": "Both exact chunks identify Lakbay and state a minimum load of 15 units; page 1 additionally summarizes GPA and no-failed-course requirements, which do not contradict the requested unit minimum.",
+      "independently_reviewed": false
+    }
+  ]
+}

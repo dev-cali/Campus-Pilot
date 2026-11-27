@@ -1,4 +1,3 @@
-
 "use client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -30,7 +29,59 @@ export default function LoginPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetFeedback, setResetFeedback] = useState("");
-  // UI-only demo: no real authentication is implemented yet.
+  const [isSendingReset, setIsSendingReset] = useState(false);
+
+
+  const handlePasswordReset = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+
+    if (isSendingReset) return;
+
+    const email = resetEmail.trim();
+
+    if (!email) {
+      setResetFeedback("Please enter your email address.");
+      return;
+    }
+
+    setIsSendingReset(true);
+    setResetFeedback("");
+
+    try {
+      const { error } = await createClient().auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+        }
+      );
+
+      if (error) {
+        console.error("Supabase password reset error:", {
+          message: error.message,
+          status: error.status,
+        });
+
+        setResetFeedback(
+          `Reset failed: ${error.message} (Status: ${error.status ?? "unknown"})`
+        );
+
+        return;
+      }
+
+      setResetFeedback(
+        "If an account exists with this email, a password reset link has been sent. Please check your inbox."
+      );
+    } catch {
+      setResetFeedback(
+        "Something went wrong. Please try again later."
+      );
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
+
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -61,17 +112,9 @@ export default function LoginPage() {
         return;
       }
 
-      const next = new URLSearchParams(
-        window.location.search
-      ).get("next");
-
-      const destination =
-        next && (next === "/ai" || next.startsWith("/ai?"))
-          ? next
-          : "/";
-
-      router.replace(destination);
+      router.replace("/");
       router.refresh();
+
     } catch {
       setLoginFeedback(
         "Unable to connect. Please try again later."
@@ -158,7 +201,7 @@ export default function LoginPage() {
     } finally {
       setIsRegistering(false);
     }
-  };  
+  };
 
   const handleSso = (provider: "Google" | "Facebook") => {
     alert(`${provider} authentication is not connected yet.`);
@@ -477,12 +520,7 @@ export default function LoginPage() {
 
             <form
               className="forgot-form"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setResetFeedback(
-                  "Password recovery is not connected yet. This feature will be available after authentication integration."
-                );
-              }}
+              onSubmit={handlePasswordReset}
             >
               <div className="form-group">
                 <label htmlFor="resetEmail">Email Address</label>
@@ -502,8 +540,12 @@ export default function LoginPage() {
                 />
               </div>
 
-              <button type="submit" className="submit-btn">
-                Send Reset Link
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={isSendingReset}
+              >
+                {isSendingReset ? "Sending..." : "Send Reset Link"}
               </button>
             </form>
 

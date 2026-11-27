@@ -71,7 +71,10 @@ export async function proxy(request: NextRequest) {
 
   const claims = error ? null : data?.claims;
   const authenticated =
-    typeof claims?.sub === "string" && claims.sub.length > 0;
+    typeof claims?.sub === "string" &&
+    claims.sub.length > 0 &&
+    claims.role === "authenticated" &&
+    claims.is_anonymous !== true;
 
   if (!authenticated) {
     if (isApiRequest) {
@@ -89,6 +92,7 @@ export async function proxy(request: NextRequest) {
     const loginUrl = request.nextUrl.clone();
 
     loginUrl.pathname = "/login";
+    loginUrl.search = "";
     loginUrl.searchParams.set(
       "next",
       `${request.nextUrl.pathname}${request.nextUrl.search}`
@@ -108,5 +112,15 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/ai/:path*", "/api/ai/:path*"],
+  matcher: [
+    "/ai/:path*",
+    "/api/ai/:path*",
+    "/scholarships/:path*",
+    "/events/:path*",
+    "/documents/:path*",
+    "/academics/:path*",
+    "/departments/:path*",
+    "/profile/:path*",
+    "/settings/:path*",
+  ],
 };

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import {
   parseAnswer,
@@ -29,13 +28,13 @@ type Conversation = {
 
 const CATEGORIES: Category[] = ["News", "Scholarships", "Policies", "Events", "Documents", "Academics"];
 const PLACEHOLDERS: Record<Category | "home", string> = {
-  home: "Ask CampusPilot a university question...",
-  News: "What campus news is supported by the available sources?",
-  Scholarships: "What scholarship information is available?",
-  Policies: "What campus policies are documented?",
-  Events: "What events are mentioned in the available sources?",
-  Documents: "What document request procedures are documented?",
-  Academics: "What enrollment guidance is available?",
+  home: "Ask CampusPilot...",
+  News: "Ask about campus news...",
+  Scholarships: "Ask about scholarships...",
+  Policies: "Ask about policies...",
+  Events: "Ask about events...",
+  Documents: "Ask about documents...",
+  Academics: "Ask about academics...",
 };
 
 function Icon({ name, size = 18 }: { name: string; size?: number }) {
@@ -190,11 +189,10 @@ export default function Assistant({
   }
 
   return (
-    <div className="page">
+    <div className={`page ${styles.mobileShell}`}>
       <CampusHeader
-        active={category === "Policies" ? "policies" : "ai"}
+        active="ai"
         onAssistantClick={(event) => handleHeaderCategory(event, null)}
-        onPoliciesClick={(event) => handleHeaderCategory(event, "Policies")}
       />
 
       <div className="layout">
@@ -233,29 +231,18 @@ export default function Assistant({
 
         <main className="card">
           <nav className={styles.categoryNav} aria-label="Assistant categories">
-          {CATEGORIES.map((item) => {
-            const isPublicCategory = item === "News" || item === "Policies";
-
-            if (!isPublicCategory) {
-              const next = `/ai?category=${item}`;
-              return (
-                <Link
-                  key={item}
-                  href={`/login?next=${encodeURIComponent(next)}`}
-                  className={`cat ${styles.categoryLink}`}
-                >
-                  <Icon name={item} /> {item}
-                </Link>
-              );
-            }
-
-            return (
-              <button key={item} type="button" className="cat"
-                aria-pressed={category === item} onClick={() => selectCategory(item)} disabled={pending}>
+            {CATEGORIES.map((item) => (
+              <button
+                key={item}
+                type="button"
+                className="cat"
+                aria-pressed={category === item}
+                onClick={() => selectCategory(item)}
+                disabled={pending}
+              >
                 <Icon name={item} /> {item}
               </button>
-            );
-          })}
+            ))}
           </nav>
           <section className="main">
             {entries.length === 0 && <div className="stage">

@@ -159,3 +159,63 @@
 }
 .categoryLink { text-decoration: none; }
 .categoryNav button:disabled { opacity: .55; cursor: not-allowed; }
+
+/* Mobile-only refinements. Keep the existing global dashboard layout. */
+@media (max-width: 600px) {
+  .mobileShell :global(.layout),
+  .mobileShell :global(.card),
+  .mobileShell :global(.main),
+  .mobileShell :global(.chat) {
+    min-width: 0;
+  }
+
+  .mobileShell .categoryNav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .mobileShell .categoryNav :global(.cat) {
+    min-width: 0;
+    min-height: 44px;
+    justify-content: center;
+    padding: 6px;
+    white-space: normal;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .mobileShell :global(.ask) {
+    min-width: 0;
+    gap: 6px;
+    padding: 4px 5px 4px 10px;
+  }
+
+  .mobileShell :global(.ask input) {
+    flex: 1 1 0%;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .mobileShell :global(.ask button) {
+    flex: 0 0 44px;
+    width: 44px;
+    min-height: 44px;
+  }
+
+  .mobileShell :global(.msg) {
+    min-width: 0;
+    max-width: 96%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .mobileShell .sources ol {
+    padding-inline-start: 20px;
+  }
+
+  .mobileShell .sources li,
+  .mobileShell .reference {
+    overflow-wrap: anywhere;
+  }
+}

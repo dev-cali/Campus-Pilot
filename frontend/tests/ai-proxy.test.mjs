@@ -12,8 +12,26 @@ const moduleUrl = (source) => `data:text/javascript;base64,${Buffer.from(source)
 const contractUrl = moduleUrl(compile(await readFile(new URL("../lib/ai-contract.ts", import.meta.url), "utf8")));
 const contract = await import(contractUrl);
 const authUrl = moduleUrl(`export async function createClient() {
-  return { auth: { getClaims: async () => globalThis.__supabaseClaimsResult } };
+  return { auth: {
+    getSession: async () => {
+      globalThis.__supabaseAuthCalls.push("getSession");
+      if (globalThis.__supabaseSessionThrows) throw new Error("private session failure");
+      return globalThis.__supabaseSessionResult;
+    },
+    getClaims: async (token) => {
+      globalThis.__supabaseAuthCalls.push(["getClaims", token]);
+      if (globalThis.__supabaseClaimsThrows) throw new Error("private claims failure");
+      return globalThis.__supabaseClaimsResult;
+    },
+  } };
 }`);
+const testAccessToken = "synthetic-campus-pilot-access-token";
+globalThis.__supabaseAuthCalls = [];
+globalThis.__supabaseSessionThrows = false;
+globalThis.__supabaseClaimsThrows = false;
+globalThis.__supabaseSessionResult = {
+  data: { session: { access_token: testAccessToken } }, error: null,
+};
 globalThis.__supabaseClaimsResult = {
   data: { claims: { sub: "fictional-test-user", role: "authenticated" } }, error: null,
 };
@@ -69,11 +87,20 @@ test("proxy cases never contact a real service", async (t) => {
   new Headers(options.headers).get("X-AI-Demo-Secret"),
   testSecret
 );
+          assert.equal(
+            new Headers(options.headers).get("Authorization"),
+            `Bearer ${testAccessToken}`
+          );
           return Response.json(payload, { status: contract.statusCodes[status] });
         };
+        globalThis.__supabaseAuthCalls = [];
         const response = await POST(request({ question: " enrollment " }, {
           Origin: "http://127.0.0.1:3000", Host: "127.0.0.1:3000",
         }));
+        assert.deepEqual(globalThis.__supabaseAuthCalls, [
+          "getSession",
+          ["getClaims", testAccessToken],
+        ]);
         assert.equal(response.status, contract.statusCodes[status]);
         assert.deepEqual(await response.json(), payload);
         assert.equal(response.headers.get("cache-control"), "no-store");
@@ -109,6 +136,42 @@ test("proxy cases never contact a real service", async (t) => {
           data: { claims: { sub: "fictional-test-user", role: "authenticated" } }, error: null,
         };
       }
+    });
+    await t.test("missing sessions and access tokens are rejected before backend access", async () => {
+      let calls = 0;
+      globalThis.fetch = async () => { calls++; throw new Error("unexpected_fetch"); };
+      const invalidSessions = [
+        { data: { session: null }, error: null },
+        { data: { session: { access_token: "" } }, error: null },
+        { data: { session: { access_token: null } }, error: null },
+        { data: { session: { access_token: testAccessToken } }, error: { message: "session error" } },
+      ];
+      try {
+        for (const session of invalidSessions) {
+          globalThis.__supabaseSessionResult = session;
+          globalThis.__supabaseAuthCalls = [];
+          const response = await POST(request({ question: "enrollment" }));
+          assert.equal(response.status, 401);
+          assert.match((await response.json()).detail, /sign in/i);
+        }
+        assert.equal(calls, 0);
+      } finally {
+        globalThis.__supabaseSessionResult = {
+          data: { session: { access_token: testAccessToken } }, error: null,
+        };
+      }
+    });
+    await t.test("authentication service exceptions are sanitized", async () => {
+      let calls = 0;
+      globalThis.fetch = async () => { calls++; throw new Error("unexpected_fetch"); };
+      for (const flag of ["__supabaseSessionThrows", "__supabaseClaimsThrows"]) {
+        globalThis[flag] = true;
+        const response = await POST(request({ question: "enrollment" }));
+        assert.equal(response.status, 503);
+        assert.doesNotMatch(await response.text(), /private .* failure/);
+        globalThis[flag] = false;
+      }
+      assert.equal(calls, 0);
     });
     await t.test("network, timeout, invalid JSON and status mismatch are sanitized", async () => {
       for (const fake of [
@@ -172,6 +235,10 @@ test("proxy cases never contact a real service", async (t) => {
   } finally {
     globalThis.fetch = originalFetch;
     delete globalThis.__supabaseClaimsResult;
+    delete globalThis.__supabaseSessionResult;
+    delete globalThis.__supabaseAuthCalls;
+    delete globalThis.__supabaseSessionThrows;
+    delete globalThis.__supabaseClaimsThrows;
 
     if (originalBase === undefined) {
       delete process.env.AI_API_BASE_URL;
