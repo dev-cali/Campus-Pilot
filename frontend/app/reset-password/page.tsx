@@ -252,8 +252,8 @@ export default function ResetPasswordPage() {
       </section>
 
       <p className={styles.footer}>
-        © {new Date().getFullYear()} CampusPilot. Student &amp; Faculty Portal.
-      </p>
+  © 2026 CampusPilot. Student &amp; Faculty Portal.
+</p>
     </main>
   );
 }
