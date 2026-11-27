@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 from ai.document_processing import split_document_text
 from ai.llm_client import (DiagnosticFailure, OpenAIAnswerGenerator, classify_rejection,
                            configuration_diagnostics, structured_error_states,
-                           provider_response_diagnostics)
+                           provider_response_diagnostics, diagnostic_request)
 from ai.local_retrieval import Evidence
 from ai.answer_service import AnswerService
 from ai.demo_api import create_app
@@ -328,21 +328,70 @@ class LlmClientTests(unittest.TestCase):
         with patch.dict("os.environ", {"AI_API_KEY": "fictional-test-value", "AI_MODEL": "mock-model"}), patch("openai.OpenAI") as sdk:
             client = sdk.return_value
             cases = (
-                (self.response(finish="length"), "provider_output_truncated"),
-                (self.response(refusal="refusal"), "selection_invalid"),
-                (self.response(content=None), "selection_invalid"),
-                (SimpleNamespace(choices=[]), "selection_invalid"),
+                (self.response(finish="length"), "provider_output_truncated", None),
+                (self.response(refusal="refusal"), "selection_invalid", "refusal"),
+                (self.response(content=None), "selection_invalid", "missing_content"),
+                (self.response(finish="content_filter"), "selection_invalid", "non_stop_finish"),
+                (SimpleNamespace(choices=[]), "selection_invalid", "empty_choices"),
             )
-            for response, category in cases:
+            for response, category, reason in cases:
                 with self.subTest(category=category, response=response):
                     client.reset_mock()
                     client.chat.completions.create.return_value = response
                     with self.assertRaises(DiagnosticFailure) as raised:
                         OpenAIAnswerGenerator().generate("sample", self.evidence)
                     self.assertEqual(raised.exception.category, category)
+                    self.assertEqual(raised.exception.selection_reason, reason)
                     self.assertIsNone(raised.exception.http_status)
                     client.chat.completions.create.assert_called_once()
                     client.close.assert_called_once()
+
+    def test_completion_diagnostics_are_bounded_and_never_include_content(self):
+        response = SimpleNamespace(
+            _request_id="req_test_123",
+            choices=[SimpleNamespace(finish_reason="stop", message=SimpleNamespace(
+                content="PRIVATE_PROVIDER_OUTPUT", refusal=None))],
+            usage=SimpleNamespace(prompt_tokens=51, completion_tokens=17,
+                                  completion_tokens_details=SimpleNamespace(reasoning_tokens=9)),
+        )
+        with patch.dict("os.environ", {"AI_API_KEY": "fictional-test-value", "AI_MODEL": "mock-model"}), \
+                patch("openai.OpenAI") as sdk, self.assertLogs("uvicorn.error", level="WARNING") as captured:
+            sdk.return_value.chat.completions.create.return_value = response
+            with diagnostic_request():
+                OpenAIAnswerGenerator().generate("sample", self.evidence)
+        events = [json.loads(record.getMessage()) for record in captured.records]
+        received = next(event for event in events if event["category"] == "provider_response_received")
+        self.assertEqual(received["completion_status"], "returned")
+        self.assertEqual(received["finish_reason"], "stop")
+        self.assertEqual(received["input_tokens"], 51)
+        self.assertEqual(received["output_tokens"], 17)
+        self.assertEqual(received["reasoning_tokens"], 9)
+        self.assertEqual(received["provider_request_id"], "req_test_123")
+        self.assertNotIn("PRIVATE_PROVIDER_OUTPUT", json.dumps(events))
+
+    def test_completion_diagnostics_ignore_untrusted_metadata(self):
+        response = SimpleNamespace(
+            _request_id="DO_NOT_LOG secret",
+            choices=[SimpleNamespace(finish_reason="DO_NOT_LOG", message=SimpleNamespace(
+                content="DO_NOT_LOG", refusal=None))],
+            usage=SimpleNamespace(prompt_tokens=-1, completion_tokens="DO_NOT_LOG",
+                                  completion_tokens_details=SimpleNamespace(reasoning_tokens=1_000_001)),
+        )
+        with patch.dict("os.environ", {"AI_API_KEY": "fictional-test-value", "AI_MODEL": "mock-model"}), \
+                patch("openai.OpenAI") as sdk, self.assertLogs("uvicorn.error", level="WARNING") as captured:
+            sdk.return_value.chat.completions.create.return_value = response
+            with diagnostic_request():
+                with self.assertRaises(DiagnosticFailure):
+                    OpenAIAnswerGenerator().generate("sample", self.evidence)
+        serialized = " ".join(captured.output)
+        self.assertNotIn("DO_NOT_LOG", serialized)
+        event = next(json.loads(record.getMessage()) for record in captured.records
+                     if "provider_response_received" in record.getMessage())
+        self.assertEqual(event["finish_reason"], "other")
+        self.assertIsNone(event["input_tokens"])
+        self.assertIsNone(event["output_tokens"])
+        self.assertIsNone(event["reasoning_tokens"])
+        self.assertIsNone(event["provider_request_id"])
 
 
 if __name__ == "__main__":

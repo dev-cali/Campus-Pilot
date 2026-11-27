@@ -284,6 +284,36 @@ class AnswerQualityTests(unittest.TestCase):
             validate_selection(json.dumps({"status": "answered", "parts": [part]}),
                                evidence, question)
 
+    def test_selection_diagnostics_classify_parser_schema_and_grounding_failures(self):
+        evidence = self.evidence((107, 1))
+        question = "When does Term A enrollment open?"
+        part_text = _answer_question_parts(question)[0]
+        valid_shape_bad_id = json.dumps({"status": "answered", "parts": [{
+            "part_index": 1, "part_text": part_text, "support": "supported",
+            "answer_text": "Enrollment opens January 4, 2027.",
+            "evidence": [{"evidence_id": "private-do-not-log", "quote": "January 4, 2027"}],
+        }]})
+        incomplete = json.dumps({"status": "answered", "parts": [{
+            "part_index": 1, "part_text": part_text, "support": "supported",
+            "answer_text": "Orientation begins January 4, 2027.",
+            "evidence": [{"evidence_id": evidence[0].evidence_id,
+                          "quote": "Term A academic calendar. Enrollment opens January 4, 2027, and closes January 8, 2027."}],
+        }]})
+        for raw, expected, status in (("{malformed-do-not-log", "malformed_json", "unavailable"),
+                                      ("{}", "schema_invalid", "unavailable"),
+                                      (valid_shape_bad_id, "validation_failed", "unavailable"),
+                                      (incomplete, "incomplete_answer", "insufficient_evidence")):
+            with self.subTest(reason=expected):
+                self.generator.reset_mock()
+                self.generator.generate.return_value = raw
+                with self.assertLogs("uvicorn.error", level="WARNING") as captured:
+                    result = self.service(evidence).ask(question, reference_date=REFERENCE_DATE)
+                events = [json.loads(record.getMessage()) for record in captured.records]
+                failure = next(event for event in events if event.get("selection_reason"))
+                self.assertEqual(failure["selection_reason"], expected)
+                self.assertEqual(result.status, status)
+                self.assertNotIn("do-not-log", " ".join(captured.output))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -204,8 +204,43 @@ _categories = frozenset({
     "provider_request_started", "provider_auth_failed", "provider_rate_limited",
     "provider_timeout", "provider_request_rejected", "provider_connection_failed",
     "provider_output_truncated", "selection_invalid", "evidence_changed",
-    "invalid_completion_limit", "provider_failed",
+    "invalid_completion_limit", "provider_failed", "provider_response_received",
 })
+_selection_reasons = frozenset({
+    "empty_choices", "non_stop_finish", "refusal", "missing_content",
+    "malformed_json", "schema_invalid", "validation_failed", "incomplete_answer",
+})
+_finish_reasons = frozenset({"stop", "length", "content_filter", "tool_calls", "function_call"})
+
+
+def _safe_completion_metadata(response):
+    """Extract bounded SDK completion metadata without serializing response content."""
+    choices = getattr(response, "choices", None)
+    finish_reason = None
+    if type(choices) is list and choices:
+        value = getattr(choices[0], "finish_reason", None)
+        finish_reason = value if type(value) is str and value in _finish_reasons else "other"
+    usage = getattr(response, "usage", None)
+
+    def token_count(name):
+        value = getattr(usage, name, None)
+        return value if type(value) is int and 0 <= value <= 1_000_000 else None
+
+    details = getattr(usage, "completion_tokens_details", None)
+    reasoning = getattr(details, "reasoning_tokens", None)
+    if type(reasoning) is not int or not 0 <= reasoning <= 1_000_000:
+        reasoning = None
+    request_id = getattr(response, "_request_id", None)
+    if type(request_id) is not str or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", request_id):
+        request_id = None
+    return {
+        "completion_status": "returned",
+        "finish_reason": finish_reason,
+        "input_tokens": token_count("prompt_tokens"),
+        "output_tokens": token_count("completion_tokens"),
+        "reasoning_tokens": reasoning,
+        "provider_request_id": request_id,
+    }
 
 
 @contextmanager
@@ -220,7 +255,8 @@ def diagnostic_request():
 
 def diagnostic_event(category: str, http_status=None, *, provider_code=None, provider_param=None,
                      provider_classification="unknown", provider_attribute_states=None,
-                     provider_response=None) -> None:
+                     provider_response=None, selection_reason=None,
+                     provider_completion_response=None) -> None:
     """Only fixed categories, opaque IDs, elapsed time and numeric status escape."""
     state = _diagnostic_context.get()
     if state is None or category not in _categories:
@@ -233,6 +269,10 @@ def diagnostic_event(category: str, http_status=None, *, provider_code=None, pro
              "elapsed_ms": round((monotonic() - state["start"]) * 1000)}
     if type(http_status) is int and 100 <= http_status <= 599:
         event["http_status"] = http_status
+    if category == "selection_invalid" and type(selection_reason) is str and selection_reason in _selection_reasons:
+        event["selection_reason"] = selection_reason
+    if category == "provider_response_received":
+        event.update(_safe_completion_metadata(provider_completion_response))
     if category == "provider_request_rejected":
         event["provider_attribute_states"] = _safe_states(provider_attribute_states)
         event["provider_code"] = _allowlisted(provider_code, _provider_codes)
@@ -257,7 +297,7 @@ class DiagnosticFailure(RuntimeError):
     """Carries a fixed category, never an SDK error message or response body."""
     def __init__(self, category: str, http_status=None, *, provider_code=None, provider_param=None,
                  provider_classification="unknown", provider_attribute_states=None,
-                 provider_response=None):
+                 provider_response=None, selection_reason=None):
         self.category = category if category in _categories else "provider_failed"
         self.http_status = http_status
         self.provider_attribute_states = _safe_states(provider_attribute_states)
@@ -267,6 +307,8 @@ class DiagnosticFailure(RuntimeError):
             if type(provider_classification) is str and provider_classification in _rejection_classes
             else "unknown")
         self.provider_response = _safe_provider_response(provider_response)
+        self.selection_reason = (selection_reason if type(selection_reason) is str
+                                 and selection_reason in _selection_reasons else None)
         super().__init__(self.category)
 
 
@@ -393,13 +435,17 @@ class OpenAIAnswerGenerator:
                 client.close()
             except Exception:
                 pass
+        diagnostic_event("provider_response_received",
+                         provider_completion_response=response)
         if not response.choices:
-            raise DiagnosticFailure("selection_invalid")
+            raise DiagnosticFailure("selection_invalid", selection_reason="empty_choices")
         choice = response.choices[0]
         if choice.finish_reason == "length":
             raise DiagnosticFailure("provider_output_truncated")
-        if choice.finish_reason != "stop" or choice.message.refusal:
-            raise DiagnosticFailure("selection_invalid")
+        if choice.finish_reason != "stop":
+            raise DiagnosticFailure("selection_invalid", selection_reason="non_stop_finish")
+        if choice.message.refusal:
+            raise DiagnosticFailure("selection_invalid", selection_reason="refusal")
         if not isinstance(choice.message.content, str):
-            raise DiagnosticFailure("selection_invalid")
+            raise DiagnosticFailure("selection_invalid", selection_reason="missing_content")
         return choice.message.content
