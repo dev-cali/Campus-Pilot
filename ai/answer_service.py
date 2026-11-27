@@ -76,11 +76,19 @@ class AnswerGenerator(Protocol):
         ...
 
 
+class SelectionValidationFailure(ValueError):
+    """A fixed, safe reason for a rejected provider selection."""
+
+    def __init__(self, reason: str):
+        self.reason = reason
+        super().__init__(reason)
+
+
 def _unique_json_object(pairs: list) -> dict:
     result = {}
     for key, value in pairs:
         if key in result:
-            raise ValueError("invalid_model_output")
+            raise SelectionValidationFailure("duplicate_json_key")
         result[key] = value
     return result
 
@@ -614,16 +622,16 @@ def deterministic_financial_answer(question: str, evidence: tuple[Evidence, ...]
 def validate_selection(raw: str, evidence: tuple[Evidence, ...], question: str) -> AnswerResponse:
     """Validate answer-part coverage, quote IDs, high-risk values, and lexical grounding."""
     if not isinstance(raw, str) or len(raw) > 20000:
-        raise ValueError("invalid_model_output")
+        raise SelectionValidationFailure("invalid_selection_response")
     selection = ModelSelection.model_validate(json.loads(raw, object_pairs_hook=_unique_json_object))
     if not selection.parts:
         # Explicit whole-question abstention, including part-budget overflow.
         if selection.status != "insufficient_evidence":
-            raise ValueError("invalid_model_output")
+            raise SelectionValidationFailure("answered_without_parts")
         return fallback("insufficient_evidence")
     by_id = {item.evidence_id: item.chunk for item in evidence}
     if len(by_id) != len(evidence):
-        raise ValueError("invalid_evidence")
+        raise SelectionValidationFailure("duplicate_evidence_ids")
     question_parts = _answer_question_parts(question)
     if not question_parts or len(selection.parts) != len(question_parts):
         return fallback("insufficient_evidence")
@@ -631,20 +639,28 @@ def validate_selection(raw: str, evidence: tuple[Evidence, ...], question: str) 
     unsupported = False
     for index, item in enumerate(selection.parts, 1):
         normalized_part = _normalize_question_part(item.part_text)
-        if item.part_index != index or normalized_part != question_parts[index - 1]:
-            raise ValueError("invalid_model_output")
+        if item.part_index != index:
+            raise SelectionValidationFailure("question_part_index_mismatch")
+        if normalized_part != question_parts[index - 1]:
+            raise SelectionValidationFailure("question_part_mapping_mismatch")
         if item.support == "unsupported":
             if item.answer_text is not None or item.evidence:
-                raise ValueError("invalid_model_output")
+                raise SelectionValidationFailure("unsupported_part_has_answer_or_evidence")
             unsupported = True
             continue
         if not item.answer_text or not item.answer_text.strip() or not item.evidence:
-            raise ValueError("invalid_model_output")
+            raise SelectionValidationFailure("supported_part_missing_answer_or_evidence")
         quotes = []
         for supporting in item.evidence:
             chunk = by_id.get(supporting.evidence_id)
-            if chunk is None or not supporting.quote.strip() or supporting.quote not in chunk.chunk_text or not chunk.version:
-                raise ValueError("invalid_model_output")
+            if chunk is None:
+                raise SelectionValidationFailure("unknown_evidence_identifier")
+            if not supporting.quote.strip():
+                raise SelectionValidationFailure("empty_evidence_quote")
+            if supporting.quote not in chunk.chunk_text:
+                raise SelectionValidationFailure("exact_quote_mismatch")
+            if not chunk.version:
+                raise SelectionValidationFailure("source_version_missing")
             quotes.append(supporting.quote)
             cited_ids.add(supporting.evidence_id)
         _validate_answer_text(item.answer_text, normalized_part, quotes)
@@ -660,6 +676,8 @@ def _selection_failure_reason(error: Exception) -> str:
         return "malformed_json"
     if isinstance(error, ValidationError):
         return "schema_invalid"
+    if isinstance(error, SelectionValidationFailure):
+        return error.reason
     return "validation_failed"
 
 
