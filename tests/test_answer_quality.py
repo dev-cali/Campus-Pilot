@@ -6,8 +6,10 @@ import unittest
 from datetime import date
 from pathlib import Path
 from unittest.mock import Mock
+from fastapi.testclient import TestClient
 
 from ai.answer_service import AnswerService, IncompleteAnswer, _answer_question_parts, validate_selection
+from ai.demo_api import create_app
 from ai.demo_store import DemoStore
 from ai.document_eligibility import load_fictional_documents
 from ai.document_processing import split_document_text
@@ -313,6 +315,55 @@ class AnswerQualityTests(unittest.TestCase):
                 self.assertEqual(failure["selection_reason"], expected)
                 self.assertEqual(result.status, status)
                 self.assertNotIn("do-not-log", " ".join(captured.output))
+
+    def test_real_retrieval_and_api_accept_question_punctuation_but_keep_grounding(self):
+        question = "When does Term A enrollment open?"
+        retriever = KeywordRetriever(self.store)
+        evidence = retriever.retrieve(question, reference_date=REFERENCE_DATE)
+        self.assertEqual([(item.chunk.document_id, item.chunk.page_no) for item in evidence], [(107, 1)])
+        item = evidence[0]
+        quote = next(text for text in (
+            "Term A academic calendar. Enrollment opens January 4, 2027, and closes January 8, 2027.",
+            "Enrollment opens January 4, 2027, and closes January 8, 2027.",
+        ) if text in item.chunk.chunk_text)
+
+        def response(*, part_text=question,
+                     answer_text="Term A enrollment opens January 4, 2027, and closes January 8, 2027.",
+                     evidence_id=item.evidence_id, source_quote=quote, part_index=1):
+            return json.dumps({"status": "answered", "parts": [{
+                "part_index": part_index, "part_text": part_text, "support": "supported",
+                "answer_text": answer_text,
+                "evidence": [{"evidence_id": evidence_id, "quote": source_quote}],
+            }]})
+
+        app = create_app(AnswerService(retriever, self.generator),
+                         reference_date=REFERENCE_DATE, require_auth=False)
+        with TestClient(app) as client:
+            for part_text in (question, "  " + question + "  ", _answer_question_parts(question)[0]):
+                with self.subTest(part_text=part_text):
+                    self.generator.generate.return_value = response(part_text=part_text)
+                    result = client.post("/api/ai/ask", json={"question": question})
+                    self.assertEqual(result.status_code, 200)
+                    self.assertEqual(result.json()["status"], "answered")
+                    self.assertEqual([(citation["document_id"], citation["page_no"])
+                                      for citation in result.json()["citations"]], [(107, 1)])
+                    self.assertIn("January 4, 2027", result.json()["answer"])
+                    self.assertIn("January 8, 2027", result.json()["answer"])
+
+            rejected = (
+                (response(answer_text="Term A enrollment opens January 5, 2027."), "insufficient_evidence"),
+                (response(evidence_id="invented-evidence"), "unavailable"),
+                (response(source_quote="Enrollment opens January 4, 2027; and closes January 8, 2027."), "unavailable"),
+                (response(part_index=2), "unavailable"),
+                (response(answer_text="Term A enrollment opens January 4, 2027 and you are guaranteed admission."),
+                 "insufficient_evidence"),
+            )
+            for raw, expected_status in rejected:
+                with self.subTest(expected_status=expected_status, raw=raw):
+                    self.generator.generate.return_value = raw
+                    result = client.post("/api/ai/ask", json={"question": question})
+                    self.assertEqual(result.json()["status"], expected_status)
+                    self.assertEqual(result.json()["citations"], [])
 
 
 if __name__ == "__main__":
