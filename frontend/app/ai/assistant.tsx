@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
+import Link from "next/link";
 import {
-  parseAnswer,
   parseQuestion,
-  statusCodes,
   statusLabels,
   type Answer,
 } from "@/lib/ai-contract";
+import {
+  AI_INVALID_RESPONSE,
+  type AiFailure,
+  type AiFailureAction,
+} from "@/lib/ai-errors";
+import { requestAiAnswer } from "@/lib/ai-request";
+import { shouldSubmitOnEnter } from "@/lib/ai-composer";
+import { AiRequestLifecycle, type RequestLease } from "@/lib/ai-request-lifecycle";
 import CampusHeader from "../components/campus-header";
 import "../home.css";
 import styles from "./assistant.module.css";
@@ -18,6 +25,7 @@ type ChatEntry = {
   question: string;
   answer?: Answer;
   error?: string;
+  errorAction?: AiFailureAction;
 };
 type Conversation = {
   id: string;
@@ -27,6 +35,12 @@ type Conversation = {
 };
 
 const CATEGORIES: Category[] = ["News", "Scholarships", "Policies", "Events", "Documents", "Academics"];
+const SUGGESTED_QUESTIONS = [
+  "When does Term A enrollment open?",
+  "What GPA and unit minimum apply to Lakbay?",
+  "How do I request a transcript?",
+  "How much is tuition for 18 units before scholarships?",
+];
 const PLACEHOLDERS: Record<Category | "home", string> = {
   home: "Ask CampusPilot...",
   News: "Ask about campus news...",
@@ -66,17 +80,26 @@ export default function Assistant({
   const [category, setCategory] = useState<Category | null>(initialCategory);
   const [question, setQuestion] = useState("");
   const [pending, setPending] = useState(false);
+  const [slowRequest, setSlowRequest] = useState(false);
   const [error, setError] = useState("");
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const active = useRef<AbortController | null>(null);
+  const requestLifecycle = useRef(new AiRequestLifecycle());
+  const activeRequest = useRef<{
+    lease: RequestLease;
+    chatId: string;
+    entryId: string;
+  } | null>(null);
   const chatRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => () => active.current?.abort(), []);
+  useEffect(() => () => {
+    requestLifecycle.current.cancel();
+    activeRequest.current = null;
+  }, []);
 
 
   const current = conversations.find((chat) => chat.id === currentId) ?? null;
@@ -85,13 +108,47 @@ export default function Assistant({
     ? conversations.filter((chat) => chat.category === category)
     : conversations;
   const shown = showAll ? visibleConversations : visibleConversations.slice(0, 7);
+  const questionLength = Array.from(question).length;
+  const questionTooLong = questionLength > 2000;
+  const questionError = error || (questionTooLong ? "Questions must be no longer than 2,000 characters." : "");
+  const latestEntry = entries.at(-1);
+  const citationCount = latestEntry?.answer?.citations.length ?? 0;
+  const citationAnnouncement = citationCount === 0 ? "No source citations."
+    : citationCount === 1 ? "1 source citation."
+      : `${citationCount} source citations.`;
+  const liveAnnouncement = pending
+    ? slowRequest ? "This request is taking longer than usual." : "Processing your question."
+    : latestEntry?.answer
+      ? `${statusLabels[latestEntry.answer.status]}. ${citationAnnouncement}`
+      : "";
+
+  function updateEntry(chatId: string, entryId: string, update: Partial<ChatEntry>) {
+    setConversations((previous) => previous.map((chat) => chat.id === chatId ? {
+      ...chat,
+      entries: chat.entries.map((entry) => entry.id === entryId ? { ...entry, ...update } : entry),
+    } : chat));
+  }
+
+  function cancelActiveRequest(message?: string, action?: AiFailureAction) {
+    const request = activeRequest.current;
+    const lease = requestLifecycle.current.cancel();
+    if (!request || !lease || lease.id !== request.lease.id) return;
+
+    activeRequest.current = null;
+    setPending(false);
+    setSlowRequest(false);
+    if (message) updateEntry(request.chatId, request.entryId, { error: message, errorAction: action });
+  }
 
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [currentId, entries.length, pending]);
 
   function newChat() {
-    if (pending) return;
+    cancelActiveRequest(
+      "Waiting stopped because you started a new chat. The backend may still be processing; you can retry this question later.",
+      "retry",
+    );
     setCurrentId(null);
     setCategory(null);
     setQuestion("");
@@ -100,7 +157,10 @@ export default function Assistant({
   }
 
   function selectCategory(next: Category) {
-    if (pending) return;
+    cancelActiveRequest(
+      "Waiting stopped because you changed the selected category. The backend may still be processing; you can retry this question later.",
+      "retry",
+    );
     setCategory((previous) => previous === next ? null : next);
     setCurrentId(null);
     setError("");
@@ -110,23 +170,59 @@ export default function Assistant({
   function handleHeaderCategory(event: MouseEvent<HTMLAnchorElement>, next: Category | null) {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
     event.preventDefault();
-    if (pending || category === next) return;
+    if (category === next) return;
     if (next === null) newChat();
     else selectCategory(next);
   }
 
   function openConversation(chat: Conversation) {
-    if (pending) return;
+    cancelActiveRequest(
+      "Waiting stopped because you opened another conversation. The backend may still be processing; you can retry this question later.",
+      "retry",
+    );
     setCurrentId(chat.id);
     setCategory(chat.category);
     setError("");
   }
 
+  async function sendQuestion(chatId: string, entryId: string, submittedQuestion: string) {
+    const lease = requestLifecycle.current.begin();
+    if (!lease) return;
+
+    activeRequest.current = { lease, chatId, entryId };
+    setPending(true);
+    setSlowRequest(false);
+    setError("");
+    let result: Answer | null = null;
+    let failure: AiFailure | null = null;
+
+    try {
+      const outcome = await requestAiAnswer(submittedQuestion, lease, {
+        lifecycle: requestLifecycle.current,
+        onSlow: () => setSlowRequest(true),
+      });
+      if (outcome?.kind === "answer") result = outcome.answer;
+      else if (outcome?.kind === "failure") failure = outcome.failure;
+    } catch {
+      if (requestLifecycle.current.isCurrent(lease)) failure = AI_INVALID_RESPONSE;
+    } finally {
+      if (requestLifecycle.current.finish(lease)) {
+        activeRequest.current = null;
+        setPending(false);
+        setSlowRequest(false);
+        updateEntry(chatId, entryId, {
+          ...(result ? { answer: result, error: undefined, errorAction: undefined } : {}),
+          ...(failure ? { error: failure.message, errorAction: failure.action } : {}),
+        });
+      }
+    }
+  }
+
   async function ask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (active.current) return;
+    if (requestLifecycle.current.isBusy()) return;
+
     setError("");
-    // Validate the visible value too: browser restoration can bypass onChange.
     const submittedQuestion = inputRef.current?.value ?? question;
     setQuestion(submittedQuestion);
     const validated = parseQuestion({ question: submittedQuestion });
@@ -150,46 +246,29 @@ export default function Assistant({
       ));
     }
     setQuestion("");
+    await sendQuestion(chatId, entryId, validated);
+  }
 
-    const controller = new AbortController();
-    active.current = controller;
-    setPending(true);
-    const timer = setTimeout(() => controller.abort(), 30000);
-    let result: Answer | null = null;
-    let failure = "";
-    try {
-      const response = await fetch("/api/ai/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: validated }),
-        signal: controller.signal,
-      });
-      if (response.status === 422) {
-        failure = "The question could not be validated. Check its length and try again.";
-      } else {
-        const parsed = parseAnswer(await response.json());
-        if (!parsed || statusCodes[parsed.status] !== response.status) {
-          throw new Error("invalid_response");
-        }
-        result = parsed;
-      }
-    } catch {
-      failure = "We could not reach the AI service or read a valid response. Check that both demo servers are running, then try again.";
-    } finally {
-      clearTimeout(timer);
-      active.current = null;
-      setPending(false);
-      setConversations((previous) => previous.map((chat) => chat.id === chatId ? {
-        ...chat,
-        entries: chat.entries.map((entry) => entry.id === entryId
-          ? { ...entry, ...(result ? { answer: result } : {}), ...(failure ? { error: failure } : {}) }
-          : entry),
-      } : chat));
-    }
+  async function retryQuestion(chatId: string, entryId: string, originalQuestion: string) {
+    if (requestLifecycle.current.isBusy()) return;
+    updateEntry(chatId, entryId, { answer: undefined, error: undefined, errorAction: undefined });
+    await sendQuestion(chatId, entryId, originalQuestion);
+  }
+
+  function handleComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (!shouldSubmitOnEnter({
+      key: event.key,
+      shiftKey: event.shiftKey,
+      isComposing: event.nativeEvent.isComposing,
+      keyCode: event.nativeEvent.keyCode,
+      pending,
+    })) return;
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
   }
 
   return (
-    <div className={`page ${styles.mobileShell}`}>
+    <div className={`page ${styles.page} ${styles.mobileShell}`}>
       <CampusHeader
         active="ai"
         onAssistantClick={(event) => handleHeaderCategory(event, null)}
@@ -200,22 +279,28 @@ export default function Assistant({
           <div className="shead">
             <h2>Saved prompts</h2>
             <button type="button" className="filt" title="Filter by selected category"
+              aria-label={filterCategory ? "Show all conversations" : "Filter conversations by category"}
               aria-pressed={filterCategory} onClick={() => setFilterCategory((value) => !value)}>
               <Icon name="filter" />
             </button>
           </div>
-          <button type="button" className="newchat" onClick={newChat} disabled={pending}>
+          <button type="button" className="newchat" onClick={newChat}>
             <Icon name="plus" /> New chat
           </button>
           <ul id="saved">
             {shown.length === 0 && <li className="empty">No conversations yet. Ask something!</li>}
             {shown.map((chat) => <li key={chat.id} className={chat.id === currentId ? "sel" : ""}>
               <button type="button" className="qbtn" title={chat.title}
-                onClick={() => openConversation(chat)} disabled={pending}>
+                onClick={() => openConversation(chat)}>
                 <span>{chat.title}</span>
               </button>
               <button type="button" className="del" aria-label={`Delete ${chat.title}`}
-                disabled={pending} onClick={() => {
+                onClick={() => {
+                  if (activeRequest.current?.chatId === chat.id) {
+                    cancelActiveRequest(
+                      "Waiting stopped because this conversation was deleted. The backend may still be processing.",
+                    );
+                  }
                   setConversations((previous) => previous.filter((item) => item.id !== chat.id));
                   if (currentId === chat.id) setCurrentId(null);
                 }}>×</button>
@@ -224,7 +309,7 @@ export default function Assistant({
           <div className="sfoot">
             {visibleConversations.length > 7 && <button type="button" className="link"
               onClick={() => setShowAll((value) => !value)}>{showAll ? "Show less" : "View all"}</button>}
-            <button type="button" className="link" disabled={pending || conversations.length === 0}
+            <button type="button" className="link" disabled={conversations.length === 0}
               onClick={() => setConfirmOpen(true)}>Clear</button>
           </div>
         </aside>
@@ -238,7 +323,6 @@ export default function Assistant({
                 className="cat"
                 aria-pressed={category === item}
                 onClick={() => selectCategory(item)}
-                disabled={pending}
               >
                 <Icon name={item} /> {item}
               </button>
@@ -248,16 +332,24 @@ export default function Assistant({
             {entries.length === 0 && <div className="stage">
               <h2 className="news-heading">CampusPilot AI Assistant</h2>
               <p style={{ textAlign: "center", margin: "12px auto", maxWidth: 540 }}>
-                Ask a question. Explore the evidence. Select a category above to focus your prompt.
+                Ask a question and explore the evidence. Categories help frame your prompt; they do not filter the backend sources.
               </p>
+              <div className={styles.suggestions} role="group" aria-label="Suggested questions">
+                {SUGGESTED_QUESTIONS.map((suggestion) => (
+                  <button key={suggestion} type="button" onClick={() => {
+                    setQuestion(suggestion);
+                    inputRef.current?.focus();
+                  }}>{suggestion}</button>
+                ))}
+              </div>
               <aside className={styles.notice}>
                 <strong>Fictional data only.</strong> This academic demonstration does not provide
                 official university advice. Do not enter private student information. A successful
                 answer requires a configured provider; the assistant may safely decline when evidence is missing.
               </aside>
             </div>}
-            {category && <div className="cathead"><h2>{category}</h2><p>Ask about {category.toLowerCase()} using available evidence.</p></div>}
-            <div className={`chat${entries.length ? " on" : ""}`} ref={chatRef} aria-live="polite">
+            {category && <div className="cathead"><h2>{category}</h2><p>Use this category to frame your prompt. The backend uses its available public evidence.</p></div>}
+            <div className={`chat${entries.length ? " on" : ""}`} ref={chatRef} aria-live="off" aria-busy={pending}>
               {entries.map((entry) => <div key={entry.id} style={{ display: "flex", flexDirection: "column" }}>
                 <div className="msg me">{entry.question}</div>
                 {entry.answer && <div className="msg">
@@ -272,30 +364,53 @@ export default function Assistant({
                     </li>)}</ol>
                     <p className={styles.hint}>Source references are fictional identifiers, not links. Matching a quotation does not prove that it fully answers your question.</p>
                   </div>}
+                  {entry.answer.status === "unavailable" && <button type="button" className={styles.retry}
+                    disabled={pending} onClick={() => void retryQuestion(currentId ?? "", entry.id, entry.question)}>
+                    Retry this question
+                  </button>}
                 </div>}
-                {entry.error && <div className="msg" role="alert"><p className={styles.error}>{entry.error}</p></div>}
+                {entry.error && <div className="msg" role="alert">
+                  <p className={styles.error}>{entry.error}</p>
+                  {entry.errorAction === "signIn" && <Link className={styles.retry} href="/login">Sign in again</Link>}
+                  {entry.errorAction === "retry" && <button type="button" className={styles.retry}
+                    disabled={pending} onClick={() => void retryQuestion(currentId ?? "", entry.id, entry.question)}>
+                    Try again
+                  </button>}
+                </div>}
               </div>)}
-              {pending && <div className="msg" role="status">Retrieving fictional sources and checking the response…</div>}
+              {pending && <div className={`msg ${styles.pending}`}>
+                <span>{slowRequest ? "This is taking longer than usual. Please keep waiting or stop waiting." : "Processing your question…"}</span>
+                <button type="button" className={styles.stop} onClick={() => cancelActiveRequest(
+                  "Waiting stopped. The backend may still be processing; you can retry this question manually.", "retry",
+                )}>Stop waiting</button>
+              </div>}
             </div>
-            {error && <p className={styles.error} role="alert">{error}</p>}
+            {questionError && <p id="question-error" className={styles.error} role="alert">{questionError}</p>}
             <form className="ask" onSubmit={ask} noValidate>
-              <input ref={inputRef} id="question" name="question" type="text"
+              <textarea ref={inputRef} id="question" name="question" rows={1}
                 placeholder={PLACEHOLDERS[category ?? "home"]}
-                aria-label="Your university question" aria-describedby="question-help"
-                aria-invalid={Boolean(error)} autoComplete="off" maxLength={2000}
+                aria-label="Your university question"
+                aria-describedby={questionError ? "question-help question-error" : "question-help"}
+                aria-invalid={Boolean(questionError)} autoComplete="off"
                 value={question} disabled={pending}
-                onInput={(event) => setQuestion(event.currentTarget.value)}
-                onFocus={(event) => setQuestion(event.currentTarget.value)}
-                onChange={(event) => setQuestion(event.target.value)} />
+                onChange={(event) => {
+                  setQuestion(event.target.value);
+                  if (error) setError("");
+                }}
+                onKeyDown={handleComposerKeyDown} />
               <button type="submit" aria-label="Ask CampusPilot" disabled={pending || !parseQuestion({ question })}>
                 <Icon name="send" size={20} />
               </button>
             </form>
             <p id="question-help" className={styles.hint}>
-              {Array.from(question).length.toLocaleString()} / 2,000 characters · Try enrollment or a scholarship GPA question to test missing evidence.
+              {questionLength.toLocaleString()} / 2,000 characters · Enter to send, Shift+Enter for a new line.
             </p>
           </section>
         </main>
+      </div>
+
+      <div className={styles.srOnly} role="status" aria-live="polite" aria-atomic="true">
+        {liveAnnouncement}
       </div>
 
       <div className={`modal-overlay${confirmOpen ? " open" : ""}`}
@@ -307,6 +422,7 @@ export default function Assistant({
           <div className="modal-actions">
             <button type="button" className="mbtn mbtn-cancel" onClick={() => setConfirmOpen(false)}>Cancel</button>
             <button type="button" className="mbtn mbtn-danger" onClick={() => {
+              cancelActiveRequest("Waiting stopped because the conversation history was cleared.");
               setConversations([]); setCurrentId(null); setConfirmOpen(false);
             }}>Clear history</button>
           </div>

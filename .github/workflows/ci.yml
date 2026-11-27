@@ -60,7 +60,7 @@ jobs:
 
       - name: Run frontend tests
         working-directory: frontend
-        run: node --test tests/ai-proxy.test.mjs
+        run: node --test tests/ai-proxy.test.mjs tests/assistant-reliability.test.mjs
 
       - name: Build frontend
         working-directory: frontend

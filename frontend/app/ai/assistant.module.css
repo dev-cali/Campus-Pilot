@@ -108,10 +108,25 @@
 .actions button { border:0; border-radius:10px; background:var(--active); color:#fff; padding:10px 16px; font-weight:700; cursor:pointer; }
 .actions button:disabled { opacity:.55; cursor:not-allowed; }
 .hint { color:#047857; font-size:12px; line-height:1.5; }
-.answer { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.6; }
+.answer { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.65; }
 .sources { margin-top:16px; border-top:1px solid var(--line); padding-top:12px; }
 .reference { overflow-wrap:anywhere; color:#047857; }
 .error { padding:12px 14px; border:1px solid #fca5a5; background:#fef2f2; color:#991b1b; border-radius:10px; }
+
+/* Keep the conversation as the sole scrolling region so the composer remains visible. */
+.page :global(.main) { min-height:0; overflow:hidden; }
+.page :global(.stage) { min-height:0; overflow-x:hidden; overflow-y:auto; }
+.page :global(.chat) { min-height:0; max-height:none; overscroll-behavior:contain; scroll-padding-block-end:16px; }
+.suggestions { width:min(100%, 760px); display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:4px auto 14px; }
+.suggestions button { min-height:44px; max-width:100%; border:1px solid var(--line); border-radius:12px; padding:9px 12px; background:#fff; color:#064e3b; font-size:13px; font-weight:650; text-align:left; overflow-wrap:anywhere; cursor:pointer; }
+.suggestions button:hover { background:#f0fdf4; border-color:#10b981; }
+.pending { width:min(100%, 680px); max-width:100% !important; align-self:center !important; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.stop, .retry { min-height:40px; border:1px solid #047857; border-radius:10px; padding:8px 12px; background:#fff; color:#065f46; font-size:13px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
+.stop:hover, .retry:hover { background:#dcfce7; }
+.stop:disabled, .retry:disabled { opacity:.55; cursor:not-allowed; }
+.sources .retry { margin-top:10px; }
+.msg .retry { margin-top:4px; }
+.srOnly { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0, 0, 0, 0); white-space:nowrap; border:0; }
 
 /* Dialogs / confirmation overlays */
 .page :global(.modal-overlay), .page :global(.modal-backdrop) { position:fixed; inset:0; z-index:500; background:rgba(5,32,20,.55); display:grid; place-items:center; padding:20px; }
@@ -125,7 +140,7 @@
   .page :global(.brand) { font-size:21px; }
   .page :global(.layout) { flex-direction:column; }
   .page :global(.savedpanel) { width:100%; max-height:280px; }
-  .page :global(.chat), .page :global(.chatbox), .page :global(.chat-box) { min-height:420px; }
+  .page :global(.chat), .page :global(.chatbox), .page :global(.chat-box) { min-height:0; }
 }
 @media (max-width: 600px) {
   .page { padding:10px 10px 20px; gap:10px; }
@@ -134,7 +149,7 @@
   .page :global(.nav-bar) { order:3; flex-basis:100%; width:100%; }
   .page :global(.home-btn), .page :global(.cat) { font-size:12px; padding:7px 9px; }
   .page :global(.savedpanel) { border-radius:14px; padding:12px; }
-  .page :global(.chat), .page :global(.chatbox), .page :global(.chat-box) { padding:14px; border-radius:14px; min-height:350px; }
+  .page :global(.chat), .page :global(.chatbox), .page :global(.chat-box) { padding:14px; border-radius:14px; min-height:0; }
   .page :global(.msg), .page :global(.message) { max-width:96%; font-size:13px; padding:11px 12px; }
   .card { padding:14px; }
 }
@@ -185,6 +200,12 @@
     overflow-wrap: anywhere;
   }
 
+  .suggestions { align-items:stretch; }
+  .suggestions button { width:100%; }
+
+  .pending { align-items:stretch; }
+  .stop, .retry { min-height:44px; }
+
   .mobileShell :global(.ask) {
     min-width: 0;
     gap: 6px;
@@ -195,6 +216,15 @@
     flex: 1 1 0%;
     min-width: 0;
     font-size: 16px;
+  }
+
+  .mobileShell :global(.ask textarea) {
+    flex:1 1 0%;
+    min-width:0;
+    min-height:40px;
+    max-height:120px;
+    resize:vertical;
+    font-size:16px;
   }
 
   .mobileShell :global(.ask button) {
