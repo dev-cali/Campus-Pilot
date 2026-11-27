@@ -3,27 +3,194 @@
 import Link from "next/link";
 import { useState } from "react";
 import CampusHeader from "../components/campus-header";
+import PortalCardGrid, { type PortalItem } from "../components/portal-card-grid";
 import styles from "./academics.module.css";
 
 const categories = ["All", "Academic Calendar", "Enrollment", "Academic Programs", "Academic Support"] as const;
 type Category = (typeof categories)[number];
 
-type AcademicTopic = {
-  id: string;
-  category: Exclude<Category, "All">;
-  title: string;
-  summary: string;
-  focus: string;
-};
-
-// Sample topics only; no official dates, requirements, or programs are asserted.
-const topics: AcademicTopic[] = [
-  { id: "calendar", category: "Academic Calendar", title: "Academic calendar", summary: "Explore semester schedules and important academic dates.", focus: "Official term dates, examination periods and holidays." },
-  { id: "enrollment", category: "Enrollment", title: "Enrollment and registration", summary: "Find information about enrolling and registering for classes.", focus: "Enrollment periods, registration steps and official requirements." },
-  { id: "subjects", category: "Academic Programs", title: "Programs and curriculum", summary: "Explore academic programs and curriculum information.", focus: "Approved program offerings, course descriptions and curriculum guides." },
-  { id: "grades", category: "Academic Support", title: "Grades and academic standing", summary: "Explore grading and academic progress information.", focus: "Official grading system and academic standing requirements." },
-  { id: "advising", category: "Academic Support", title: "Academic advising", summary: "Find information about academic guidance and learning support.", focus: "Advising services, contacts and appointment procedures." },
-  { id: "graduation", category: "Academic Calendar", title: "Graduation information", summary: "Explore graduation schedules and preparation topics.", focus: "Official graduation dates, eligibility and application procedures." },
+// Fictional frontend-only demonstration information.
+const topics: (PortalItem & { category: Exclude<Category, "All"> })[] = [
+  {
+    "id": "calendar",
+    "category": "Academic Calendar",
+    "title": "Academic Calendar",
+    "summary": "Explore a sample second-semester schedule.",
+    "icon": "academic",
+    "details": "The fictional calendar organizes enrollment, classes and assessment periods.",
+    "facts": [
+      {
+        "label": "Enrollment",
+        "value": "Jan 4–15, 2027"
+      },
+      {
+        "label": "Classes begin",
+        "value": "Jan 18, 2027"
+      },
+      {
+        "label": "Midterms",
+        "value": "Mar 8–12, 2027"
+      },
+      {
+        "label": "Finals",
+        "value": "May 17–21, 2027"
+      }
+    ],
+    "nextSteps": [
+      "Review sample dates when planning an example schedule.",
+      "Verify real dates with the official calendar."
+    ]
+  },
+  {
+    "id": "enrollment",
+    "category": "Enrollment",
+    "title": "Enrollment and Registration",
+    "summary": "Sample steps for choosing and registering subjects.",
+    "icon": "academic",
+    "details": "The fictional registration workflow includes advising, subject selection and confirmation.",
+    "facts": [
+      {
+        "label": "Window",
+        "value": "Jan 4–15, 2027"
+      },
+      {
+        "label": "Office",
+        "value": "Demo Registrar"
+      },
+      {
+        "label": "Sample hours",
+        "value": "8 AM–5 PM"
+      },
+      {
+        "label": "Audience",
+        "value": "Continuing students"
+      }
+    ],
+    "nextSteps": [
+      "Prepare sample previous-term grades.",
+      "Review a proposed course load with an adviser."
+    ]
+  },
+  {
+    "id": "subjects",
+    "category": "Academic Programs",
+    "title": "Programs and Curriculum",
+    "summary": "Explore an example computing curriculum.",
+    "icon": "academic",
+    "details": "This fictional four-year program includes programming, databases, systems and a capstone project.",
+    "facts": [
+      {
+        "label": "Example program",
+        "value": "BS Computer Science"
+      },
+      {
+        "label": "Duration",
+        "value": "4 years (sample)"
+      },
+      {
+        "label": "Sample subjects",
+        "value": "Programming, algorithms, databases"
+      },
+      {
+        "label": "Office",
+        "value": "Demo College of Computing"
+      }
+    ],
+    "nextSteps": [
+      "Review the example curriculum sequence.",
+      "Confirm approved program offerings independently."
+    ]
+  },
+  {
+    "id": "grades",
+    "category": "Academic Support",
+    "title": "Grades and Academic Standing",
+    "summary": "Illustrative information about academic progress.",
+    "icon": "academic",
+    "details": "The sample advising process reviews course results and identifies areas for learning support.",
+    "facts": [
+      {
+        "label": "Sample grading scale",
+        "value": "1.00–5.00"
+      },
+      {
+        "label": "Review",
+        "value": "End of each term"
+      },
+      {
+        "label": "Office",
+        "value": "Demo Academic Affairs"
+      },
+      {
+        "label": "Status",
+        "value": "Illustrative criteria only"
+      }
+    ],
+    "nextSteps": [
+      "Review a fictional grade report.",
+      "Discuss learning goals with an actual adviser."
+    ]
+  },
+  {
+    "id": "advising",
+    "category": "Academic Support",
+    "title": "Academic Advising",
+    "summary": "Sample guidance for course and study planning.",
+    "icon": "academic",
+    "details": "This fictional service includes individual consultations about academic workload and study strategies.",
+    "facts": [
+      {
+        "label": "Window",
+        "value": "Feb 1–5, 2027"
+      },
+      {
+        "label": "Session",
+        "value": "20 minutes (sample)"
+      },
+      {
+        "label": "Venue",
+        "value": "Demo Advising Hub"
+      },
+      {
+        "label": "Audience",
+        "value": "All year levels"
+      }
+    ],
+    "nextSteps": [
+      "List sample course questions.",
+      "Review your example learning goals."
+    ]
+  },
+  {
+    "id": "graduation",
+    "category": "Academic Calendar",
+    "title": "Graduation Preparation",
+    "summary": "Explore an illustrative graduation checklist.",
+    "icon": "academic",
+    "details": "The example process includes academic review, clearance and a rehearsal briefing.",
+    "facts": [
+      {
+        "label": "Sample ceremony",
+        "value": "Jun 18, 2027"
+      },
+      {
+        "label": "Application window",
+        "value": "Apr 5–16, 2027"
+      },
+      {
+        "label": "Office",
+        "value": "Demo Registrar"
+      },
+      {
+        "label": "Venue",
+        "value": "Demo Auditorium"
+      }
+    ],
+    "nextSteps": [
+      "Review sample curriculum completion.",
+      "Confirm real graduation requirements separately."
+    ]
+  }
 ];
 
 export default function AcademicsPage() {
@@ -32,7 +199,7 @@ export default function AcademicsPage() {
   const normalizedQuery = query.trim().toLowerCase();
   const results = topics.filter((item) =>
     (category === "All" || item.category === category) &&
-    `${item.title} ${item.category} ${item.summary} ${item.focus}`.toLowerCase().includes(normalizedQuery)
+    [item.title, item.category, item.summary, item.details, item.metadata, ...item.facts.flatMap((fact) => [fact.label, fact.value]), ...(item.nextSteps ?? [])].join(" ").toLowerCase().includes(normalizedQuery)
   );
 
   function resetFilters() {
@@ -51,14 +218,18 @@ export default function AcademicsPage() {
             <h1 id="academics-title">Academics</h1>
             <p>Explore academic calendars, enrollment information, academic programs, and student learning resources.</p>
           </div>
-          <section className={styles.featured} aria-labelledby="featured-title">
-            <span className={styles.preview}>FRONTEND PREVIEW</span>
+          <section className={styles.featured} aria-labelledby="featured-title" style={{ backgroundImage: "linear-gradient(90deg, rgba(5,39,29,.96), rgba(5,39,29,.82) 48%, rgba(5,39,29,.32)), url('/images/important-notices.jpg')" }}>
+            <span className={styles.preview}>FICTIONAL CAMPUS DEMO</span>
             <h2 id="featured-title">Plan your academic journey</h2>
-            <p>Explore sample academic topics below. Official schedules, program information, and requirements will appear once approved campus resources are connected.</p>
-            <a href="#academic-list" className={styles.featuredLink}>Browse academic topics ↓</a>
+            <p>Explore realistic fictional examples with detailed information. These are not official university resources or active offers.</p>
+            <a href="#academic-list" className={styles.featuredLink}>Browse academic resources ↓</a>
           </section>
           <section id="academic-list" className={styles.listSection} aria-labelledby="list-title">
-            <h2 id="list-title">Browse academic resources</h2>
+            <header className={styles.sectionHeading}>
+              <p className={styles.eyebrow}>EXPLORE CAMPUS RESOURCES</p>
+              <h2 id="list-title">Plan your academic journey</h2>
+              <p>Choose any card for its full fictional details. Not official campus information.</p>
+            </header>
             <label htmlFor="academic-search" className={styles.searchLabel}>Search academic resources</label>
             <div className={styles.searchRow}>
               <input id="academic-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by keyword..." className={styles.search} />
@@ -69,7 +240,7 @@ export default function AcademicsPage() {
                 <button type="button" key={item} className={styles.filter} aria-pressed={category === item} onClick={() => setCategory(item)}>{item}</button>
               ))}
             </div>
-            <p className={styles.count} role="status">{results.length} {results.length === 1 ? "topic" : "topics"} · Preview only</p>
+            <p className={styles.count} role="status">{results.length} {results.length === 1 ? "topic" : "topics"} · Fictional demo information</p>
             {results.length === 0 ? (
               <div className={styles.empty}>
                 <h3>No matching academic topics</h3>
@@ -77,33 +248,12 @@ export default function AcademicsPage() {
                 <button type="button" className={styles.reset} onClick={resetFilters}>Clear filters</button>
               </div>
             ) : (
-              <div className={styles.grid}>
-                {results.map((item) => (
-                  <article key={item.id} className={styles.article}>
-                    <span className={styles.category}>{item.category} · Preview</span>
-                    <h3>{item.title}</h3>
-                    <p>{item.summary}</p>
-                    <div className={styles.availability}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v5h4M9 13h6M9 17h6"/></svg>
-                      <span>Official information not connected</span>
-                    </div>
-                    <details className={styles.details}>
-                      <summary>View details</summary>
-                      <dl>
-                        <dt>Information to be provided</dt><dd>{item.focus}</dd>
-                        <dt>Responsible office</dt><dd>Not yet verified.</dd>
-                        <dt>Dates and requirements</dt><dd>Not yet verified.</dd>
-                        <dt>Official resource</dt><dd>No official resource link is connected yet.</dd>
-                      </dl>
-                    </details>
-                  </article>
-                ))}
-              </div>
+              <PortalCardGrid items={results} />
             )}
           </section>
         </section>
       </main>
-      <footer className={styles.footer}>CampusPilot · Portal preview</footer>
+      <footer className={styles.footer}>CampusPilot · Fictional portal demo · Not official campus information</footer>
     </div>
   );
 }
