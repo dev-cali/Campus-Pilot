@@ -41,10 +41,24 @@ async function limitedText(
 }
 
 export async function POST(request: Request) {
-  // Verify Supabase authentication before processing questions.
+  // Obtain the access token, then verify that exact token before forwarding it.
+  let accessToken: string;
+
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.getClaims();
+    const { data: sessionData, error: sessionError } =
+      await supabase.auth.getSession();
+
+    const token = sessionData.session?.access_token;
+
+    if (sessionError || !token) {
+      return json(
+        { detail: "Authentication required. Please sign in." },
+        401
+      );
+    }
+
+    const { data, error } = await supabase.auth.getClaims(token);
 
     if (
       error ||
@@ -57,6 +71,7 @@ export async function POST(request: Request) {
         401
       );
     }
+    accessToken = token;
   } catch {
     return json(
       { detail: "Authentication service is unavailable." },
@@ -110,7 +125,7 @@ export async function POST(request: Request) {
 
   if (!question) {
     return json(
-      { detail: "Enter a question of 1–2,000 characters." },
+      { detail: "Enter a question of 1-2,000 characters." },
       422
     );
   }
@@ -157,22 +172,23 @@ export async function POST(request: Request) {
       headers: {
         "Content-Type": "application/json",
         "X-AI-Demo-Secret": sharedSecret,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ question }),
       cache: "no-store",
       redirect: "error",
       signal: controller.signal,
     });
-if (upstream.status === 429) {
-  await upstream.body?.cancel();
+    if (upstream.status === 429) {
+      await upstream.body?.cancel();
 
-  return json(
-    {
-      detail: "AI demo request limit reached. Please try again later.",
-    },
-    429
-  );
-}
+      return json(
+        {
+          detail: "AI demo request limit reached. Please try again later.",
+        },
+        429
+      );
+    }
 
     // Sanitize backend authentication failures.
     if (upstream.status === 401) {

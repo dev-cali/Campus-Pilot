@@ -13,11 +13,11 @@ type FeatureLink = {
   icon: FeatureIconName;
 };
 
-const publicFeatures: FeatureLink[] = [
+const quickAccessFeatures: FeatureLink[] = [
   {
     label: "News & Announcements",
-    description: "Check the public campus updates area.",
-    href: "#announcements",
+    description: "Browse campus news and announcements.",
+    href: "/news",
     icon: "news",
   },
   {
@@ -28,13 +28,13 @@ const publicFeatures: FeatureLink[] = [
   },
   {
     label: "Policies",
-    description: "Explore policy information through the AI Assistant.",
-    href: "/ai?category=Policies",
+    description: "Browse campus policy topics and resources.",
+    href: "/policies",
     icon: "policy",
   },
 ];
 
-const protectedFeatures: FeatureLink[] = [
+const additionalFeatures: FeatureLink[] = [
   {
     label: "Scholarships",
     description: "Scholarship opportunities and requirements.",
@@ -94,10 +94,6 @@ function FeatureIcon({ name }: { name: FeatureIconName }) {
   return <svg {...common}>{shapes[name]}</svg>;
 }
 
-function protectedHref(path: string) {
-  return `/login?next=${encodeURIComponent(path)}`;
-}
-
 export default function HomeDashboard() {
   return (
     <div className={`page ${styles.page}`}>
@@ -110,15 +106,15 @@ export default function HomeDashboard() {
           </div>
 
           <nav className={styles.featureNav} aria-label="Campus features">
-            {publicFeatures.map((feature) => (
-              <Link href={feature.href} className={styles.featureNavLink} key={feature.label}>
+            {quickAccessFeatures.map((feature) => (
+              <Link href={feature.href} prefetch={feature.href === "/ai" ? false : undefined} className={styles.featureNavLink} key={feature.label}>
                 <FeatureIcon name={feature.icon} />
                 <span>{feature.label}</span>
               </Link>
             ))}
-            {protectedFeatures.map((feature) => (
+            {additionalFeatures.map((feature) => (
               <Link
-                href={protectedHref(feature.href)}
+                href={feature.href}
                 className={styles.featureNavLink}
                 key={feature.label}
               >
@@ -162,13 +158,13 @@ export default function HomeDashboard() {
               <div className={styles.sectionHeading}>
                 <div>
                   <p className={styles.eyebrow}>GET STARTED</p>
-                  <h2 id="quick-access-title">Public features</h2>
+                  <h2 id="quick-access-title">Quick Access</h2>
                 </div>
               </div>
 
               <div className={styles.quickAccessGrid}>
-                {publicFeatures.map((feature) => (
-                  <Link href={feature.href} className={styles.quickAccessCard} key={feature.label}>
+                {quickAccessFeatures.map((feature) => (
+                  <Link href={feature.href} prefetch={feature.href === "/ai" ? false : undefined} className={styles.quickAccessCard} key={feature.label}>
                     <span className={styles.quickAccessIcon}><FeatureIcon name={feature.icon} /></span>
                     <span className={styles.quickAccessText}>
                       <strong>{feature.label}</strong>
